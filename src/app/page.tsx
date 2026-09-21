@@ -78,22 +78,21 @@ export default async function Home() {
             backgroundSize: "28px 28px",
           }}
         />
-        <div className="relative mx-auto flex w-full max-w-4xl flex-col items-center gap-8 px-4 py-16 text-center sm:px-8 sm:py-20">
-          <span className="flex h-px w-12 bg-gold-500/60" />
-          <div>
-            <h1 className="font-serif text-4xl text-white sm:text-5xl">{company.name}</h1>
-            <p className="mt-3 text-xs uppercase tracking-[0.25em] text-gold-400/90">
+        <div className="relative mx-auto flex w-full max-w-4xl flex-col items-center gap-3 px-4 py-6 text-center sm:flex-row sm:justify-between sm:px-8 sm:py-7">
+          <div className="sm:text-left">
+            <h1 className="font-serif text-xl text-white sm:text-2xl">{company.name}</h1>
+            <p className="text-[10px] uppercase tracking-[0.2em] text-gold-400/90">
               {dict.home.tagline}
             </p>
           </div>
 
-          <div className="mt-4 grid w-full grid-cols-3 gap-3 border-t border-gold-500/15 pt-8 sm:gap-8">
+          <div className="flex items-center gap-5 sm:gap-6">
             {stats.map((stat) => (
-              <div key={stat.label} className="flex flex-col items-center gap-1.5">
-                <span className="font-serif text-3xl text-gold-400 sm:text-4xl">
+              <div key={stat.label} className="flex flex-col items-center gap-0.5">
+                <span className="font-serif text-lg text-gold-400 sm:text-xl">
                   {stat.value}
                 </span>
-                <span className="px-1 text-[10px] font-medium uppercase tracking-widest text-zinc-400">
+                <span className="text-[9px] font-medium uppercase tracking-wider text-zinc-400">
                   {stat.label}
                 </span>
               </div>
@@ -102,21 +101,21 @@ export default async function Home() {
         </div>
       </div>
 
-      <div className="mx-auto w-full max-w-4xl px-4 py-14 sm:px-8">
+      <div className="mx-auto w-full max-w-4xl px-4 py-10 sm:px-8 sm:py-16">
         <div className="grid grid-cols-1 gap-px overflow-hidden rounded-xl border border-zinc-200 bg-zinc-200 dark:border-zinc-800 dark:bg-zinc-800 sm:grid-cols-3">
           {sections.map((section) => (
             <Link
               key={section.href}
               href={section.href}
-              className="group relative flex flex-col gap-4 bg-white p-7 transition hover:bg-ink dark:bg-zinc-950 dark:hover:bg-ink"
+              className="group relative flex flex-col gap-5 bg-white p-8 transition hover:bg-ink dark:bg-zinc-950 dark:hover:bg-ink sm:p-9"
             >
-              <span className="flex h-10 w-10 items-center justify-center rounded-full border border-zinc-300 text-zinc-500 transition group-hover:border-gold-500/60 group-hover:text-gold-400 dark:border-zinc-700 dark:text-zinc-400">
-                <svg viewBox="0 0 24 24" fill="none" className="h-4.5 w-4.5">
+              <span className="flex h-12 w-12 items-center justify-center rounded-full border border-zinc-300 text-zinc-500 transition group-hover:border-gold-500/60 group-hover:text-gold-400 dark:border-zinc-700 dark:text-zinc-400">
+                <svg viewBox="0 0 24 24" fill="none" className="h-5 w-5">
                   {section.icon}
                 </svg>
               </span>
               <div>
-                <p className="font-serif text-lg text-zinc-900 transition group-hover:text-white dark:text-zinc-50">
+                <p className="font-serif text-xl text-zinc-900 transition group-hover:text-white dark:text-zinc-50">
                   {section.title}
                 </p>
                 <p className="mt-1.5 text-sm text-zinc-500 transition group-hover:text-zinc-400 dark:text-zinc-400">
