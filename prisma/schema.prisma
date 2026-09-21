@@ -1,0 +1,112 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum SubscriptionStatus {
+  TRIALING
+  ACTIVE
+  PAST_DUE
+  CANCELED
+}
+
+enum CarStatus {
+  ACTIVE
+  MAINTENANCE
+  RETIRED
+}
+
+enum ContractStatus {
+  ACTIVE
+  COMPLETED
+  CANCELED
+}
+
+model Company {
+  id                 String             @id @default(cuid())
+  name               String
+  subscriptionStatus SubscriptionStatus @default(TRIALING)
+  stripeCustomerId   String?            @unique
+  createdAt          DateTime           @default(now())
+  updatedAt          DateTime           @updatedAt
+
+  users     User[]
+  cars      Car[]
+  clients   Client[]
+  contracts Contract[]
+}
+
+model User {
+  id           String   @id @default(cuid())
+  companyId    String
+  email        String   @unique
+  passwordHash String
+  name         String
+  createdAt    DateTime @default(now())
+
+  company Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  @@index([companyId])
+}
+
+model Car {
+  id        String    @id @default(cuid())
+  companyId String
+  plate     String
+  make      String
+  model     String
+  year      Int
+  status    CarStatus @default(ACTIVE)
+  createdAt DateTime  @default(now())
+
+  company   Company    @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  contracts Contract[]
+
+  @@unique([companyId, plate])
+  @@index([companyId])
+}
+
+model Client {
+  id         String   @id @default(cuid())
+  companyId  String
+  firstName  String
+  lastName   String
+  nationalId String?
+  passportNo String?
+  phone      String?
+  address    String?
+  createdAt  DateTime @default(now())
+
+  company   Company    @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  contracts Contract[]
+
+  @@index([companyId])
+  @@index([companyId, firstName, lastName])
+}
+
+model Contract {
+  id         String         @id @default(cuid())
+  companyId  String
+  clientId   String
+  carId      String
+  startDate  DateTime       @db.Date
+  endDate    DateTime       @db.Date
+  dailyPrice Decimal        @db.Decimal(10, 2)
+  totalPrice Decimal        @db.Decimal(10, 2)
+  status     ContractStatus @default(ACTIVE)
+  createdAt  DateTime       @default(now())
+
+  company Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  client  Client  @relation(fields: [clientId], references: [id])
+  car     Car     @relation(fields: [carId], references: [id])
+
+  @@index([companyId])
+  @@index([carId, startDate, endDate])
+}
