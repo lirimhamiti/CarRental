@@ -45,7 +45,8 @@ export default async function CarsPage() {
               {dict.cars.empty}
             </p>
           ) : (
-            <table className="w-full text-left text-sm">
+            <div className="overflow-x-auto [-webkit-overflow-scrolling:touch]">
+              <table className="w-full min-w-[640px] text-left text-sm">
               <thead>
                 <tr className="border-b border-zinc-200 text-xs uppercase tracking-wide text-zinc-500 dark:border-zinc-800 dark:text-zinc-400">
                   <th className="px-6 py-3 font-medium">{dict.cars.table.car}</th>
@@ -120,9 +121,15 @@ export default async function CarsPage() {
                   );
                 })}
               </tbody>
-            </table>
+              </table>
+            </div>
           )}
         </div>
+        {cars.length > 0 && (
+          <p className="text-center text-xs text-zinc-400 sm:hidden">
+            {dict.cars.swipeHint}
+          </p>
+        )}
       </div>
     </main>
   );

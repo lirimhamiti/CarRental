@@ -37,6 +37,7 @@ const mk: typeof en = {
       status: "Статус",
       availability: "Достапност",
     },
+    swipeHint: "← Лизгајте налево за повеќе →",
     freeNow: "Слободно сега",
     rentedUntil: "Изнајмено до {date}",
     status: {

@@ -37,6 +37,7 @@ const sq: typeof en = {
       status: "Statusi",
       availability: "Disponueshmëria",
     },
+    swipeHint: "← Rrëshqit majtas për më shumë →",
     freeNow: "E lirë tani",
     rentedUntil: "Me qira deri më {date}",
     status: {

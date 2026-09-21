@@ -35,6 +35,7 @@ const en = {
       status: "Status",
       availability: "Availability",
     },
+    swipeHint: "← Swipe left to see more →",
     freeNow: "Free now",
     rentedUntil: "Rented until {date}",
     status: {
