@@ -2,6 +2,10 @@ const en = {
   brand: "Car Rental",
   common: {
     home: "← Home",
+    monthsShort: [
+      "Jan", "Feb", "Mar", "Apr", "May", "Jun",
+      "Jul", "Aug", "Sep", "Oct", "Nov", "Dec",
+    ],
   },
   home: {
     tagline: "Fleet & rental management",
@@ -122,8 +126,29 @@ const en = {
     },
   },
   reports: {
+    eyebrow: "Analytics",
     title: "Reports",
-    placeholder: "Income per car, last 6 months, goes here.",
+    car: "Car",
+    allCars: "All cars",
+    period: "Period",
+    periodOptions: {
+      lastMonth: "Last month",
+      last3Months: "Last 3 months",
+      last6Months: "Last 6 months",
+      lastYear: "Last year",
+    },
+    check: "Check",
+    checking: "Checking…",
+    noData: "No contracts in this period.",
+    summary: {
+      totalIncome: "Total income",
+      contracts: "Contracts",
+      averagePerContract: "Average per contract",
+    },
+    charts: {
+      byMonth: "Income by month",
+      byCar: "Income by car",
+    },
   },
 };
 

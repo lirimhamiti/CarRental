@@ -4,6 +4,10 @@ const sq: typeof en = {
   brand: "Qira Makinash",
   common: {
     home: "← Ballina",
+    monthsShort: [
+      "Jan", "Shk", "Mar", "Pri", "Maj", "Qer",
+      "Korr", "Gush", "Sht", "Tet", "Nën", "Dhj",
+    ],
   },
   home: {
     tagline: "Menaxhimi i flotës dhe qirasë",
@@ -124,8 +128,29 @@ const sq: typeof en = {
     },
   },
   reports: {
+    eyebrow: "Analitika",
     title: "Raportet",
-    placeholder: "Të ardhurat për makinë, 6 muajt e fundit, do të shfaqen këtu.",
+    car: "Makina",
+    allCars: "Të gjitha makinat",
+    period: "Periudha",
+    periodOptions: {
+      lastMonth: "Muajin e fundit",
+      last3Months: "3 muajt e fundit",
+      last6Months: "6 muajt e fundit",
+      lastYear: "Vitin e fundit",
+    },
+    check: "Kontrollo",
+    checking: "Duke kontrolluar…",
+    noData: "Asnjë kontratë në këtë periudhë.",
+    summary: {
+      totalIncome: "Të ardhurat totale",
+      contracts: "Kontrata",
+      averagePerContract: "Mesatarja për kontratë",
+    },
+    charts: {
+      byMonth: "Të ardhurat sipas muajit",
+      byCar: "Të ardhurat sipas makinës",
+    },
   },
 };
 
