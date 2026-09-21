@@ -21,6 +21,12 @@ interface AvailableCar {
 
 const today = new Date().toISOString().slice(0, 10);
 
+function downloadPdf(contractId: string) {
+  const link = document.createElement("a");
+  link.href = `/api/contracts/${contractId}/pdf`;
+  link.click();
+}
+
 export function NewContractForm() {
   const [clientId, setClientId] = useState<string | undefined>(undefined);
   const [firstName, setFirstName] = useState("");
@@ -33,7 +39,7 @@ export function NewContractForm() {
   const [showSuggestions, setShowSuggestions] = useState(false);
 
   const [startDate, setStartDate] = useState(today);
-  const [days, setDays] = useState(1);
+  const [endDate, setEndDate] = useState(today);
   const [dailyPrice, setDailyPrice] = useState("");
 
   const [availableCars, setAvailableCars] = useState<AvailableCar[]>([]);
@@ -62,9 +68,9 @@ export function NewContractForm() {
   }, [firstName, clientId]);
 
   useEffect(() => {
-    if (!startDate || days < 1) return;
+    if (!startDate || !endDate || endDate < startDate) return;
     const controller = new AbortController();
-    fetch(`/api/cars/available?start=${startDate}&days=${days}`, {
+    fetch(`/api/cars/available?start=${startDate}&end=${endDate}`, {
       signal: controller.signal,
     })
       .then((res) => res.json())
@@ -72,7 +78,7 @@ export function NewContractForm() {
       .catch(() => {})
       .finally(() => setLoadingCars(false));
     return () => controller.abort();
-  }, [startDate, days]);
+  }, [startDate, endDate]);
 
   function selectClient(client: ClientSuggestion) {
     setClientId(client.id);
@@ -96,12 +102,13 @@ export function NewContractForm() {
 
   function handleStartDateChange(value: string) {
     setStartDate(value);
+    if (endDate < value) setEndDate(value);
     setLoadingCars(true);
     setCarId("");
   }
 
-  function handleDaysChange(value: number) {
-    setDays(Math.max(1, value));
+  function handleEndDateChange(value: string) {
+    setEndDate(value);
     setLoadingCars(true);
     setCarId("");
   }
@@ -123,7 +130,7 @@ export function NewContractForm() {
           phone: phone || undefined,
           carId,
           startDate,
-          days,
+          endDate,
           dailyPrice: Number(dailyPrice),
         }),
       });
@@ -133,6 +140,7 @@ export function NewContractForm() {
         return;
       }
       setCreatedContractId(data.id);
+      downloadPdf(data.id);
     } finally {
       setSubmitting(false);
     }
@@ -146,7 +154,7 @@ export function NewContractForm() {
     setEmail("");
     setPhone("");
     setStartDate(today);
-    setDays(1);
+    setEndDate(today);
     setDailyPrice("");
     setCarId("");
     setCreatedContractId(null);
@@ -157,14 +165,14 @@ export function NewContractForm() {
     return (
       <div className="flex flex-col gap-4 rounded-xl border border-green-200 bg-green-50 p-6 dark:border-green-900 dark:bg-green-950">
         <p className="font-medium text-green-800 dark:text-green-300">
-          Contract created.
+          Contract generated — your download should start automatically.
         </p>
         <div className="flex flex-col gap-2 sm:flex-row">
           <a
             href={`/api/contracts/${createdContractId}/pdf`}
             className="rounded-lg bg-zinc-900 px-4 py-2 text-center text-sm font-medium text-white hover:bg-zinc-700 dark:bg-zinc-50 dark:text-zinc-900 dark:hover:bg-zinc-200"
           >
-            Download PDF
+            Download PDF again
           </a>
           <button
             type="button"
@@ -182,6 +190,9 @@ export function NewContractForm() {
     firstName.trim() &&
     lastName.trim() &&
     documentNumber.trim() &&
+    startDate &&
+    endDate &&
+    endDate >= startDate &&
     carId &&
     Number(dailyPrice) > 0 &&
     !submitting;
@@ -199,9 +210,10 @@ export function NewContractForm() {
         )}
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
           <div className="relative">
-            <label className="mb-1 block text-xs text-zinc-500">Name *</label>
+            <label className="mb-1 block text-xs text-zinc-500">Name Surname *</label>
             <input
               required
+              placeholder="Name"
               value={firstName}
               onChange={(e) => handleFirstNameChange(e.target.value)}
               onFocus={() => setShowSuggestions(true)}
@@ -226,9 +238,10 @@ export function NewContractForm() {
             )}
           </div>
           <div>
-            <label className="mb-1 block text-xs text-zinc-500">Surname *</label>
+            <label className="mb-1 block text-xs text-zinc-500">&nbsp;</label>
             <input
               required
+              placeholder="Surname"
               value={lastName}
               onChange={(e) => setLastName(e.target.value)}
               className="w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-900"
@@ -236,7 +249,7 @@ export function NewContractForm() {
           </div>
           <div>
             <label className="mb-1 block text-xs text-zinc-500">
-              ID / Passport number *
+              ID number or passport ID *
             </label>
             <input
               required
@@ -255,7 +268,7 @@ export function NewContractForm() {
             />
           </div>
           <div>
-            <label className="mb-1 block text-xs text-zinc-500">Phone</label>
+            <label className="mb-1 block text-xs text-zinc-500">Phone number</label>
             <input
               value={phone}
               onChange={(e) => setPhone(e.target.value)}
@@ -282,13 +295,13 @@ export function NewContractForm() {
             />
           </div>
           <div>
-            <label className="mb-1 block text-xs text-zinc-500">Days *</label>
+            <label className="mb-1 block text-xs text-zinc-500">End date *</label>
             <input
-              type="number"
+              type="date"
               required
-              min={1}
-              value={days}
-              onChange={(e) => handleDaysChange(Number(e.target.value))}
+              value={endDate}
+              min={startDate}
+              onChange={(e) => handleEndDateChange(e.target.value)}
               className="w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-900"
             />
           </div>
@@ -345,7 +358,7 @@ export function NewContractForm() {
         disabled={!canSubmit}
         className="rounded-lg bg-zinc-900 px-4 py-2 text-sm font-medium text-white hover:bg-zinc-700 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-zinc-50 dark:text-zinc-900 dark:hover:bg-zinc-200"
       >
-        {submitting ? "Creating…" : "Create contract"}
+        {submitting ? "Generating…" : "Generate"}
       </button>
     </form>
   );

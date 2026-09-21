@@ -1,22 +1,23 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getCurrentCompanyId } from "@/lib/company";
-import { computeEndDate, parseDateOnly } from "@/lib/availability";
+import { parseDateOnly } from "@/lib/availability";
 
 export async function GET(request: Request) {
   const params = new URL(request.url).searchParams;
   const startParam = params.get("start");
-  const days = Number(params.get("days"));
+  const endParam = params.get("end");
 
-  if (!startParam || !Number.isInteger(days) || days < 1) {
-    return NextResponse.json(
-      { error: "start and days (positive integer) are required" },
-      { status: 400 },
-    );
+  if (!startParam || !endParam) {
+    return NextResponse.json({ error: "start and end are required" }, { status: 400 });
   }
 
   const start = parseDateOnly(startParam);
-  const end = computeEndDate(start, days);
+  const end = parseDateOnly(endParam);
+  if (end < start) {
+    return NextResponse.json({ error: "end must not be before start" }, { status: 400 });
+  }
+
   const companyId = await getCurrentCompanyId();
 
   const cars = await prisma.car.findMany({

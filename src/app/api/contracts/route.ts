@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getCurrentCompanyId } from "@/lib/company";
-import { computeEndDate, parseDateOnly } from "@/lib/availability";
+import { daysBetweenInclusive, parseDateOnly } from "@/lib/availability";
 
 interface CreateContractBody {
   clientId?: string;
@@ -12,7 +12,7 @@ interface CreateContractBody {
   phone?: string;
   carId: string;
   startDate: string;
-  days: number;
+  endDate: string;
   dailyPrice: number;
 }
 
@@ -25,8 +25,7 @@ export async function POST(request: Request) {
     !body.documentNumber?.trim() ||
     !body.carId ||
     !body.startDate ||
-    !Number.isInteger(body.days) ||
-    body.days < 1 ||
+    !body.endDate ||
     !(Number(body.dailyPrice) > 0)
   ) {
     return NextResponse.json({ error: "Missing or invalid fields" }, { status: 400 });
@@ -34,9 +33,13 @@ export async function POST(request: Request) {
 
   const companyId = await getCurrentCompanyId();
   const startDate = parseDateOnly(body.startDate);
-  const endDate = computeEndDate(startDate, body.days);
+  const endDate = parseDateOnly(body.endDate);
+  if (endDate < startDate) {
+    return NextResponse.json({ error: "End date must not be before start date" }, { status: 400 });
+  }
+  const days = daysBetweenInclusive(startDate, endDate);
   const dailyPrice = Number(body.dailyPrice);
-  const totalPrice = dailyPrice * body.days;
+  const totalPrice = dailyPrice * days;
 
   const car = await prisma.car.findFirst({ where: { id: body.carId, companyId } });
   if (!car) {
