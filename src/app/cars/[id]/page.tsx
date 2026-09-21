@@ -5,6 +5,7 @@ import { getCurrentCompanyId } from "@/lib/company";
 import { formatDate, isDateInRange } from "@/lib/dates";
 import { getLocale } from "@/lib/i18n/get-locale";
 import { getDictionary, interpolate } from "@/lib/i18n/get-dictionary";
+import { AvailabilityCalendar } from "./AvailabilityCalendar";
 
 export const dynamic = "force-dynamic";
 
@@ -40,7 +41,7 @@ export default async function CarDetailPage({
   }
 
   const today = new Date();
-  today.setHours(0, 0, 0, 0);
+  today.setUTCHours(0, 0, 0, 0);
 
   const currentBooking = car.contracts.find((c) =>
     isDateInRange(today, c.startDate, c.endDate),
@@ -88,6 +89,16 @@ export default async function CarDetailPage({
             <h2 className="text-sm font-semibold text-zinc-700 dark:text-zinc-300">
               {dict.cars.detail.bookedDates}
             </h2>
+            <AvailabilityCalendar
+              bookings={upcomingBookings.map((b) => ({
+                id: b.id,
+                startDate: b.startDate,
+                endDate: b.endDate,
+                clientName: `${b.client.firstName} ${b.client.lastName}`,
+              }))}
+              today={today}
+              dict={dict}
+            />
             {upcomingBookings.length === 0 ? (
               <p className="text-sm text-zinc-500 dark:text-zinc-400">
                 {dict.cars.detail.noBookings}

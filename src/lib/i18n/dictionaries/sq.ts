@@ -67,6 +67,17 @@ const sq: typeof en = {
       notFree: "Nuk është e lirë tani — me qira deri më {date}",
       bookedDates: "Datat e rezervuara",
       noBookings: "Asnjë rezervim i ardhshëm — kjo makinë është e lirë për çdo datë.",
+      calendar: {
+        prevMonth: "Muaji i kaluar",
+        nextMonth: "Muaji tjetër",
+        legendBooked: "Me qira",
+        legendToday: "Sot",
+        months: [
+          "Janar", "Shkurt", "Mars", "Prill", "Maj", "Qershor",
+          "Korrik", "Gusht", "Shtator", "Tetor", "Nëntor", "Dhjetor",
+        ],
+        weekdays: ["Hën", "Mar", "Mër", "Enj", "Pre", "Sht", "Die"],
+      },
     },
   },
   contracts: {

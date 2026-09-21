@@ -1,6 +1,6 @@
 import type { Locale } from "@/lib/i18n/locales";
 
-const INTL_LOCALE: Record<Locale, string> = {
+export const INTL_LOCALE: Record<Locale, string> = {
   en: "en-GB",
   sq: "sq-AL",
   mk: "mk-MK",

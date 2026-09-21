@@ -65,6 +65,17 @@ const en = {
       notFree: "Not free right now — rented out until {date}",
       bookedDates: "Booked dates",
       noBookings: "No upcoming bookings — this car is free for any date.",
+      calendar: {
+        prevMonth: "Previous month",
+        nextMonth: "Next month",
+        legendBooked: "Booked",
+        legendToday: "Today",
+        months: [
+          "January", "February", "March", "April", "May", "June",
+          "July", "August", "September", "October", "November", "December",
+        ],
+        weekdays: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
+      },
     },
   },
   contracts: {
