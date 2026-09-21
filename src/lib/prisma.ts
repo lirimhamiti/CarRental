@@ -5,7 +5,20 @@ const globalForPrisma = globalThis as unknown as {
   prisma: PrismaClient | undefined;
 };
 
-const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL });
+// Parse sslmode ourselves and pass it as an explicit `ssl` option instead of
+// leaving it in the connection string — pg-connection-string's sslmode
+// aliasing (prefer/require/verify-ca -> verify-full) is deprecated and logs
+// a warning otherwise. Local dev Postgres has no sslmode param, so it's
+// unaffected.
+const url = new URL(process.env.DATABASE_URL!);
+const requiresSsl = url.searchParams.has("sslmode");
+url.searchParams.delete("sslmode");
+url.searchParams.delete("channel_binding");
+
+const adapter = new PrismaPg({
+  connectionString: url.toString(),
+  ssl: requiresSsl ? true : undefined,
+});
 
 export const prisma = globalForPrisma.prisma ?? new PrismaClient({ adapter });
 
