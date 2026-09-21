@@ -29,18 +29,16 @@ async function main() {
     ),
   );
 
+  const clientData = {
+    firstName: "Arben",
+    lastName: "Krasniqi",
+    documentNumber: "P1234567",
+    phone: "+389 70 123 456",
+  };
   const client = await prisma.client.upsert({
     where: { id: "demo-client" },
-    update: {},
-    create: {
-      id: "demo-client",
-      companyId: company.id,
-      firstName: "Arben",
-      lastName: "Krasniqi",
-      nationalId: "1234567890123",
-      passportNo: "P1234567",
-      phone: "+389 70 123 456",
-    },
+    update: clientData,
+    create: { id: "demo-client", companyId: company.id, ...clientData },
   });
 
   const today = new Date();

@@ -74,15 +74,14 @@ model Car {
 }
 
 model Client {
-  id         String   @id @default(cuid())
-  companyId  String
-  firstName  String
-  lastName   String
-  nationalId String?
-  passportNo String?
-  phone      String?
-  address    String?
-  createdAt  DateTime @default(now())
+  id             String   @id @default(cuid())
+  companyId      String
+  firstName      String
+  lastName       String
+  documentNumber String
+  email          String?
+  phone          String?
+  createdAt      DateTime @default(now())
 
   company   Company    @relation(fields: [companyId], references: [id], onDelete: Cascade)
   contracts Contract[]
