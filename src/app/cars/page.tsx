@@ -2,6 +2,8 @@ import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { getCurrentCompanyId } from "@/lib/company";
 import { formatDate, isDateInRange } from "@/lib/dates";
+import { getLocale } from "@/lib/i18n/get-locale";
+import { getDictionary, interpolate } from "@/lib/i18n/get-dictionary";
 import { AddCarForm } from "./AddCarForm";
 
 export const dynamic = "force-dynamic";
@@ -13,6 +15,8 @@ const STATUS_STYLES: Record<string, string> = {
 };
 
 export default async function CarsPage() {
+  const locale = await getLocale();
+  const dict = getDictionary(locale);
   const companyId = await getCurrentCompanyId();
   const cars = await prisma.car.findMany({
     where: { companyId },
@@ -26,36 +30,28 @@ export default async function CarsPage() {
   return (
     <main className="min-h-screen bg-gradient-to-b from-indigo-50/60 via-white to-white dark:from-indigo-950/20 dark:via-zinc-950 dark:to-zinc-950">
       <div className="mx-auto flex w-full max-w-4xl flex-col gap-6 px-4 py-12 sm:px-8">
-        <div className="flex items-center justify-between">
-          <div>
-            <p className="text-xs font-medium uppercase tracking-wide text-indigo-500 dark:text-indigo-400">
-              Fleet
-            </p>
-            <h1 className="text-2xl font-bold text-zinc-900 dark:text-zinc-50">Cars</h1>
-          </div>
-          <Link
-            href="/"
-            className="text-sm font-medium text-zinc-500 transition hover:text-zinc-900 dark:hover:text-zinc-50"
-          >
-            ← Home
-          </Link>
+        <div>
+          <p className="text-xs font-medium uppercase tracking-wide text-indigo-500 dark:text-indigo-400">
+            {dict.cars.eyebrow}
+          </p>
+          <h1 className="text-2xl font-bold text-zinc-900 dark:text-zinc-50">{dict.cars.title}</h1>
         </div>
 
-        <AddCarForm />
+        <AddCarForm dict={dict} />
 
         <div className="overflow-hidden rounded-3xl border border-zinc-200/80 bg-white/80 shadow-xl shadow-zinc-200/50 backdrop-blur-sm dark:border-zinc-800 dark:bg-zinc-900/60 dark:shadow-black/20">
           {cars.length === 0 ? (
             <p className="p-8 text-center text-sm text-zinc-500 dark:text-zinc-400">
-              No cars yet — add your first one above.
+              {dict.cars.empty}
             </p>
           ) : (
             <table className="w-full text-left text-sm">
               <thead>
                 <tr className="border-b border-zinc-200 text-xs uppercase tracking-wide text-zinc-500 dark:border-zinc-800 dark:text-zinc-400">
-                  <th className="px-6 py-3 font-medium">Car</th>
-                  <th className="px-6 py-3 font-medium">Plate</th>
-                  <th className="px-6 py-3 font-medium">Status</th>
-                  <th className="px-6 py-3 font-medium">Availability</th>
+                  <th className="px-6 py-3 font-medium">{dict.cars.table.car}</th>
+                  <th className="px-6 py-3 font-medium">{dict.cars.table.plate}</th>
+                  <th className="px-6 py-3 font-medium">{dict.cars.table.status}</th>
+                  <th className="px-6 py-3 font-medium">{dict.cars.table.availability}</th>
                   <th className="px-6 py-3" />
                 </tr>
               </thead>
@@ -92,16 +88,16 @@ export default async function CarsPage() {
                         <span
                           className={`inline-flex rounded-full px-2.5 py-1 text-xs font-medium ${STATUS_STYLES[car.status]}`}
                         >
-                          {car.status[0] + car.status.slice(1).toLowerCase()}
+                          {dict.cars.status[car.status]}
                         </span>
                       </td>
                       <td className="px-6 py-4 text-xs">
                         {current ? (
                           <span className="text-red-600 dark:text-red-400">
-                            Rented until {formatDate(current.endDate)}
+                            {interpolate(dict.cars.rentedUntil, { date: formatDate(current.endDate, locale) })}
                           </span>
                         ) : (
-                          <span className="text-emerald-600 dark:text-emerald-400">Free now</span>
+                          <span className="text-emerald-600 dark:text-emerald-400">{dict.cars.freeNow}</span>
                         )}
                       </td>
                       <td className="px-6 py-4 text-right">

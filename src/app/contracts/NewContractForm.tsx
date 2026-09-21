@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { inputClass, labelClass, SectionIcon } from "@/components/ui";
+import type { Dictionary } from "@/lib/i18n/get-dictionary";
 
 interface ClientSuggestion {
   id: string;
@@ -33,7 +34,7 @@ function daysBetweenInclusive(start: string, end: string): number {
   return Math.round(ms / (1000 * 60 * 60 * 24)) + 1;
 }
 
-export function NewContractForm() {
+export function NewContractForm({ dict }: { dict: Dictionary }) {
   const [clientId, setClientId] = useState<string | undefined>(undefined);
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
@@ -146,7 +147,7 @@ export function NewContractForm() {
       });
       const data = await res.json();
       if (!res.ok) {
-        setError(data.error ?? "Something went wrong");
+        setError(dict.contracts.errors[data.code as keyof typeof dict.contracts.errors] ?? dict.contracts.errors.GENERIC);
         return;
       }
       setCreatedContractId(data.id);
@@ -207,7 +208,7 @@ export function NewContractForm() {
               </svg>
             </SectionIcon>
             <h2 className="text-sm font-semibold text-zinc-900 dark:text-zinc-50">
-              Client
+              {dict.contracts.client.title}
             </h2>
           </div>
           {clientId && (
@@ -221,15 +222,15 @@ export function NewContractForm() {
                   strokeLinejoin="round"
                 />
               </svg>
-              Existing client selected — fields filled in automatically
+              {dict.contracts.client.existingSelected}
             </p>
           )}
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div className="relative">
-              <label className={labelClass}>Name Surname *</label>
+              <label className={labelClass}>{dict.contracts.client.nameSurname}</label>
               <input
                 required
-                placeholder="Name"
+                placeholder={dict.contracts.client.namePlaceholder}
                 value={firstName}
                 onChange={(e) => handleFirstNameChange(e.target.value)}
                 onFocus={() => setShowSuggestions(true)}
@@ -265,14 +266,14 @@ export function NewContractForm() {
               <label className={labelClass}>&nbsp;</label>
               <input
                 required
-                placeholder="Surname"
+                placeholder={dict.contracts.client.surnamePlaceholder}
                 value={lastName}
                 onChange={(e) => setLastName(e.target.value)}
                 className={inputClass}
               />
             </div>
             <div>
-              <label className={labelClass}>ID number or passport ID *</label>
+              <label className={labelClass}>{dict.contracts.client.document}</label>
               <input
                 required
                 value={documentNumber}
@@ -281,7 +282,7 @@ export function NewContractForm() {
               />
             </div>
             <div>
-              <label className={labelClass}>Email</label>
+              <label className={labelClass}>{dict.contracts.client.email}</label>
               <input
                 type="email"
                 value={email}
@@ -290,7 +291,7 @@ export function NewContractForm() {
               />
             </div>
             <div>
-              <label className={labelClass}>Phone number</label>
+              <label className={labelClass}>{dict.contracts.client.phone}</label>
               <input
                 value={phone}
                 onChange={(e) => setPhone(e.target.value)}
@@ -316,12 +317,12 @@ export function NewContractForm() {
               </svg>
             </SectionIcon>
             <h2 className="text-sm font-semibold text-zinc-900 dark:text-zinc-50">
-              Rental
+              {dict.contracts.rental.title}
             </h2>
           </div>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
             <div>
-              <label className={labelClass}>Start date *</label>
+              <label className={labelClass}>{dict.contracts.rental.startDate}</label>
               <input
                 type="date"
                 required
@@ -332,7 +333,7 @@ export function NewContractForm() {
               />
             </div>
             <div>
-              <label className={labelClass}>End date *</label>
+              <label className={labelClass}>{dict.contracts.rental.endDate}</label>
               <input
                 type="date"
                 required
@@ -343,7 +344,7 @@ export function NewContractForm() {
               />
             </div>
             <div>
-              <label className={labelClass}>Daily price *</label>
+              <label className={labelClass}>{dict.contracts.rental.dailyPrice}</label>
               <input
                 type="number"
                 required
@@ -357,14 +358,14 @@ export function NewContractForm() {
           </div>
 
           <div>
-            <label className={labelClass}>Available car *</label>
+            <label className={labelClass}>{dict.contracts.rental.availableCar}</label>
             {loadingCars ? (
               <p className="rounded-xl border border-dashed border-zinc-300 px-3.5 py-2.5 text-sm text-zinc-500 dark:border-zinc-700">
-                Checking availability…
+                {dict.contracts.rental.checking}
               </p>
             ) : availableCars.length === 0 ? (
               <p className="rounded-xl border border-dashed border-amber-300 bg-amber-50 px-3.5 py-2.5 text-sm text-amber-700 dark:border-amber-900 dark:bg-amber-950 dark:text-amber-400">
-                No cars free for these dates.
+                {dict.contracts.rental.noCars}
               </p>
             ) : (
               <select
@@ -374,7 +375,7 @@ export function NewContractForm() {
                 className={inputClass}
               >
                 <option value="" disabled>
-                  Select a car
+                  {dict.contracts.rental.selectCar}
                 </option>
                 {availableCars.map((car) => (
                   <option key={car.id} value={car.id}>
@@ -389,9 +390,10 @@ export function NewContractForm() {
             <div className="flex items-center justify-between rounded-2xl bg-gradient-to-br from-indigo-600 to-indigo-500 px-5 py-4 text-white shadow-lg shadow-indigo-500/25">
               <div>
                 <p className="text-xs font-medium uppercase tracking-wide text-indigo-100">
-                  {days} {days === 1 ? "day" : "days"} · {Number(dailyPrice).toFixed(2)} / day
+                  {days} {days === 1 ? dict.contracts.rental.day : dict.contracts.rental.days} ·{" "}
+                  {Number(dailyPrice).toFixed(2)} {dict.contracts.rental.perDay}
                 </p>
-                <p className="text-lg font-semibold">Total price</p>
+                <p className="text-lg font-semibold">{dict.contracts.rental.totalPrice}</p>
               </div>
               <p className="text-2xl font-bold tabular-nums">{total.toFixed(2)}</p>
             </div>
@@ -416,7 +418,7 @@ export function NewContractForm() {
               strokeLinejoin="round"
             />
           </svg>
-          Contract created — your download should have started.
+          {dict.contracts.created}
         </p>
       )}
 
@@ -437,12 +439,12 @@ export function NewContractForm() {
                   strokeLinejoin="round"
                 />
               </svg>
-              Download contract
+              {dict.contracts.buttons.download}
             </>
           ) : submitting ? (
-            "Creating…"
+            dict.contracts.buttons.creating
           ) : (
-            "Create contract"
+            dict.contracts.buttons.create
           )}
         </button>
         {created && (
@@ -451,7 +453,7 @@ export function NewContractForm() {
             onClick={resetForm}
             className="rounded-xl border border-zinc-300 px-5 py-3 text-sm font-medium text-zinc-700 transition hover:bg-zinc-100 dark:border-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-800"
           >
-            New contract
+            {dict.contracts.buttons.newContract}
           </button>
         )}
       </div>

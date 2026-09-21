@@ -1,55 +1,44 @@
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { getCurrentCompanyId } from "@/lib/company";
+import { getLocale } from "@/lib/i18n/get-locale";
+import { getDictionary } from "@/lib/i18n/get-dictionary";
 
 export const dynamic = "force-dynamic";
 
-const sections = [
-  {
-    href: "/contracts",
-    title: "Contracts",
-    description: "Create a new rental contract or look up an existing one.",
-    icon: (
-      <path
-        d="M7 3h7l5 5v13a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1Zm7 0v5h5M9 13h6M9 17h6M9 9h2"
-        stroke="currentColor"
-        strokeWidth={1.8}
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    ),
-  },
-  {
-    href: "/cars",
-    title: "Cars",
-    description: "See your fleet and check when each car is free.",
-    icon: (
-      <path
-        d="M3 12h18M5 12V8a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v4M5 12v5a1 1 0 0 0 1 1h1a1 1 0 0 0 1-1v-1h8v1a1 1 0 0 0 1 1h1a1 1 0 0 0 1-1v-5"
-        stroke="currentColor"
-        strokeWidth={1.8}
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    ),
-  },
-  {
-    href: "/reports",
-    title: "Reports",
-    description: "Income per car over the last 6 months.",
-    icon: (
-      <path
-        d="M4 19V10m6 9V5m6 14v-7"
-        stroke="currentColor"
-        strokeWidth={1.8}
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    ),
-  },
-];
+const ICONS = {
+  contracts: (
+    <path
+      d="M7 3h7l5 5v13a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1Zm7 0v5h5M9 13h6M9 17h6M9 9h2"
+      stroke="currentColor"
+      strokeWidth={1.8}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+  ),
+  cars: (
+    <path
+      d="M3 12h18M5 12V8a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v4M5 12v5a1 1 0 0 0 1 1h1a1 1 0 0 0 1-1v-1h8v1a1 1 0 0 0 1 1h1a1 1 0 0 0 1-1v-5"
+      stroke="currentColor"
+      strokeWidth={1.8}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+  ),
+  reports: (
+    <path
+      d="M4 19V10m6 9V5m6 14v-7"
+      stroke="currentColor"
+      strokeWidth={1.8}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+  ),
+};
 
 export default async function Home() {
+  const locale = await getLocale();
+  const dict = getDictionary(locale);
   const companyId = await getCurrentCompanyId();
   const today = new Date();
   today.setUTCHours(0, 0, 0, 0);
@@ -67,9 +56,15 @@ export default async function Home() {
   ]);
 
   const stats = [
-    { label: "Cars in fleet", value: totalCars },
-    { label: "Rented right now", value: rentedNow },
-    { label: "Clients on file", value: totalClients },
+    { label: dict.home.stats.cars, value: totalCars },
+    { label: dict.home.stats.rentedNow, value: rentedNow },
+    { label: dict.home.stats.clients, value: totalClients },
+  ];
+
+  const sections = [
+    { href: "/contracts", icon: ICONS.contracts, ...dict.home.sections.contracts },
+    { href: "/cars", icon: ICONS.cars, ...dict.home.sections.cars },
+    { href: "/reports", icon: ICONS.reports, ...dict.home.sections.reports },
   ];
 
   return (
@@ -88,7 +83,7 @@ export default async function Home() {
             </svg>
           </span>
           <h1 className="text-3xl font-bold text-zinc-900 dark:text-zinc-50">{company.name}</h1>
-          <p className="text-sm text-zinc-500 dark:text-zinc-400">Fleet &amp; rental management</p>
+          <p className="text-sm text-zinc-500 dark:text-zinc-400">{dict.home.tagline}</p>
         </div>
 
         <div className="grid grid-cols-3 gap-3 sm:gap-4">

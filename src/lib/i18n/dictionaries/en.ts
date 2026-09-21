@@ -1,0 +1,118 @@
+const en = {
+  brand: "Car Rental",
+  common: {
+    home: "← Home",
+  },
+  home: {
+    tagline: "Fleet & rental management",
+    stats: {
+      cars: "Cars in fleet",
+      rentedNow: "Rented right now",
+      clients: "Clients on file",
+    },
+    sections: {
+      contracts: {
+        title: "Contracts",
+        description: "Create a new rental contract or look up an existing one.",
+      },
+      cars: {
+        title: "Cars",
+        description: "See your fleet and check when each car is free.",
+      },
+      reports: {
+        title: "Reports",
+        description: "Income per car over the last 6 months.",
+      },
+    },
+  },
+  cars: {
+    eyebrow: "Fleet",
+    title: "Cars",
+    empty: "No cars yet — add your first one above.",
+    table: {
+      car: "Car",
+      plate: "Plate",
+      status: "Status",
+      availability: "Availability",
+    },
+    freeNow: "Free now",
+    rentedUntil: "Rented until {date}",
+    status: {
+      ACTIVE: "Active",
+      MAINTENANCE: "Maintenance",
+      RETIRED: "Retired",
+    },
+    addForm: {
+      title: "Add a car",
+      make: "Make *",
+      model: "Model *",
+      year: "Year *",
+      plate: "Plate *",
+      status: "Status",
+      submit: "Add car",
+      submitting: "Adding…",
+      success: "Car added to your fleet.",
+    },
+    errors: {
+      MISSING_FIELDS: "Missing or invalid fields",
+      PLATE_EXISTS: "A car with this plate already exists in your fleet",
+      GENERIC: "Something went wrong",
+    },
+    detail: {
+      back: "← Cars",
+      freeNow: "Free right now",
+      notFree: "Not free right now — rented out until {date}",
+      bookedDates: "Booked dates",
+      noBookings: "No upcoming bookings — this car is free for any date.",
+    },
+  },
+  contracts: {
+    eyebrow: "Rental agreement",
+    title: "New contract",
+    client: {
+      title: "Client",
+      existingSelected: "Existing client selected — fields filled in automatically",
+      nameSurname: "Name Surname *",
+      namePlaceholder: "Name",
+      surnamePlaceholder: "Surname",
+      document: "ID number or passport ID *",
+      email: "Email",
+      phone: "Phone number",
+    },
+    rental: {
+      title: "Rental",
+      startDate: "Start date *",
+      endDate: "End date *",
+      dailyPrice: "Daily price *",
+      availableCar: "Available car *",
+      checking: "Checking availability…",
+      noCars: "No cars free for these dates.",
+      selectCar: "Select a car",
+      day: "day",
+      days: "days",
+      perDay: "/ day",
+      totalPrice: "Total price",
+    },
+    created: "Contract created — your download should have started.",
+    buttons: {
+      create: "Create contract",
+      creating: "Creating…",
+      download: "Download contract",
+      newContract: "New contract",
+    },
+    errors: {
+      MISSING_FIELDS: "Missing or invalid fields",
+      END_BEFORE_START: "End date must not be before start date",
+      CAR_NOT_FOUND: "Car not found",
+      CLIENT_NOT_FOUND: "Client not found",
+      CAR_UNAVAILABLE: "This car is no longer available for the selected dates",
+      GENERIC: "Something went wrong",
+    },
+  },
+  reports: {
+    title: "Reports",
+    placeholder: "Income per car, last 6 months, goes here.",
+  },
+};
+
+export default en;

@@ -28,14 +28,14 @@ export async function POST(request: Request) {
     !body.endDate ||
     !(Number(body.dailyPrice) > 0)
   ) {
-    return NextResponse.json({ error: "Missing or invalid fields" }, { status: 400 });
+    return NextResponse.json({ code: "MISSING_FIELDS" }, { status: 400 });
   }
 
   const companyId = await getCurrentCompanyId();
   const startDate = parseDateOnly(body.startDate);
   const endDate = parseDateOnly(body.endDate);
   if (endDate < startDate) {
-    return NextResponse.json({ error: "End date must not be before start date" }, { status: 400 });
+    return NextResponse.json({ code: "END_BEFORE_START" }, { status: 400 });
   }
   const days = daysBetweenInclusive(startDate, endDate);
   const dailyPrice = Number(body.dailyPrice);
@@ -43,7 +43,7 @@ export async function POST(request: Request) {
 
   const car = await prisma.car.findFirst({ where: { id: body.carId, companyId } });
   if (!car) {
-    return NextResponse.json({ error: "Car not found" }, { status: 404 });
+    return NextResponse.json({ code: "CAR_NOT_FOUND" }, { status: 404 });
   }
 
   const overlapping = await prisma.contract.findFirst({
@@ -55,17 +55,14 @@ export async function POST(request: Request) {
     },
   });
   if (overlapping) {
-    return NextResponse.json(
-      { error: "This car is no longer available for the selected dates" },
-      { status: 409 },
-    );
+    return NextResponse.json({ code: "CAR_UNAVAILABLE" }, { status: 409 });
   }
 
   let clientId = body.clientId;
   if (clientId) {
     const existing = await prisma.client.findFirst({ where: { id: clientId, companyId } });
     if (!existing) {
-      return NextResponse.json({ error: "Client not found" }, { status: 404 });
+      return NextResponse.json({ code: "CLIENT_NOT_FOUND" }, { status: 404 });
     }
     await prisma.client.update({
       where: { id: clientId },
@@ -107,9 +104,6 @@ export async function POST(request: Request) {
   } catch {
     // Guards the race condition the app-level check above can't fully close;
     // the DB exclusion constraint (see migration car_no_overlap) rejects it.
-    return NextResponse.json(
-      { error: "This car is no longer available for the selected dates" },
-      { status: 409 },
-    );
+    return NextResponse.json({ code: "CAR_UNAVAILABLE" }, { status: 409 });
   }
 }

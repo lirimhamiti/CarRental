@@ -1,5 +1,13 @@
-export function formatDate(date: Date): string {
-  return new Intl.DateTimeFormat("en-GB", {
+import type { Locale } from "@/lib/i18n/locales";
+
+const INTL_LOCALE: Record<Locale, string> = {
+  en: "en-GB",
+  sq: "sq-AL",
+  mk: "mk-MK",
+};
+
+export function formatDate(date: Date, locale: Locale = "en"): string {
+  return new Intl.DateTimeFormat(INTL_LOCALE[locale], {
     day: "2-digit",
     month: "short",
     year: "numeric",

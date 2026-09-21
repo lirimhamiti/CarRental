@@ -20,7 +20,7 @@ export async function POST(request: Request) {
     !Number.isInteger(body.year) ||
     body.year < 1900
   ) {
-    return NextResponse.json({ error: "Missing or invalid fields" }, { status: 400 });
+    return NextResponse.json({ code: "MISSING_FIELDS" }, { status: 400 });
   }
 
   const companyId = await getCurrentCompanyId();
@@ -38,9 +38,6 @@ export async function POST(request: Request) {
     });
     return NextResponse.json(car, { status: 201 });
   } catch {
-    return NextResponse.json(
-      { error: "A car with this plate already exists in your fleet" },
-      { status: 409 },
-    );
+    return NextResponse.json({ code: "PLATE_EXISTS" }, { status: 409 });
   }
 }

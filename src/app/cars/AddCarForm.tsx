@@ -3,10 +3,11 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { inputClass, labelClass, SectionIcon } from "@/components/ui";
+import type { Dictionary } from "@/lib/i18n/get-dictionary";
 
 const STATUS_OPTIONS = ["ACTIVE", "MAINTENANCE", "RETIRED"] as const;
 
-export function AddCarForm() {
+export function AddCarForm({ dict }: { dict: Dictionary }) {
   const router = useRouter();
   const [make, setMake] = useState("");
   const [model, setModel] = useState("");
@@ -34,7 +35,7 @@ export function AddCarForm() {
       });
       const data = await res.json();
       if (!res.ok) {
-        setError(data.error ?? "Something went wrong");
+        setError(dict.cars.errors[data.code as keyof typeof dict.cars.errors] ?? dict.cars.errors.GENERIC);
         return;
       }
       setMake("");
@@ -61,21 +62,21 @@ export function AddCarForm() {
           </svg>
         </SectionIcon>
         <h2 className="text-sm font-semibold text-zinc-900 dark:text-zinc-50">
-          Add a car
+          {dict.cars.addForm.title}
         </h2>
       </div>
 
       <div className="grid grid-cols-2 gap-4 sm:grid-cols-5">
         <div>
-          <label className={labelClass}>Make *</label>
+          <label className={labelClass}>{dict.cars.addForm.make}</label>
           <input required value={make} onChange={(e) => setMake(e.target.value)} className={inputClass} />
         </div>
         <div>
-          <label className={labelClass}>Model *</label>
+          <label className={labelClass}>{dict.cars.addForm.model}</label>
           <input required value={model} onChange={(e) => setModel(e.target.value)} className={inputClass} />
         </div>
         <div>
-          <label className={labelClass}>Year *</label>
+          <label className={labelClass}>{dict.cars.addForm.year}</label>
           <input
             required
             type="number"
@@ -87,11 +88,11 @@ export function AddCarForm() {
           />
         </div>
         <div>
-          <label className={labelClass}>Plate *</label>
+          <label className={labelClass}>{dict.cars.addForm.plate}</label>
           <input required value={plate} onChange={(e) => setPlate(e.target.value)} className={inputClass} />
         </div>
         <div>
-          <label className={labelClass}>Status</label>
+          <label className={labelClass}>{dict.cars.addForm.status}</label>
           <select
             value={status}
             onChange={(e) => setStatus(e.target.value as (typeof STATUS_OPTIONS)[number])}
@@ -99,7 +100,7 @@ export function AddCarForm() {
           >
             {STATUS_OPTIONS.map((option) => (
               <option key={option} value={option}>
-                {option[0] + option.slice(1).toLowerCase()}
+                {dict.cars.status[option]}
               </option>
             ))}
           </select>
@@ -116,7 +117,7 @@ export function AddCarForm() {
           <svg viewBox="0 0 24 24" fill="none" className="h-4 w-4">
             <path d="M5 13l4 4L19 7" stroke="currentColor" strokeWidth={2.2} strokeLinecap="round" strokeLinejoin="round" />
           </svg>
-          Car added to your fleet.
+          {dict.cars.addForm.success}
         </p>
       )}
 
@@ -126,7 +127,7 @@ export function AddCarForm() {
           disabled={!canSubmit}
           className="flex items-center justify-center gap-2 rounded-xl bg-gradient-to-br from-indigo-600 to-indigo-500 px-5 py-3 text-sm font-semibold text-white shadow-lg shadow-indigo-500/30 transition hover:from-indigo-500 hover:to-indigo-400 hover:shadow-indigo-500/40 disabled:cursor-not-allowed disabled:from-zinc-300 disabled:to-zinc-300 disabled:text-zinc-500 disabled:shadow-none dark:disabled:from-zinc-700 dark:disabled:to-zinc-700"
         >
-          {submitting ? "Adding…" : "Add car"}
+          {submitting ? dict.cars.addForm.submitting : dict.cars.addForm.submit}
         </button>
       </div>
     </form>
