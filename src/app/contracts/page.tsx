@@ -7,13 +7,13 @@ export default async function ContractsPage() {
   const dict = getDictionary(locale);
 
   return (
-    <main className="min-h-screen bg-gradient-to-b from-indigo-50/60 via-white to-white dark:from-indigo-950/20 dark:via-zinc-950 dark:to-zinc-950">
+    <main className="min-h-screen bg-white dark:bg-zinc-950">
       <div className="mx-auto flex w-full max-w-2xl flex-col gap-6 px-4 py-12 sm:px-8">
         <div>
-          <p className="text-xs font-medium uppercase tracking-wide text-indigo-500 dark:text-indigo-400">
+          <p className="text-xs font-medium uppercase tracking-[0.2em] text-gold-600 dark:text-gold-400">
             {dict.contracts.eyebrow}
           </p>
-          <h1 className="text-2xl font-bold text-zinc-900 dark:text-zinc-50">
+          <h1 className="font-serif text-3xl text-zinc-900 dark:text-zinc-50">
             {dict.contracts.title}
           </h1>
         </div>

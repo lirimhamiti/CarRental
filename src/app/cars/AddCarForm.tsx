@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { inputClass, labelClass, SectionIcon } from "@/components/ui";
+import { inputClass, labelClass, primaryButtonClass, SectionIcon } from "@/components/ui";
 import type { Dictionary } from "@/lib/i18n/get-dictionary";
 
 const STATUS_OPTIONS = ["ACTIVE", "MAINTENANCE", "RETIRED"] as const;
@@ -53,7 +53,7 @@ export function AddCarForm({ dict }: { dict: Dictionary }) {
   return (
     <form
       onSubmit={handleSubmit}
-      className="flex flex-col gap-4 rounded-3xl border border-zinc-200/80 bg-white/80 p-6 shadow-xl shadow-zinc-200/50 backdrop-blur-sm dark:border-zinc-800 dark:bg-zinc-900/60 dark:shadow-black/20 sm:p-8"
+      className="flex flex-col gap-4 rounded-xl border border-zinc-200 bg-white p-6 dark:border-zinc-800 dark:bg-zinc-900 sm:p-8"
     >
       <div className="flex items-center gap-3">
         <SectionIcon>
@@ -61,7 +61,7 @@ export function AddCarForm({ dict }: { dict: Dictionary }) {
             <path d="M12 5v14M5 12h14" stroke="currentColor" strokeWidth={2} strokeLinecap="round" />
           </svg>
         </SectionIcon>
-        <h2 className="text-sm font-semibold text-zinc-900 dark:text-zinc-50">
+        <h2 className="font-serif text-lg text-zinc-900 dark:text-zinc-50">
           {dict.cars.addForm.title}
         </h2>
       </div>
@@ -122,11 +122,7 @@ export function AddCarForm({ dict }: { dict: Dictionary }) {
       )}
 
       <div>
-        <button
-          type="submit"
-          disabled={!canSubmit}
-          className="flex items-center justify-center gap-2 rounded-xl bg-gradient-to-br from-indigo-600 to-indigo-500 px-5 py-3 text-sm font-semibold text-white shadow-lg shadow-indigo-500/30 transition hover:from-indigo-500 hover:to-indigo-400 hover:shadow-indigo-500/40 disabled:cursor-not-allowed disabled:from-zinc-300 disabled:to-zinc-300 disabled:text-zinc-500 disabled:shadow-none dark:disabled:from-zinc-700 dark:disabled:to-zinc-700"
-        >
+        <button type="submit" disabled={!canSubmit} className={primaryButtonClass}>
           {submitting ? dict.cars.addForm.submitting : dict.cars.addForm.submit}
         </button>
       </div>

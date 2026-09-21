@@ -64,9 +64,7 @@ export function AvailabilityCalendar({
             <path d="M15 5l-7 7 7 7" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" />
           </svg>
         </button>
-        <p className="text-sm font-semibold capitalize text-zinc-900 dark:text-zinc-50">
-          {monthLabel}
-        </p>
+        <p className="font-serif text-base text-zinc-900 dark:text-zinc-50">{monthLabel}</p>
         <button
           type="button"
           aria-label={dict.cars.detail.calendar.nextMonth}
@@ -97,7 +95,7 @@ export function AvailabilityCalendar({
                 booking
                   ? "bg-red-100 text-red-700 dark:bg-red-500/20 dark:text-red-400"
                   : "text-zinc-600 dark:text-zinc-300"
-              } ${isToday ? "ring-2 ring-indigo-500 ring-inset" : ""}`}
+              } ${isToday ? "ring-2 ring-gold-500 ring-inset" : ""}`}
             >
               {date.getUTCDate()}
             </div>
@@ -111,7 +109,7 @@ export function AvailabilityCalendar({
           {dict.cars.detail.calendar.legendBooked}
         </span>
         <span className="flex items-center gap-1.5">
-          <span className="h-2.5 w-2.5 rounded-full ring-2 ring-indigo-500" />
+          <span className="h-2.5 w-2.5 rounded-full ring-2 ring-gold-500" />
           {dict.cars.detail.calendar.legendToday}
         </span>
       </div>

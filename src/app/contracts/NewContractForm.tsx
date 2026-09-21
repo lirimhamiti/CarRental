@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { inputClass, labelClass, SectionIcon } from "@/components/ui";
+import { inputClass, labelClass, primaryButtonClass, SectionIcon } from "@/components/ui";
 import type { Dictionary } from "@/lib/i18n/get-dictionary";
 
 interface ClientSuggestion {
@@ -191,7 +191,7 @@ export function NewContractForm({ dict }: { dict: Dictionary }) {
   return (
     <form
       onSubmit={handleSubmit}
-      className="flex flex-col gap-6 rounded-3xl border border-zinc-200/80 bg-white/80 p-6 shadow-xl shadow-zinc-200/50 backdrop-blur-sm dark:border-zinc-800 dark:bg-zinc-900/60 dark:shadow-black/20 sm:p-8"
+      className="flex flex-col gap-6 rounded-xl border border-zinc-200 bg-white p-6 dark:border-zinc-800 dark:bg-zinc-900 sm:p-8"
     >
       <fieldset disabled={created} className="flex flex-col gap-6 disabled:opacity-60">
         <div className="flex flex-col gap-4">
@@ -207,7 +207,7 @@ export function NewContractForm({ dict }: { dict: Dictionary }) {
                 />
               </svg>
             </SectionIcon>
-            <h2 className="text-sm font-semibold text-zinc-900 dark:text-zinc-50">
+            <h2 className="font-serif text-lg text-zinc-900 dark:text-zinc-50">
               {dict.contracts.client.title}
             </h2>
           </div>
@@ -238,15 +238,15 @@ export function NewContractForm({ dict }: { dict: Dictionary }) {
                 className={inputClass}
               />
               {showSuggestions && suggestions.length > 0 && (
-                <ul className="absolute z-10 mt-1.5 w-full overflow-hidden rounded-xl border border-zinc-200 bg-white shadow-lg shadow-zinc-200/60 dark:border-zinc-700 dark:bg-zinc-900 dark:shadow-black/30">
+                <ul className="absolute z-10 mt-1.5 w-full overflow-hidden rounded-lg border border-zinc-200 bg-white shadow-lg shadow-zinc-200/60 dark:border-zinc-700 dark:bg-zinc-900 dark:shadow-black/30">
                   {suggestions.map((s) => (
                     <li key={s.id}>
                       <button
                         type="button"
                         onClick={() => selectClient(s)}
-                        className="flex w-full items-center gap-3 px-3.5 py-2.5 text-left text-sm transition hover:bg-indigo-50 dark:hover:bg-indigo-500/10"
+                        className="flex w-full items-center gap-3 px-3.5 py-2.5 text-left text-sm transition hover:bg-gold-50 dark:hover:bg-gold-500/10"
                       >
-                        <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-indigo-100 text-[11px] font-semibold text-indigo-700 dark:bg-indigo-500/20 dark:text-indigo-300">
+                        <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-ink text-[11px] font-semibold text-gold-400">
                           {s.firstName[0]}
                           {s.lastName[0]}
                         </span>
@@ -316,7 +316,7 @@ export function NewContractForm({ dict }: { dict: Dictionary }) {
                 />
               </svg>
             </SectionIcon>
-            <h2 className="text-sm font-semibold text-zinc-900 dark:text-zinc-50">
+            <h2 className="font-serif text-lg text-zinc-900 dark:text-zinc-50">
               {dict.contracts.rental.title}
             </h2>
           </div>
@@ -387,15 +387,15 @@ export function NewContractForm({ dict }: { dict: Dictionary }) {
           </div>
 
           {total > 0 && (
-            <div className="flex items-center justify-between rounded-2xl bg-gradient-to-br from-indigo-600 to-indigo-500 px-5 py-4 text-white shadow-lg shadow-indigo-500/25">
+            <div className="flex items-center justify-between rounded-lg border border-gold-500/30 bg-ink px-5 py-4 text-white">
               <div>
-                <p className="text-xs font-medium uppercase tracking-wide text-indigo-100">
+                <p className="text-xs font-medium uppercase tracking-widest text-gold-100/70">
                   {days} {days === 1 ? dict.contracts.rental.day : dict.contracts.rental.days} ·{" "}
                   {Number(dailyPrice).toFixed(2)} {dict.contracts.rental.perDay}
                 </p>
-                <p className="text-lg font-semibold">{dict.contracts.rental.totalPrice}</p>
+                <p className="font-serif text-lg">{dict.contracts.rental.totalPrice}</p>
               </div>
-              <p className="text-2xl font-bold tabular-nums">{total.toFixed(2)}</p>
+              <p className="font-serif text-2xl tabular-nums text-gold-400">{total.toFixed(2)}</p>
             </div>
           )}
         </div>
@@ -423,11 +423,7 @@ export function NewContractForm({ dict }: { dict: Dictionary }) {
       )}
 
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-        <button
-          type="submit"
-          disabled={!canSubmit}
-          className="flex items-center justify-center gap-2 rounded-xl bg-gradient-to-br from-indigo-600 to-indigo-500 px-5 py-3 text-sm font-semibold text-white shadow-lg shadow-indigo-500/30 transition hover:from-indigo-500 hover:to-indigo-400 hover:shadow-indigo-500/40 disabled:cursor-not-allowed disabled:from-zinc-300 disabled:to-zinc-300 disabled:text-zinc-500 disabled:shadow-none dark:disabled:from-zinc-700 dark:disabled:to-zinc-700"
-        >
+        <button type="submit" disabled={!canSubmit} className={primaryButtonClass}>
           {created ? (
             <>
               <svg viewBox="0 0 24 24" fill="none" className="h-4 w-4">
@@ -451,7 +447,7 @@ export function NewContractForm({ dict }: { dict: Dictionary }) {
           <button
             type="button"
             onClick={resetForm}
-            className="rounded-xl border border-zinc-300 px-5 py-3 text-sm font-medium text-zinc-700 transition hover:bg-zinc-100 dark:border-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-800"
+            className="rounded-lg border border-zinc-300 px-5 py-3 text-sm font-medium uppercase tracking-wider text-zinc-700 transition hover:bg-zinc-100 dark:border-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-800"
           >
             {dict.contracts.buttons.newContract}
           </button>

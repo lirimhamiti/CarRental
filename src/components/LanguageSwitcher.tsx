@@ -19,7 +19,7 @@ export function LanguageSwitcher({ locale }: { locale: Locale }) {
   }
 
   return (
-    <div className="flex items-center gap-0.5 rounded-lg border border-zinc-200 bg-white p-0.5 text-xs font-medium shadow-sm dark:border-zinc-700 dark:bg-zinc-900">
+    <div className="flex items-center gap-0.5 rounded-full border border-gold-500/25 bg-white/5 p-0.5 text-xs font-medium tracking-wide">
       {locales.map((loc) => (
         <button
           key={loc}
@@ -27,10 +27,10 @@ export function LanguageSwitcher({ locale }: { locale: Locale }) {
           title={localeNames[loc]}
           aria-pressed={loc === locale}
           onClick={() => switchTo(loc)}
-          className={`rounded-md px-2 py-1 transition ${
+          className={`rounded-full px-2.5 py-1 transition ${
             loc === locale
-              ? "bg-indigo-600 text-white shadow-sm"
-              : "text-zinc-500 hover:bg-zinc-100 dark:text-zinc-400 dark:hover:bg-zinc-800"
+              ? "bg-gold-500 text-ink"
+              : "text-gold-100/70 hover:text-gold-100"
           }`}
         >
           {SHORT_LABEL[loc]}

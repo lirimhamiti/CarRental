@@ -49,7 +49,7 @@ export default async function CarDetailPage({
   const upcomingBookings = car.contracts.filter((c) => c.endDate >= today);
 
   return (
-    <main className="min-h-screen bg-gradient-to-b from-indigo-50/60 via-white to-white dark:from-indigo-950/20 dark:via-zinc-950 dark:to-zinc-950">
+    <main className="min-h-screen bg-white dark:bg-zinc-950">
       <div className="mx-auto flex w-full max-w-2xl flex-col gap-6 px-4 py-12 sm:px-8">
         <Link
           href="/cars"
@@ -58,10 +58,10 @@ export default async function CarDetailPage({
           {dict.cars.detail.back}
         </Link>
 
-        <div className="rounded-3xl border border-zinc-200/80 bg-white/80 p-6 shadow-xl shadow-zinc-200/50 backdrop-blur-sm dark:border-zinc-800 dark:bg-zinc-900/60 dark:shadow-black/20 sm:p-8">
+        <div className="rounded-xl border border-zinc-200 bg-white p-6 dark:border-zinc-800 dark:bg-zinc-900 sm:p-8">
           <div className="flex items-start justify-between gap-4">
             <div>
-              <h1 className="text-xl font-bold text-zinc-900 dark:text-zinc-50">
+              <h1 className="font-serif text-2xl text-zinc-900 dark:text-zinc-50">
                 {car.make} {car.model} ({car.year})
               </h1>
               <p className="mt-1 font-mono text-xs text-zinc-500 dark:text-zinc-400">{car.plate}</p>
@@ -86,7 +86,7 @@ export default async function CarDetailPage({
           </div>
 
           <div className="mt-6 flex flex-col gap-3">
-            <h2 className="text-sm font-semibold text-zinc-700 dark:text-zinc-300">
+            <h2 className="font-serif text-lg text-zinc-900 dark:text-zinc-50">
               {dict.cars.detail.bookedDates}
             </h2>
             <AvailabilityCalendar

@@ -11,7 +11,7 @@ const ICONS = {
     <path
       d="M7 3h7l5 5v13a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1Zm7 0v5h5M9 13h6M9 17h6M9 9h2"
       stroke="currentColor"
-      strokeWidth={1.8}
+      strokeWidth={1.5}
       strokeLinecap="round"
       strokeLinejoin="round"
     />
@@ -20,7 +20,7 @@ const ICONS = {
     <path
       d="M3 12h18M5 12V8a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v4M5 12v5a1 1 0 0 0 1 1h1a1 1 0 0 0 1-1v-1h8v1a1 1 0 0 0 1 1h1a1 1 0 0 0 1-1v-5"
       stroke="currentColor"
-      strokeWidth={1.8}
+      strokeWidth={1.5}
       strokeLinecap="round"
       strokeLinejoin="round"
     />
@@ -29,7 +29,7 @@ const ICONS = {
     <path
       d="M4 19V10m6 9V5m6 14v-7"
       stroke="currentColor"
-      strokeWidth={1.8}
+      strokeWidth={1.5}
       strokeLinecap="round"
       strokeLinejoin="round"
     />
@@ -68,60 +68,66 @@ export default async function Home() {
   ];
 
   return (
-    <main className="min-h-screen bg-gradient-to-b from-indigo-50/60 via-white to-white dark:from-indigo-950/20 dark:via-zinc-950 dark:to-zinc-950">
-      <div className="mx-auto flex w-full max-w-4xl flex-col gap-10 px-4 py-16 sm:px-8">
-        <div className="flex flex-col items-center gap-3 text-center">
-          <span className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-indigo-600 to-indigo-500 text-white shadow-lg shadow-indigo-500/30">
-            <svg viewBox="0 0 24 24" fill="none" className="h-7 w-7">
-              <path
-                d="M3 12h18M5 12V8a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v4M5 12v5a1 1 0 0 0 1 1h1a1 1 0 0 0 1-1v-1h8v1a1 1 0 0 0 1 1h1a1 1 0 0 0 1-1v-5"
-                stroke="currentColor"
-                strokeWidth={1.8}
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            </svg>
-          </span>
-          <h1 className="text-3xl font-bold text-zinc-900 dark:text-zinc-50">{company.name}</h1>
-          <p className="text-sm text-zinc-500 dark:text-zinc-400">{dict.home.tagline}</p>
-        </div>
+    <main className="min-h-screen bg-white dark:bg-zinc-950">
+      <div className="relative overflow-hidden bg-ink">
+        <div
+          className="pointer-events-none absolute inset-0 opacity-[0.07]"
+          style={{
+            backgroundImage:
+              "radial-gradient(circle at 1px 1px, #cca94f 1px, transparent 0)",
+            backgroundSize: "28px 28px",
+          }}
+        />
+        <div className="relative mx-auto flex w-full max-w-4xl flex-col items-center gap-8 px-4 py-16 text-center sm:px-8 sm:py-20">
+          <span className="flex h-px w-12 bg-gold-500/60" />
+          <div>
+            <h1 className="font-serif text-4xl text-white sm:text-5xl">{company.name}</h1>
+            <p className="mt-3 text-xs uppercase tracking-[0.25em] text-gold-400/90">
+              {dict.home.tagline}
+            </p>
+          </div>
 
-        <div className="grid grid-cols-3 gap-3 sm:gap-4">
-          {stats.map((stat) => (
-            <div
-              key={stat.label}
-              className="flex flex-col items-center gap-1 rounded-2xl border border-zinc-200/80 bg-white/80 py-5 text-center shadow-sm backdrop-blur-sm dark:border-zinc-800 dark:bg-zinc-900/60"
-            >
-              <span className="text-2xl font-bold tabular-nums text-zinc-900 dark:text-zinc-50">
-                {stat.value}
-              </span>
-              <span className="px-2 text-[11px] font-medium uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
-                {stat.label}
-              </span>
-            </div>
-          ))}
+          <div className="mt-4 grid w-full grid-cols-3 gap-3 border-t border-gold-500/15 pt-8 sm:gap-8">
+            {stats.map((stat) => (
+              <div key={stat.label} className="flex flex-col items-center gap-1.5">
+                <span className="font-serif text-3xl text-gold-400 sm:text-4xl">
+                  {stat.value}
+                </span>
+                <span className="px-1 text-[10px] font-medium uppercase tracking-widest text-zinc-400">
+                  {stat.label}
+                </span>
+              </div>
+            ))}
+          </div>
         </div>
+      </div>
 
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+      <div className="mx-auto w-full max-w-4xl px-4 py-14 sm:px-8">
+        <div className="grid grid-cols-1 gap-px overflow-hidden rounded-xl border border-zinc-200 bg-zinc-200 dark:border-zinc-800 dark:bg-zinc-800 sm:grid-cols-3">
           {sections.map((section) => (
             <Link
               key={section.href}
               href={section.href}
-              className="group flex flex-col gap-4 rounded-3xl border border-zinc-200/80 bg-white/80 p-6 shadow-xl shadow-zinc-200/50 backdrop-blur-sm transition hover:-translate-y-1 hover:shadow-2xl hover:shadow-indigo-500/20 dark:border-zinc-800 dark:bg-zinc-900/60 dark:shadow-black/20"
+              className="group relative flex flex-col gap-4 bg-white p-7 transition hover:bg-ink dark:bg-zinc-950 dark:hover:bg-ink"
             >
-              <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-indigo-50 text-indigo-600 transition group-hover:bg-gradient-to-br group-hover:from-indigo-600 group-hover:to-indigo-500 group-hover:text-white dark:bg-indigo-500/10 dark:text-indigo-400">
-                <svg viewBox="0 0 24 24" fill="none" className="h-5 w-5">
+              <span className="flex h-10 w-10 items-center justify-center rounded-full border border-zinc-300 text-zinc-500 transition group-hover:border-gold-500/60 group-hover:text-gold-400 dark:border-zinc-700 dark:text-zinc-400">
+                <svg viewBox="0 0 24 24" fill="none" className="h-4.5 w-4.5">
                   {section.icon}
                 </svg>
               </span>
               <div>
-                <p className="text-lg font-semibold text-zinc-900 dark:text-zinc-50">
+                <p className="font-serif text-lg text-zinc-900 transition group-hover:text-white dark:text-zinc-50">
                   {section.title}
                 </p>
-                <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
+                <p className="mt-1.5 text-sm text-zinc-500 transition group-hover:text-zinc-400 dark:text-zinc-400">
                   {section.description}
                 </p>
               </div>
+              <span className="mt-1 flex items-center gap-1 text-xs font-medium uppercase tracking-wider text-zinc-400 opacity-0 transition group-hover:text-gold-400 group-hover:opacity-100">
+                <svg viewBox="0 0 24 24" fill="none" className="h-3 w-3">
+                  <path d="M5 12h14m-6-6 6 6-6 6" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+              </span>
             </Link>
           ))}
         </div>

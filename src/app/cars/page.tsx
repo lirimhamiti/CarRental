@@ -28,18 +28,18 @@ export default async function CarsPage() {
   today.setUTCHours(0, 0, 0, 0);
 
   return (
-    <main className="min-h-screen bg-gradient-to-b from-indigo-50/60 via-white to-white dark:from-indigo-950/20 dark:via-zinc-950 dark:to-zinc-950">
+    <main className="min-h-screen bg-white dark:bg-zinc-950">
       <div className="mx-auto flex w-full max-w-4xl flex-col gap-6 px-4 py-12 sm:px-8">
         <div>
-          <p className="text-xs font-medium uppercase tracking-wide text-indigo-500 dark:text-indigo-400">
+          <p className="text-xs font-medium uppercase tracking-[0.2em] text-gold-600 dark:text-gold-400">
             {dict.cars.eyebrow}
           </p>
-          <h1 className="text-2xl font-bold text-zinc-900 dark:text-zinc-50">{dict.cars.title}</h1>
+          <h1 className="font-serif text-3xl text-zinc-900 dark:text-zinc-50">{dict.cars.title}</h1>
         </div>
 
         <AddCarForm dict={dict} />
 
-        <div className="overflow-hidden rounded-3xl border border-zinc-200/80 bg-white/80 shadow-xl shadow-zinc-200/50 backdrop-blur-sm dark:border-zinc-800 dark:bg-zinc-900/60 dark:shadow-black/20">
+        <div className="overflow-hidden rounded-xl border border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-900">
           {cars.length === 0 ? (
             <p className="p-8 text-center text-sm text-zinc-500 dark:text-zinc-400">
               {dict.cars.empty}
@@ -62,22 +62,22 @@ export default async function CarsPage() {
                   return (
                     <tr
                       key={car.id}
-                      className="group transition hover:bg-indigo-50/60 dark:hover:bg-indigo-500/5"
+                      className="group transition hover:bg-gold-50/60 dark:hover:bg-gold-500/5"
                     >
                       <td className="px-6 py-4">
                         <Link href={`/cars/${car.id}`} className="flex items-center gap-3">
-                          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-indigo-50 text-indigo-600 dark:bg-indigo-500/10 dark:text-indigo-400">
+                          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-ink text-gold-400">
                             <svg viewBox="0 0 24 24" fill="none" className="h-4.5 w-4.5">
                               <path
                                 d="M3 12h18M5 12V8a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v4M5 12v5a1 1 0 0 0 1 1h1a1 1 0 0 0 1-1v-1h8v1a1 1 0 0 0 1 1h1a1 1 0 0 0 1-1v-5"
                                 stroke="currentColor"
-                                strokeWidth={1.8}
+                                strokeWidth={1.6}
                                 strokeLinecap="round"
                                 strokeLinejoin="round"
                               />
                             </svg>
                           </span>
-                          <span className="font-medium text-zinc-900 group-hover:text-indigo-600 dark:text-zinc-50 dark:group-hover:text-indigo-400">
+                          <span className="font-medium text-zinc-900 group-hover:text-gold-600 dark:text-zinc-50 dark:group-hover:text-gold-400">
                             {car.make} {car.model} ({car.year})
                           </span>
                         </Link>
@@ -104,7 +104,7 @@ export default async function CarsPage() {
                       <td className="px-6 py-4 text-right">
                         <Link
                           href={`/cars/${car.id}`}
-                          className="text-zinc-300 transition group-hover:text-indigo-500 dark:text-zinc-700"
+                          className="text-zinc-300 transition group-hover:text-gold-500 dark:text-zinc-700"
                         >
                           <svg viewBox="0 0 24 24" fill="none" className="h-4 w-4">
                             <path
