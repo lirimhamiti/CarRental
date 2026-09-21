@@ -27,6 +27,23 @@ function downloadPdf(contractId: string) {
   link.click();
 }
 
+function daysBetweenInclusive(start: string, end: string): number {
+  const ms = new Date(`${end}T00:00:00Z`).getTime() - new Date(`${start}T00:00:00Z`).getTime();
+  return Math.round(ms / (1000 * 60 * 60 * 24)) + 1;
+}
+
+const inputClass =
+  "w-full rounded-xl border border-zinc-300 bg-white px-3.5 py-2.5 text-sm text-zinc-900 shadow-sm transition placeholder:text-zinc-400 focus:border-indigo-500 focus:outline-none focus:ring-4 focus:ring-indigo-500/15 disabled:cursor-not-allowed disabled:bg-zinc-100 disabled:text-zinc-500 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-50 dark:placeholder:text-zinc-600 dark:disabled:bg-zinc-800/60";
+const labelClass = "mb-1.5 block text-xs font-medium text-zinc-500 dark:text-zinc-400";
+
+function SectionIcon({ children }: { children: React.ReactNode }) {
+  return (
+    <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-indigo-50 text-indigo-600 dark:bg-indigo-500/10 dark:text-indigo-400">
+      {children}
+    </span>
+  );
+}
+
 export function NewContractForm() {
   const [clientId, setClientId] = useState<string | undefined>(undefined);
   const [firstName, setFirstName] = useState("");
@@ -115,6 +132,10 @@ export function NewContractForm() {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+    if (createdContractId) {
+      downloadPdf(createdContractId);
+      return;
+    }
     setError(null);
     setSubmitting(true);
     try {
@@ -161,205 +182,290 @@ export function NewContractForm() {
     setError(null);
   }
 
-  if (createdContractId) {
-    return (
-      <div className="flex flex-col gap-4 rounded-xl border border-green-200 bg-green-50 p-6 dark:border-green-900 dark:bg-green-950">
-        <p className="font-medium text-green-800 dark:text-green-300">
-          Contract generated — your download should start automatically.
+  const created = Boolean(createdContractId);
+  const days = startDate && endDate && endDate >= startDate ? daysBetweenInclusive(startDate, endDate) : 0;
+  const total = days > 0 && Number(dailyPrice) > 0 ? days * Number(dailyPrice) : 0;
+
+  const canSubmit =
+    created ||
+    (firstName.trim() &&
+      lastName.trim() &&
+      documentNumber.trim() &&
+      startDate &&
+      endDate &&
+      endDate >= startDate &&
+      carId &&
+      Number(dailyPrice) > 0 &&
+      !submitting);
+
+  return (
+    <form
+      onSubmit={handleSubmit}
+      className="flex flex-col gap-6 rounded-3xl border border-zinc-200/80 bg-white/80 p-6 shadow-xl shadow-zinc-200/50 backdrop-blur-sm dark:border-zinc-800 dark:bg-zinc-900/60 dark:shadow-black/20 sm:p-8"
+    >
+      <fieldset disabled={created} className="flex flex-col gap-6 disabled:opacity-60">
+        <div className="flex flex-col gap-4">
+          <div className="flex items-center gap-3">
+            <SectionIcon>
+              <svg viewBox="0 0 24 24" fill="none" className="h-4 w-4">
+                <path
+                  d="M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8Zm-7 8a7 7 0 0 1 14 0"
+                  stroke="currentColor"
+                  strokeWidth={1.8}
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
+            </SectionIcon>
+            <h2 className="text-sm font-semibold text-zinc-900 dark:text-zinc-50">
+              Client
+            </h2>
+          </div>
+          {clientId && (
+            <p className="-mt-2 flex items-center gap-1.5 text-xs font-medium text-emerald-600 dark:text-emerald-400">
+              <svg viewBox="0 0 24 24" fill="none" className="h-3.5 w-3.5">
+                <path
+                  d="M5 13l4 4L19 7"
+                  stroke="currentColor"
+                  strokeWidth={2.2}
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
+              Existing client selected — fields filled in automatically
+            </p>
+          )}
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <div className="relative">
+              <label className={labelClass}>Name Surname *</label>
+              <input
+                required
+                placeholder="Name"
+                value={firstName}
+                onChange={(e) => handleFirstNameChange(e.target.value)}
+                onFocus={() => setShowSuggestions(true)}
+                onBlur={() => setTimeout(() => setShowSuggestions(false), 150)}
+                className={inputClass}
+              />
+              {showSuggestions && suggestions.length > 0 && (
+                <ul className="absolute z-10 mt-1.5 w-full overflow-hidden rounded-xl border border-zinc-200 bg-white shadow-lg shadow-zinc-200/60 dark:border-zinc-700 dark:bg-zinc-900 dark:shadow-black/30">
+                  {suggestions.map((s) => (
+                    <li key={s.id}>
+                      <button
+                        type="button"
+                        onClick={() => selectClient(s)}
+                        className="flex w-full items-center gap-3 px-3.5 py-2.5 text-left text-sm transition hover:bg-indigo-50 dark:hover:bg-indigo-500/10"
+                      >
+                        <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-indigo-100 text-[11px] font-semibold text-indigo-700 dark:bg-indigo-500/20 dark:text-indigo-300">
+                          {s.firstName[0]}
+                          {s.lastName[0]}
+                        </span>
+                        <span>
+                          <span className="font-medium text-zinc-900 dark:text-zinc-50">
+                            {s.firstName} {s.lastName}
+                          </span>
+                          <span className="ml-1.5 text-zinc-400">· {s.documentNumber}</span>
+                        </span>
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+            <div>
+              <label className={labelClass}>&nbsp;</label>
+              <input
+                required
+                placeholder="Surname"
+                value={lastName}
+                onChange={(e) => setLastName(e.target.value)}
+                className={inputClass}
+              />
+            </div>
+            <div>
+              <label className={labelClass}>ID number or passport ID *</label>
+              <input
+                required
+                value={documentNumber}
+                onChange={(e) => setDocumentNumber(e.target.value)}
+                className={inputClass}
+              />
+            </div>
+            <div>
+              <label className={labelClass}>Email</label>
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className={inputClass}
+              />
+            </div>
+            <div>
+              <label className={labelClass}>Phone number</label>
+              <input
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
+                className={inputClass}
+              />
+            </div>
+          </div>
+        </div>
+
+        <div className="h-px bg-gradient-to-r from-transparent via-zinc-200 to-transparent dark:via-zinc-800" />
+
+        <div className="flex flex-col gap-4">
+          <div className="flex items-center gap-3">
+            <SectionIcon>
+              <svg viewBox="0 0 24 24" fill="none" className="h-4 w-4">
+                <path
+                  d="M3 12h18M5 12V8a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v4M5 12v5a1 1 0 0 0 1 1h1a1 1 0 0 0 1-1v-1h8v1a1 1 0 0 0 1 1h1a1 1 0 0 0 1-1v-5M7 10h2m6 0h2"
+                  stroke="currentColor"
+                  strokeWidth={1.8}
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
+            </SectionIcon>
+            <h2 className="text-sm font-semibold text-zinc-900 dark:text-zinc-50">
+              Rental
+            </h2>
+          </div>
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+            <div>
+              <label className={labelClass}>Start date *</label>
+              <input
+                type="date"
+                required
+                value={startDate}
+                min={today}
+                onChange={(e) => handleStartDateChange(e.target.value)}
+                className={inputClass}
+              />
+            </div>
+            <div>
+              <label className={labelClass}>End date *</label>
+              <input
+                type="date"
+                required
+                value={endDate}
+                min={startDate}
+                onChange={(e) => handleEndDateChange(e.target.value)}
+                className={inputClass}
+              />
+            </div>
+            <div>
+              <label className={labelClass}>Daily price *</label>
+              <input
+                type="number"
+                required
+                min={0.01}
+                step="0.01"
+                value={dailyPrice}
+                onChange={(e) => setDailyPrice(e.target.value)}
+                className={inputClass}
+              />
+            </div>
+          </div>
+
+          <div>
+            <label className={labelClass}>Available car *</label>
+            {loadingCars ? (
+              <p className="rounded-xl border border-dashed border-zinc-300 px-3.5 py-2.5 text-sm text-zinc-500 dark:border-zinc-700">
+                Checking availability…
+              </p>
+            ) : availableCars.length === 0 ? (
+              <p className="rounded-xl border border-dashed border-amber-300 bg-amber-50 px-3.5 py-2.5 text-sm text-amber-700 dark:border-amber-900 dark:bg-amber-950 dark:text-amber-400">
+                No cars free for these dates.
+              </p>
+            ) : (
+              <select
+                required
+                value={carId}
+                onChange={(e) => setCarId(e.target.value)}
+                className={inputClass}
+              >
+                <option value="" disabled>
+                  Select a car
+                </option>
+                {availableCars.map((car) => (
+                  <option key={car.id} value={car.id}>
+                    {car.make} {car.model} ({car.year}) · {car.plate}
+                  </option>
+                ))}
+              </select>
+            )}
+          </div>
+
+          {total > 0 && (
+            <div className="flex items-center justify-between rounded-2xl bg-gradient-to-br from-indigo-600 to-indigo-500 px-5 py-4 text-white shadow-lg shadow-indigo-500/25">
+              <div>
+                <p className="text-xs font-medium uppercase tracking-wide text-indigo-100">
+                  {days} {days === 1 ? "day" : "days"} · {Number(dailyPrice).toFixed(2)} / day
+                </p>
+                <p className="text-lg font-semibold">Total price</p>
+              </div>
+              <p className="text-2xl font-bold tabular-nums">{total.toFixed(2)}</p>
+            </div>
+          )}
+        </div>
+      </fieldset>
+
+      {error && (
+        <p className="rounded-xl border border-red-200 bg-red-50 px-3.5 py-2.5 text-sm text-red-700 dark:border-red-900 dark:bg-red-950 dark:text-red-400">
+          {error}
         </p>
-        <div className="flex flex-col gap-2 sm:flex-row">
-          <a
-            href={`/api/contracts/${createdContractId}/pdf`}
-            className="rounded-lg bg-zinc-900 px-4 py-2 text-center text-sm font-medium text-white hover:bg-zinc-700 dark:bg-zinc-50 dark:text-zinc-900 dark:hover:bg-zinc-200"
-          >
-            Download PDF again
-          </a>
+      )}
+
+      {created && (
+        <p className="flex items-center gap-1.5 text-sm font-medium text-emerald-600 dark:text-emerald-400">
+          <svg viewBox="0 0 24 24" fill="none" className="h-4 w-4">
+            <path
+              d="M5 13l4 4L19 7"
+              stroke="currentColor"
+              strokeWidth={2.2}
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          </svg>
+          Contract created — your download should have started.
+        </p>
+      )}
+
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+        <button
+          type="submit"
+          disabled={!canSubmit}
+          className="flex items-center justify-center gap-2 rounded-xl bg-gradient-to-br from-indigo-600 to-indigo-500 px-5 py-3 text-sm font-semibold text-white shadow-lg shadow-indigo-500/30 transition hover:from-indigo-500 hover:to-indigo-400 hover:shadow-indigo-500/40 disabled:cursor-not-allowed disabled:from-zinc-300 disabled:to-zinc-300 disabled:text-zinc-500 disabled:shadow-none dark:disabled:from-zinc-700 dark:disabled:to-zinc-700"
+        >
+          {created ? (
+            <>
+              <svg viewBox="0 0 24 24" fill="none" className="h-4 w-4">
+                <path
+                  d="M12 3v12m0 0 4-4m-4 4-4-4M5 21h14"
+                  stroke="currentColor"
+                  strokeWidth={2}
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
+              Download contract
+            </>
+          ) : submitting ? (
+            "Creating…"
+          ) : (
+            "Create contract"
+          )}
+        </button>
+        {created && (
           <button
             type="button"
             onClick={resetForm}
-            className="rounded-lg border border-zinc-300 px-4 py-2 text-sm font-medium text-zinc-700 hover:bg-zinc-100 dark:border-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-800"
+            className="rounded-xl border border-zinc-300 px-5 py-3 text-sm font-medium text-zinc-700 transition hover:bg-zinc-100 dark:border-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-800"
           >
             New contract
           </button>
-        </div>
-      </div>
-    );
-  }
-
-  const canSubmit =
-    firstName.trim() &&
-    lastName.trim() &&
-    documentNumber.trim() &&
-    startDate &&
-    endDate &&
-    endDate >= startDate &&
-    carId &&
-    Number(dailyPrice) > 0 &&
-    !submitting;
-
-  return (
-    <form onSubmit={handleSubmit} className="flex flex-col gap-6">
-      <div className="flex flex-col gap-4 rounded-xl border border-zinc-200 p-4 dark:border-zinc-800">
-        <h2 className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
-          Client
-        </h2>
-        {clientId && (
-          <p className="text-xs text-green-700 dark:text-green-400">
-            Existing client selected — fields filled in automatically.
-          </p>
         )}
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-          <div className="relative">
-            <label className="mb-1 block text-xs text-zinc-500">Name Surname *</label>
-            <input
-              required
-              placeholder="Name"
-              value={firstName}
-              onChange={(e) => handleFirstNameChange(e.target.value)}
-              onFocus={() => setShowSuggestions(true)}
-              onBlur={() => setTimeout(() => setShowSuggestions(false), 150)}
-              className="w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-900"
-            />
-            {showSuggestions && suggestions.length > 0 && (
-              <ul className="absolute z-10 mt-1 w-full rounded-lg border border-zinc-200 bg-white shadow-lg dark:border-zinc-700 dark:bg-zinc-900">
-                {suggestions.map((s) => (
-                  <li key={s.id}>
-                    <button
-                      type="button"
-                      onClick={() => selectClient(s)}
-                      className="block w-full px-3 py-2 text-left text-sm hover:bg-zinc-100 dark:hover:bg-zinc-800"
-                    >
-                      {s.firstName} {s.lastName}{" "}
-                      <span className="text-zinc-400">· {s.documentNumber}</span>
-                    </button>
-                  </li>
-                ))}
-              </ul>
-            )}
-          </div>
-          <div>
-            <label className="mb-1 block text-xs text-zinc-500">&nbsp;</label>
-            <input
-              required
-              placeholder="Surname"
-              value={lastName}
-              onChange={(e) => setLastName(e.target.value)}
-              className="w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-900"
-            />
-          </div>
-          <div>
-            <label className="mb-1 block text-xs text-zinc-500">
-              ID number or passport ID *
-            </label>
-            <input
-              required
-              value={documentNumber}
-              onChange={(e) => setDocumentNumber(e.target.value)}
-              className="w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-900"
-            />
-          </div>
-          <div>
-            <label className="mb-1 block text-xs text-zinc-500">Email</label>
-            <input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-900"
-            />
-          </div>
-          <div>
-            <label className="mb-1 block text-xs text-zinc-500">Phone number</label>
-            <input
-              value={phone}
-              onChange={(e) => setPhone(e.target.value)}
-              className="w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-900"
-            />
-          </div>
-        </div>
       </div>
-
-      <div className="flex flex-col gap-4 rounded-xl border border-zinc-200 p-4 dark:border-zinc-800">
-        <h2 className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
-          Rental
-        </h2>
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
-          <div>
-            <label className="mb-1 block text-xs text-zinc-500">Start date *</label>
-            <input
-              type="date"
-              required
-              value={startDate}
-              min={today}
-              onChange={(e) => handleStartDateChange(e.target.value)}
-              className="w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-900"
-            />
-          </div>
-          <div>
-            <label className="mb-1 block text-xs text-zinc-500">End date *</label>
-            <input
-              type="date"
-              required
-              value={endDate}
-              min={startDate}
-              onChange={(e) => handleEndDateChange(e.target.value)}
-              className="w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-900"
-            />
-          </div>
-          <div>
-            <label className="mb-1 block text-xs text-zinc-500">Daily price *</label>
-            <input
-              type="number"
-              required
-              min={0.01}
-              step="0.01"
-              value={dailyPrice}
-              onChange={(e) => setDailyPrice(e.target.value)}
-              className="w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-900"
-            />
-          </div>
-        </div>
-
-        <div>
-          <label className="mb-1 block text-xs text-zinc-500">
-            Available car *
-          </label>
-          {loadingCars ? (
-            <p className="text-sm text-zinc-500">Checking availability…</p>
-          ) : availableCars.length === 0 ? (
-            <p className="text-sm text-zinc-500">
-              No cars free for these dates.
-            </p>
-          ) : (
-            <select
-              required
-              value={carId}
-              onChange={(e) => setCarId(e.target.value)}
-              className="w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-900"
-            >
-              <option value="" disabled>
-                Select a car
-              </option>
-              {availableCars.map((car) => (
-                <option key={car.id} value={car.id}>
-                  {car.make} {car.model} ({car.year}) · {car.plate}
-                </option>
-              ))}
-            </select>
-          )}
-        </div>
-      </div>
-
-      {error && (
-        <p className="text-sm text-red-600 dark:text-red-400">{error}</p>
-      )}
-
-      <button
-        type="submit"
-        disabled={!canSubmit}
-        className="rounded-lg bg-zinc-900 px-4 py-2 text-sm font-medium text-white hover:bg-zinc-700 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-zinc-50 dark:text-zinc-900 dark:hover:bg-zinc-200"
-      >
-        {submitting ? "Generating…" : "Generate"}
-      </button>
     </form>
   );
 }
