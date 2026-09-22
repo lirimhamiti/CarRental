@@ -143,7 +143,13 @@ const sq: typeof en = {
     eyebrow: "Pasqyra e flotës",
     title: "Disponueshmëria",
     legendFree: "E lirë",
+    legendReserved: "E rezervuar",
     noCars: "Ende pa makina në flotën tënde.",
+    reserveTitle: "Rezervim i ri",
+    clientName: "Emri i klientit *",
+    until: "Deri më",
+    create: "Krijo rezervim",
+    cancel: "Anulo",
   },
   reports: {
     eyebrow: "Analitika",

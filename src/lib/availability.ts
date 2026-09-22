@@ -7,3 +7,9 @@ export function daysBetweenInclusive(start: Date, end: Date): number {
   const MS_PER_DAY = 1000 * 60 * 60 * 24;
   return Math.round((end.getTime() - start.getTime()) / MS_PER_DAY) + 1;
 }
+
+export function addDaysInclusive(start: Date, days: number): Date {
+  const d = new Date(start);
+  d.setUTCDate(d.getUTCDate() + days - 1);
+  return d;
+}

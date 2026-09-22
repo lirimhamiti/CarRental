@@ -1,6 +1,8 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { inputClass, labelClass, primaryButtonClass } from "@/components/ui";
 import type { Dictionary } from "@/lib/i18n/get-dictionary";
 
 interface CarRow {
@@ -17,6 +19,13 @@ interface Booking {
   driverNames: string;
 }
 
+interface ReservationRow {
+  carId: string;
+  startDate: Date;
+  endDate: Date;
+  clientName: string;
+}
+
 function startOfMonth(date: Date): Date {
   return new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), 1));
 }
@@ -29,18 +38,36 @@ function isSameDay(a: Date, b: Date): boolean {
   );
 }
 
+function toDateOnly(date: Date): string {
+  return date.toISOString().slice(0, 10);
+}
+
+function addDaysInclusive(start: Date, days: number): Date {
+  const d = new Date(start);
+  d.setUTCDate(d.getUTCDate() + days - 1);
+  return d;
+}
+
 export function AvailabilityMatrix({
   cars,
   bookings,
+  reservations,
   today,
   dict,
 }: {
   cars: CarRow[];
   bookings: Booking[];
+  reservations: ReservationRow[];
   today: Date;
   dict: Dictionary;
 }) {
+  const router = useRouter();
   const [viewMonth, setViewMonth] = useState(() => startOfMonth(today));
+  const [selected, setSelected] = useState<{ car: CarRow; date: Date } | null>(null);
+  const [clientName, setClientName] = useState("");
+  const [days, setDays] = useState("1");
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const calendar = dict.cars.detail.calendar;
   const monthLabel = `${calendar.months[viewMonth.getUTCMonth()]} ${viewMonth.getUTCFullYear()}`;
@@ -53,6 +80,51 @@ export function AvailabilityMatrix({
   function bookingFor(carId: string, date: Date): Booking | undefined {
     return bookings.find((b) => b.carId === carId && date >= b.startDate && date <= b.endDate);
   }
+
+  function reservationFor(carId: string, date: Date): ReservationRow | undefined {
+    return reservations.find((r) => r.carId === carId && date >= r.startDate && date <= r.endDate);
+  }
+
+  function openDialog(car: CarRow, date: Date) {
+    setSelected({ car, date });
+    setClientName("");
+    setDays("1");
+    setError(null);
+  }
+
+  function closeDialog() {
+    setSelected(null);
+  }
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    if (!selected) return;
+    setError(null);
+    setSubmitting(true);
+    try {
+      const res = await fetch("/api/reservations", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          carId: selected.car.id,
+          startDate: toDateOnly(selected.date),
+          days: Number(days),
+          clientName,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setError(dict.contracts.errors[data.code as keyof typeof dict.contracts.errors] ?? dict.contracts.errors.GENERIC);
+        return;
+      }
+      closeDialog();
+      router.refresh();
+    } finally {
+      setSubmitting(false);
+    }
+  }
+
+  const untilDate = selected && Number(days) > 0 ? addDaysInclusive(selected.date, Number(days)) : null;
 
   return (
     <div className="flex flex-col gap-3">
@@ -115,19 +187,30 @@ export function AvailabilityMatrix({
                   </td>
                   {cars.map((car) => {
                     const booking = bookingFor(car.id, date);
+                    const reservation = !booking ? reservationFor(car.id, date) : undefined;
                     return (
                       <td
                         key={car.id}
                         className="border-b border-l border-zinc-100 p-1 text-center dark:border-zinc-800"
                       >
-                        <span
-                          title={booking?.driverNames}
-                          className={`inline-block h-5 w-5 rounded ${
-                            booking
-                              ? "bg-red-400 dark:bg-red-500/70"
-                              : "bg-emerald-100 dark:bg-emerald-500/10"
-                          }`}
-                        />
+                        {booking ? (
+                          <span
+                            title={booking.driverNames}
+                            className="inline-block h-5 w-5 rounded bg-red-400 dark:bg-red-500/70"
+                          />
+                        ) : reservation ? (
+                          <span
+                            title={reservation.clientName}
+                            className="inline-block h-5 w-5 rounded bg-amber-300 dark:bg-amber-500/70"
+                          />
+                        ) : (
+                          <button
+                            type="button"
+                            onClick={() => openDialog(car, date)}
+                            title={dict.availability.reserveTitle}
+                            className="inline-block h-5 w-5 rounded bg-emerald-100 transition hover:bg-emerald-300 dark:bg-emerald-500/10 dark:hover:bg-emerald-500/40"
+                          />
+                        )}
                       </td>
                     );
                   })}
@@ -144,6 +227,10 @@ export function AvailabilityMatrix({
           {calendar.legendBooked}
         </span>
         <span className="flex items-center gap-1.5">
+          <span className="h-2.5 w-2.5 rounded bg-amber-300" />
+          {dict.availability.legendReserved}
+        </span>
+        <span className="flex items-center gap-1.5">
           <span className="h-2.5 w-2.5 rounded bg-emerald-100 dark:bg-emerald-500/10" />
           {dict.availability.legendFree}
         </span>
@@ -152,6 +239,78 @@ export function AvailabilityMatrix({
           {calendar.legendToday}
         </span>
       </div>
+
+      {selected && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4"
+          onClick={closeDialog}
+        >
+          <div
+            className="w-full max-w-sm rounded-xl bg-white p-6 shadow-xl dark:bg-zinc-900"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h3 className="font-serif text-lg text-zinc-900 dark:text-zinc-50">
+              {dict.availability.reserveTitle}
+            </h3>
+            <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
+              {selected.car.make} {selected.car.model} · {selected.car.plate} ·{" "}
+              {calendar.weekdays[(selected.date.getUTCDay() + 6) % 7]} {selected.date.getUTCDate()}{" "}
+              {calendar.months[selected.date.getUTCMonth()]}
+            </p>
+
+            <form onSubmit={handleSubmit} className="mt-4 flex flex-col gap-4">
+              <div>
+                <label className={labelClass}>{dict.availability.clientName}</label>
+                <input
+                  required
+                  value={clientName}
+                  onChange={(e) => setClientName(e.target.value)}
+                  className={inputClass}
+                  autoFocus
+                />
+              </div>
+              <div>
+                <label className={labelClass}>{dict.contracts.rental.daysLabel}</label>
+                <input
+                  type="number"
+                  required
+                  min={1}
+                  step={1}
+                  value={days}
+                  onChange={(e) => setDays(e.target.value)}
+                  className={inputClass}
+                />
+              </div>
+              {untilDate && (
+                <p className="-mt-2 text-xs text-zinc-500 dark:text-zinc-400">
+                  {dict.availability.until}:{" "}
+                  {calendar.weekdays[(untilDate.getUTCDay() + 6) % 7]} {untilDate.getUTCDate()}{" "}
+                  {calendar.months[untilDate.getUTCMonth()]}
+                </p>
+              )}
+
+              {error && (
+                <p className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-xs text-red-700 dark:border-red-900 dark:bg-red-950 dark:text-red-400">
+                  {error}
+                </p>
+              )}
+
+              <div className="flex gap-3">
+                <button type="submit" disabled={submitting} className={`flex-1 ${primaryButtonClass}`}>
+                  {submitting ? dict.contracts.buttons.creating : dict.availability.create}
+                </button>
+                <button
+                  type="button"
+                  onClick={closeDialog}
+                  className="rounded-lg border border-zinc-300 px-5 py-3 text-sm font-medium uppercase tracking-wider text-zinc-700 transition hover:bg-zinc-100 dark:border-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-800"
+                >
+                  {dict.availability.cancel}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

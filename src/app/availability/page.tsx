@@ -12,7 +12,7 @@ export default async function AvailabilityPage() {
   const dict = getDictionary(locale);
   const companyId = await getCurrentCompanyId();
 
-  const [cars, contracts] = await Promise.all([
+  const [cars, contracts, reservations] = await Promise.all([
     prisma.car.findMany({
       where: { companyId },
       orderBy: [{ make: "asc" }, { model: "asc" }],
@@ -21,6 +21,7 @@ export default async function AvailabilityPage() {
       where: { companyId, status: "ACTIVE" },
       include: { drivers: { include: { client: true }, orderBy: { order: "asc" } } },
     }),
+    prisma.reservation.findMany({ where: { companyId } }),
   ]);
 
   const today = new Date();
@@ -31,6 +32,13 @@ export default async function AvailabilityPage() {
     startDate: c.startDate,
     endDate: c.endDate,
     driverNames: c.drivers.map((d) => `${d.client.firstName} ${d.client.lastName}`).join(", "),
+  }));
+
+  const reservationRows = reservations.map((r) => ({
+    carId: r.carId,
+    startDate: r.startDate,
+    endDate: r.endDate,
+    clientName: r.clientName,
   }));
 
   return (
@@ -60,7 +68,13 @@ export default async function AvailabilityPage() {
             </p>
           ) : (
             <>
-              <AvailabilityMatrix cars={cars} bookings={bookings} today={today} dict={dict} />
+              <AvailabilityMatrix
+                cars={cars}
+                bookings={bookings}
+                reservations={reservationRows}
+                today={today}
+                dict={dict}
+              />
               <p className="mt-3 text-center text-xs text-zinc-400 sm:hidden">
                 {dict.cars.swipeHint}
               </p>

@@ -143,7 +143,13 @@ const mk: typeof en = {
     eyebrow: "Преглед на возен парк",
     title: "Достапност",
     legendFree: "Слободно",
+    legendReserved: "Резервирано",
     noCars: "Сè уште нема возила во вашиот возен парк.",
+    reserveTitle: "Нова резервација",
+    clientName: "Име на клиент *",
+    until: "До",
+    create: "Креирај резервација",
+    cancel: "Откажи",
   },
   reports: {
     eyebrow: "Аналитика",

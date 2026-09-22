@@ -141,7 +141,13 @@ const en = {
     eyebrow: "Fleet overview",
     title: "Availability",
     legendFree: "Free",
+    legendReserved: "Reserved",
     noCars: "No cars in your fleet yet.",
+    reserveTitle: "New reservation",
+    clientName: "Client name *",
+    until: "Until",
+    create: "Create reservation",
+    cancel: "Cancel",
   },
   reports: {
     eyebrow: "Analytics",

@@ -37,10 +37,11 @@ model Company {
   createdAt          DateTime           @default(now())
   updatedAt          DateTime           @updatedAt
 
-  users     User[]
-  cars      Car[]
-  clients   Client[]
-  contracts Contract[]
+  users        User[]
+  cars         Car[]
+  clients      Client[]
+  contracts    Contract[]
+  reservations Reservation[]
 }
 
 model User {
@@ -66,8 +67,9 @@ model Car {
   status    CarStatus @default(ACTIVE)
   createdAt DateTime  @default(now())
 
-  company   Company    @relation(fields: [companyId], references: [id], onDelete: Cascade)
-  contracts Contract[]
+  company      Company       @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  contracts    Contract[]
+  reservations Reservation[]
 
   @@unique([companyId, plate])
   @@index([companyId])
@@ -129,4 +131,23 @@ model ContractDriver {
   @@unique([contractId, clientId])
   @@index([contractId])
   @@index([clientId])
+}
+
+// A lightweight pre-contract hold on a car for a date range — just a client
+// name, no full driver profile. Created by clicking a free cell in the
+// fleet availability matrix.
+model Reservation {
+  id         String   @id @default(cuid())
+  companyId  String
+  carId      String
+  clientName String
+  startDate  DateTime @db.Date
+  endDate    DateTime @db.Date
+  createdAt  DateTime @default(now())
+
+  company Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  car     Car     @relation(fields: [carId], references: [id])
+
+  @@index([companyId])
+  @@index([carId, startDate, endDate])
 }
