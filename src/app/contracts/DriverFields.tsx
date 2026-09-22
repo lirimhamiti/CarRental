@@ -6,6 +6,12 @@ import { interpolate, type Dictionary } from "@/lib/i18n/get-dictionary";
 
 const today = new Date().toISOString().slice(0, 10);
 
+function addYears(dateStr: string, years: number): string {
+  const d = new Date(`${dateStr}T00:00:00Z`);
+  d.setUTCFullYear(d.getUTCFullYear() + years);
+  return d.toISOString().slice(0, 10);
+}
+
 interface ClientSuggestion {
   id: string;
   firstName: string;
@@ -108,6 +114,20 @@ export function DriverFields({
     if (value.trim().length < 2) {
       setSuggestions([]);
     }
+  }
+
+  function handlePassportIssueChange(value: string) {
+    onChange({
+      passportIssueDate: value,
+      passportExpiryDate: value ? addYears(value, 10) : driver.passportExpiryDate,
+    });
+  }
+
+  function handleLicenceIssueChange(value: string) {
+    onChange({
+      licenceIssueDate: value,
+      licenceExpiryDate: value ? addYears(value, 10) : driver.licenceExpiryDate,
+    });
   }
 
   return (
@@ -228,7 +248,7 @@ export function DriverFields({
           <input
             type="date"
             value={driver.passportIssueDate}
-            onChange={(e) => onChange({ passportIssueDate: e.target.value })}
+            onChange={(e) => handlePassportIssueChange(e.target.value)}
             className={dateInputClass}
           />
         </div>
@@ -257,7 +277,7 @@ export function DriverFields({
           <input
             type="date"
             value={driver.licenceIssueDate}
-            onChange={(e) => onChange({ licenceIssueDate: e.target.value })}
+            onChange={(e) => handleLicenceIssueChange(e.target.value)}
             className={dateInputClass}
           />
         </div>
