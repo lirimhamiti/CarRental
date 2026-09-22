@@ -15,7 +15,6 @@ interface CarOption {
 interface ReportData {
   totalIncome: number;
   contractCount: number;
-  averagePerContract: number;
   monthly: { monthIndex: number; income: number }[];
   byCar: { label: string; income: number }[];
 }
@@ -98,7 +97,7 @@ export function ReportsForm({ cars, dict }: { cars: CarOption[]; dict: Dictionar
 
       {data && (
         <div className="flex flex-col gap-8">
-          <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             <div className="rounded-xl border border-zinc-200 bg-white p-5 dark:border-zinc-800 dark:bg-zinc-900">
               <p className="text-[11px] font-medium uppercase tracking-wider text-zinc-500 dark:text-zinc-400">
                 {dict.reports.summary.totalIncome}
@@ -113,14 +112,6 @@ export function ReportsForm({ cars, dict }: { cars: CarOption[]; dict: Dictionar
               </p>
               <p className="mt-1 text-2xl font-semibold text-zinc-900 dark:text-zinc-50">
                 {data.contractCount}
-              </p>
-            </div>
-            <div className="rounded-xl border border-zinc-200 bg-white p-5 dark:border-zinc-800 dark:bg-zinc-900">
-              <p className="text-[11px] font-medium uppercase tracking-wider text-zinc-500 dark:text-zinc-400">
-                {dict.reports.summary.averagePerContract}
-              </p>
-              <p className="mt-1 text-2xl font-semibold text-zinc-900 dark:text-zinc-50">
-                {formatValue(data.averagePerContract)}
               </p>
             </div>
           </div>

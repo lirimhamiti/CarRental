@@ -49,7 +49,7 @@ export default async function CarDetailPage({
   const upcomingBookings = car.contracts.filter((c) => c.endDate >= today);
 
   return (
-    <main className="min-h-screen bg-white dark:bg-zinc-950">
+    <main className="bg-showroom-light min-h-screen">
       <div className="mx-auto flex w-full max-w-2xl flex-col gap-6 px-4 py-12 sm:px-8">
         <Link
           href="/cars"

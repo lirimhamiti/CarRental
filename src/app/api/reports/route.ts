@@ -88,7 +88,6 @@ export async function GET(request: Request) {
   return NextResponse.json({
     totalIncome,
     contractCount: contracts.length,
-    averagePerContract: contracts.length > 0 ? totalIncome / contracts.length : 0,
     monthly,
     byCar,
   });

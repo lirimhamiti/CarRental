@@ -68,17 +68,9 @@ export default async function Home() {
   ];
 
   return (
-    <main className="min-h-screen bg-white dark:bg-zinc-950">
-      <div className="relative overflow-hidden bg-ink">
-        <div
-          className="pointer-events-none absolute inset-0 opacity-[0.07]"
-          style={{
-            backgroundImage:
-              "radial-gradient(circle at 1px 1px, #cca94f 1px, transparent 0)",
-            backgroundSize: "28px 28px",
-          }}
-        />
-        <div className="relative mx-auto flex w-full max-w-4xl flex-col items-center gap-3 px-4 py-6 text-center sm:flex-row sm:justify-between sm:px-8 sm:py-7">
+    <main className="bg-showroom-light min-h-screen">
+      <div className="bg-showroom-dark">
+        <div className="mx-auto flex w-full max-w-4xl flex-col items-center gap-3 px-4 py-6 text-center sm:flex-row sm:justify-between sm:px-8 sm:py-7">
           <div className="sm:text-left">
             <h1 className="font-serif text-xl text-white sm:text-2xl">{company.name}</h1>
             <p className="text-[10px] uppercase tracking-[0.2em] text-gold-400/90">

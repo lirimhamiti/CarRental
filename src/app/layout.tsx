@@ -36,7 +36,7 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
       className={`${geistSans.variable} ${geistMono.variable} ${playfairDisplay.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col bg-white dark:bg-zinc-950">
-        <header className="sticky top-0 z-20 flex items-center justify-between border-b border-gold-500/20 bg-ink px-4 py-3 sm:px-8">
+        <header className="bg-showroom-dark sticky top-0 z-20 flex items-center justify-between border-b border-gold-500/20 px-4 py-3 sm:px-8">
           <Link href="/" className="flex items-center gap-2.5">
             <span className="flex h-7 w-7 items-center justify-center rounded-full border border-gold-500/50 text-gold-400">
               <svg viewBox="0 0 24 24" fill="none" className="h-3.5 w-3.5">

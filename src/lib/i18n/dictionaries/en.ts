@@ -143,7 +143,6 @@ const en = {
     summary: {
       totalIncome: "Total income",
       contracts: "Contracts",
-      averagePerContract: "Average per contract",
     },
     charts: {
       byMonth: "Income by month",

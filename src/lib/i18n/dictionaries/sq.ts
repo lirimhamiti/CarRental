@@ -145,7 +145,6 @@ const sq: typeof en = {
     summary: {
       totalIncome: "Të ardhurat totale",
       contracts: "Kontrata",
-      averagePerContract: "Mesatarja për kontratë",
     },
     charts: {
       byMonth: "Të ardhurat sipas muajit",

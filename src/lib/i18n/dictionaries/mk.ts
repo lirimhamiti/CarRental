@@ -145,7 +145,6 @@ const mk: typeof en = {
     summary: {
       totalIncome: "Вкупен приход",
       contracts: "Договори",
-      averagePerContract: "Просек по договор",
     },
     charts: {
       byMonth: "Приход по месец",

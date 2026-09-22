@@ -12,9 +12,9 @@
   --font-mono: var(--font-geist-mono);
   --font-serif: var(--font-display);
 
-  /* Luxury automotive palette: near-black ink + restrained brass gold. */
-  --color-ink: #0b0b0d;
-  --color-ink-soft: #18181b;
+  /* Luxury automotive palette: deep navy ink + restrained brass gold. */
+  --color-ink: #0d1b30;
+  --color-ink-soft: #16294a;
   --color-gold-50: #faf6ea;
   --color-gold-100: #f2e8c9;
   --color-gold-400: #cca94f;
@@ -33,4 +33,30 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
+}
+
+/* Dark navy surface with a soft gold spotlight glow and faint diagonal
+   "speed line" texture — reads as an automotive showroom, not a flat fill. */
+.bg-showroom-dark {
+  background-color: var(--color-ink);
+  background-image:
+    radial-gradient(ellipse 700px 320px at 50% -15%, color-mix(in srgb, var(--color-gold-400) 22%, transparent), transparent 60%),
+    repeating-linear-gradient(135deg, color-mix(in srgb, var(--color-gold-400) 6%, transparent) 0px, color-mix(in srgb, var(--color-gold-400) 6%, transparent) 1px, transparent 1px, transparent 15px);
+}
+
+/* Same idea, much quieter, for light page backgrounds. */
+.bg-showroom-light {
+  background-color: #ffffff;
+  background-image:
+    radial-gradient(ellipse 900px 420px at 50% 0%, color-mix(in srgb, var(--color-ink) 4%, transparent), transparent 65%),
+    repeating-linear-gradient(135deg, color-mix(in srgb, var(--color-ink) 2%, transparent) 0px, color-mix(in srgb, var(--color-ink) 2%, transparent) 1px, transparent 1px, transparent 22px);
+}
+
+@media (prefers-color-scheme: dark) {
+  .bg-showroom-light {
+    background-color: #09090b;
+    background-image:
+      radial-gradient(ellipse 900px 420px at 50% 0%, color-mix(in srgb, var(--color-gold-400) 5%, transparent), transparent 65%),
+      repeating-linear-gradient(135deg, color-mix(in srgb, var(--color-gold-400) 3%, transparent) 0px, color-mix(in srgb, var(--color-gold-400) 3%, transparent) 1px, transparent 1px, transparent 22px);
+  }
 }
