@@ -17,9 +17,33 @@ async function main() {
 
   const cars = await Promise.all(
     [
-      { plate: "SK-1234-AB", make: "Volkswagen", model: "Golf", year: 2021 },
-      { plate: "SK-5678-CD", make: "Skoda", model: "Octavia", year: 2022 },
-      { plate: "SK-9012-EF", make: "Toyota", model: "Corolla", year: 2020 },
+      {
+        plate: "SK-1234-AB",
+        make: "Volkswagen",
+        model: "Golf",
+        year: 2021,
+        registrationExpiryDate: new Date("2027-03-15"),
+        transmission: "MANUAL" as const,
+        fuelType: "DIESEL" as const,
+      },
+      {
+        plate: "SK-5678-CD",
+        make: "Skoda",
+        model: "Octavia",
+        year: 2022,
+        registrationExpiryDate: new Date("2027-08-01"),
+        transmission: "AUTOMATIC" as const,
+        fuelType: "PETROL" as const,
+      },
+      {
+        plate: "SK-9012-EF",
+        make: "Toyota",
+        model: "Corolla",
+        year: 2020,
+        registrationExpiryDate: new Date("2026-12-20"),
+        transmission: "AUTOMATIC" as const,
+        fuelType: "ELECTRIC" as const,
+      },
     ].map((car) =>
       prisma.car.upsert({
         where: { companyId_plate: { companyId: company.id, plate: car.plate } },

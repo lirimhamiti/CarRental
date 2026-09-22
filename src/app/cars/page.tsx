@@ -2,6 +2,7 @@ import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { getCurrentCompanyId } from "@/lib/company";
 import { formatDate, isDateInRange } from "@/lib/dates";
+import { carLabel } from "@/lib/cars";
 import { getLocale } from "@/lib/i18n/get-locale";
 import { getDictionary, interpolate } from "@/lib/i18n/get-dictionary";
 import { AddCarForm } from "./AddCarForm";
@@ -78,7 +79,7 @@ export default async function CarsPage() {
                             </svg>
                           </span>
                           <span className="font-medium text-zinc-900 group-hover:text-crimson-600 dark:text-zinc-50 dark:group-hover:text-crimson-400">
-                            {car.make} {car.model} ({car.year})
+                            {carLabel(car.make, car.model, car.year)}
                           </span>
                         </Link>
                       </td>

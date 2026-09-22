@@ -23,6 +23,17 @@ enum CarStatus {
   RETIRED
 }
 
+enum CarTransmission {
+  MANUAL
+  AUTOMATIC
+}
+
+enum CarFuelType {
+  DIESEL
+  PETROL
+  ELECTRIC
+}
+
 enum ContractStatus {
   ACTIVE
   COMPLETED
@@ -58,14 +69,17 @@ model User {
 }
 
 model Car {
-  id        String    @id @default(cuid())
-  companyId String
-  plate     String
-  make      String
-  model     String
-  year      Int
-  status    CarStatus @default(ACTIVE)
-  createdAt DateTime  @default(now())
+  id                     String            @id @default(cuid())
+  companyId              String
+  plate                  String
+  make                   String
+  model                  String
+  year                   Int?
+  registrationExpiryDate DateTime          @db.Date
+  transmission           CarTransmission?
+  fuelType               CarFuelType?
+  status                 CarStatus         @default(ACTIVE)
+  createdAt              DateTime          @default(now())
 
   company      Company       @relation(fields: [companyId], references: [id], onDelete: Cascade)
   contracts    Contract[]

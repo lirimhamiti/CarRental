@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { dateInputClass, inputClass, labelClass, primaryButtonClass, SectionIcon } from "@/components/ui";
+import { carLabel } from "@/lib/cars";
 import type { Dictionary } from "@/lib/i18n/get-dictionary";
 import { isDriverValid } from "@/lib/driver-validation";
 import { DriverFields, emptyDriver, type DriverValue } from "./DriverFields";
@@ -10,7 +11,7 @@ interface AvailableCar {
   id: string;
   make: string;
   model: string;
-  year: number;
+  year: number | null;
   plate: string;
 }
 
@@ -313,7 +314,7 @@ export function NewContractForm({ dict }: { dict: Dictionary }) {
                 </option>
                 {availableCars.map((car) => (
                   <option key={car.id} value={car.id}>
-                    {car.make} {car.model} ({car.year}) · {car.plate}
+                    {carLabel(car.make, car.model, car.year)} · {car.plate}
                   </option>
                 ))}
               </select>

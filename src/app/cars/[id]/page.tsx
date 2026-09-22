@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { getCurrentCompanyId } from "@/lib/company";
 import { formatDate, isDateInRange } from "@/lib/dates";
+import { carLabel } from "@/lib/cars";
 import { getLocale } from "@/lib/i18n/get-locale";
 import { getDictionary, interpolate } from "@/lib/i18n/get-dictionary";
 import { AvailabilityCalendar } from "./AvailabilityCalendar";
@@ -66,7 +67,7 @@ export default async function CarDetailPage({
           <div className="flex items-start justify-between gap-4">
             <div>
               <h1 className="font-serif text-2xl text-zinc-900 dark:text-zinc-50">
-                {car.make} {car.model} ({car.year})
+                {carLabel(car.make, car.model, car.year)}
               </h1>
               <p className="mt-1 font-mono text-xs text-zinc-500 dark:text-zinc-400">{car.plate}</p>
             </div>

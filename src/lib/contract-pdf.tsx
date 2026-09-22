@@ -1,6 +1,7 @@
 import path from "node:path";
 import { Document, Page, Text, View, StyleSheet, Font } from "@react-pdf/renderer";
 import { formatDate } from "@/lib/dates";
+import { carLabel } from "@/lib/cars";
 
 // The default PDF base fonts (Helvetica etc.) have no Cyrillic glyphs, and
 // the contract template's labels are bilingual (English/Macedonian), so a
@@ -114,7 +115,7 @@ export interface ContractPdfData {
   createdAt: Date;
   companyName: string;
   drivers: DriverPdfData[];
-  car: { make: string; model: string; year: number; plate: string };
+  car: { make: string; model: string; year: number | null; plate: string };
   startDate: Date;
   endDate: Date;
   days: number;
@@ -190,7 +191,7 @@ export function ContractPdf({ data }: { data: ContractPdfData }) {
                 <Field
                   labelMk="Тип на кола"
                   labelEn="Car type"
-                  value={`${data.car.make} ${data.car.model} (${data.car.year})`}
+                  value={carLabel(data.car.make, data.car.model, data.car.year)}
                 />
                 <Field labelMk="Регистрација" labelEn="Licence N°" value={data.car.plate} last />
               </View>

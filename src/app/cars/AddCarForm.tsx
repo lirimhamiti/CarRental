@@ -2,10 +2,12 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { inputClass, labelClass, primaryButtonClass, SectionIcon } from "@/components/ui";
+import { dateInputClass, inputClass, labelClass, primaryButtonClass, SectionIcon } from "@/components/ui";
 import type { Dictionary } from "@/lib/i18n/get-dictionary";
 
 const STATUS_OPTIONS = ["ACTIVE", "MAINTENANCE", "RETIRED"] as const;
+const TRANSMISSION_OPTIONS = ["MANUAL", "AUTOMATIC"] as const;
+const FUEL_TYPE_OPTIONS = ["DIESEL", "PETROL", "ELECTRIC"] as const;
 
 export function AddCarForm({ dict }: { dict: Dictionary }) {
   const router = useRouter();
@@ -13,6 +15,9 @@ export function AddCarForm({ dict }: { dict: Dictionary }) {
   const [model, setModel] = useState("");
   const [year, setYear] = useState("");
   const [plate, setPlate] = useState("");
+  const [registrationExpiry, setRegistrationExpiry] = useState("");
+  const [transmission, setTransmission] = useState<(typeof TRANSMISSION_OPTIONS)[number] | "">("");
+  const [fuelType, setFuelType] = useState<(typeof FUEL_TYPE_OPTIONS)[number] | "">("");
   const [status, setStatus] = useState<(typeof STATUS_OPTIONS)[number]>("ACTIVE");
 
   const [submitting, setSubmitting] = useState(false);
@@ -20,7 +25,12 @@ export function AddCarForm({ dict }: { dict: Dictionary }) {
   const [success, setSuccess] = useState(false);
 
   const canSubmit =
-    make.trim() && model.trim() && plate.trim() && Number(year) >= 1900 && !submitting;
+    make.trim() &&
+    model.trim() &&
+    plate.trim() &&
+    registrationExpiry &&
+    (year === "" || Number(year) >= 1900) &&
+    !submitting;
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -31,7 +41,16 @@ export function AddCarForm({ dict }: { dict: Dictionary }) {
       const res = await fetch("/api/cars", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ make, model, year: Number(year), plate, status }),
+        body: JSON.stringify({
+          make,
+          model,
+          year: year ? Number(year) : undefined,
+          plate,
+          registrationExpiryDate: registrationExpiry,
+          transmission: transmission || undefined,
+          fuelType: fuelType || undefined,
+          status,
+        }),
       });
       const data = await res.json();
       if (!res.ok) {
@@ -42,6 +61,9 @@ export function AddCarForm({ dict }: { dict: Dictionary }) {
       setModel("");
       setYear("");
       setPlate("");
+      setRegistrationExpiry("");
+      setTransmission("");
+      setFuelType("");
       setStatus("ACTIVE");
       setSuccess(true);
       router.refresh();
@@ -66,7 +88,7 @@ export function AddCarForm({ dict }: { dict: Dictionary }) {
         </h2>
       </div>
 
-      <div className="grid grid-cols-2 gap-4 sm:grid-cols-5">
+      <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
         <div>
           <label className={labelClass}>{dict.cars.addForm.make}</label>
           <input required value={make} onChange={(e) => setMake(e.target.value)} className={inputClass} />
@@ -78,7 +100,6 @@ export function AddCarForm({ dict }: { dict: Dictionary }) {
         <div>
           <label className={labelClass}>{dict.cars.addForm.year}</label>
           <input
-            required
             type="number"
             min={1900}
             max={new Date().getFullYear() + 1}
@@ -90,6 +111,46 @@ export function AddCarForm({ dict }: { dict: Dictionary }) {
         <div>
           <label className={labelClass}>{dict.cars.addForm.plate}</label>
           <input required value={plate} onChange={(e) => setPlate(e.target.value)} className={inputClass} />
+        </div>
+        <div>
+          <label className={labelClass}>{dict.cars.addForm.registrationExpiry}</label>
+          <input
+            type="date"
+            required
+            value={registrationExpiry}
+            onChange={(e) => setRegistrationExpiry(e.target.value)}
+            className={dateInputClass}
+          />
+        </div>
+        <div>
+          <label className={labelClass}>{dict.cars.addForm.transmission}</label>
+          <select
+            value={transmission}
+            onChange={(e) => setTransmission(e.target.value as (typeof TRANSMISSION_OPTIONS)[number] | "")}
+            className={inputClass}
+          >
+            <option value="">{dict.cars.addForm.unspecified}</option>
+            {TRANSMISSION_OPTIONS.map((option) => (
+              <option key={option} value={option}>
+                {dict.cars.addForm.transmissionOptions[option]}
+              </option>
+            ))}
+          </select>
+        </div>
+        <div>
+          <label className={labelClass}>{dict.cars.addForm.fuelType}</label>
+          <select
+            value={fuelType}
+            onChange={(e) => setFuelType(e.target.value as (typeof FUEL_TYPE_OPTIONS)[number] | "")}
+            className={inputClass}
+          >
+            <option value="">{dict.cars.addForm.unspecified}</option>
+            {FUEL_TYPE_OPTIONS.map((option) => (
+              <option key={option} value={option}>
+                {dict.cars.addForm.fuelTypeOptions[option]}
+              </option>
+            ))}
+          </select>
         </div>
         <div>
           <label className={labelClass}>{dict.cars.addForm.status}</label>
