@@ -2,7 +2,7 @@ import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { getCurrentCompanyId } from "@/lib/company";
 import { formatDate, isDateInRange } from "@/lib/dates";
-import { carLabel } from "@/lib/cars";
+import { carLabel, registrationUrgency } from "@/lib/cars";
 import { getLocale } from "@/lib/i18n/get-locale";
 import { getDictionary, interpolate } from "@/lib/i18n/get-dictionary";
 import { AddCarForm } from "./AddCarForm";
@@ -47,11 +47,14 @@ export default async function CarsPage() {
             </p>
           ) : (
             <div className="overflow-x-auto [-webkit-overflow-scrolling:touch]">
-              <table className="w-full min-w-[640px] text-left text-sm">
+              <table className="w-full min-w-[880px] text-left text-sm">
               <thead>
                 <tr className="border-b border-zinc-200 text-xs uppercase tracking-wide text-zinc-500 dark:border-zinc-800 dark:text-zinc-400">
                   <th className="px-6 py-3 font-medium">{dict.cars.table.car}</th>
                   <th className="px-6 py-3 font-medium">{dict.cars.table.plate}</th>
+                  <th className="px-6 py-3 font-medium">{dict.cars.table.registrationExpiry}</th>
+                  <th className="px-6 py-3 font-medium">{dict.cars.table.transmission}</th>
+                  <th className="px-6 py-3 font-medium">{dict.cars.table.fuelType}</th>
                   <th className="px-6 py-3 font-medium">{dict.cars.table.status}</th>
                   <th className="px-6 py-3 font-medium">{dict.cars.table.availability}</th>
                   <th className="px-6 py-3" />
@@ -85,6 +88,33 @@ export default async function CarsPage() {
                       </td>
                       <td className="px-6 py-4 font-mono text-xs text-zinc-500 dark:text-zinc-400">
                         {car.plate}
+                      </td>
+                      <td className="px-6 py-4 text-xs">
+                        {(() => {
+                          const urgency = registrationUrgency(car.registrationExpiryDate, today);
+                          const formatted = formatDate(car.registrationExpiryDate, locale);
+                          if (urgency === "expired") {
+                            return (
+                              <span className="font-medium text-red-600 dark:text-red-400">
+                                {interpolate(dict.cars.registrationExpired, { date: formatted })}
+                              </span>
+                            );
+                          }
+                          if (urgency === "soon") {
+                            return (
+                              <span className="font-medium text-amber-600 dark:text-amber-400">
+                                {interpolate(dict.cars.registrationExpiringSoon, { date: formatted })}
+                              </span>
+                            );
+                          }
+                          return <span className="text-zinc-500 dark:text-zinc-400">{formatted}</span>;
+                        })()}
+                      </td>
+                      <td className="px-6 py-4 text-xs text-zinc-500 dark:text-zinc-400">
+                        {car.transmission ? dict.cars.addForm.transmissionOptions[car.transmission] : dict.cars.notSpecified}
+                      </td>
+                      <td className="px-6 py-4 text-xs text-zinc-500 dark:text-zinc-400">
+                        {car.fuelType ? dict.cars.addForm.fuelTypeOptions[car.fuelType] : dict.cars.notSpecified}
                       </td>
                       <td className="px-6 py-4">
                         <span
