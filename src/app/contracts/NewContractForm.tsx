@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { inputClass, labelClass, primaryButtonClass, SectionIcon } from "@/components/ui";
+import { dateInputClass, inputClass, labelClass, primaryButtonClass, SectionIcon } from "@/components/ui";
 import type { Dictionary } from "@/lib/i18n/get-dictionary";
 
 interface ClientSuggestion {
@@ -355,7 +355,7 @@ export function NewContractForm({ dict }: { dict: Dictionary }) {
                 value={startDate}
                 min={today}
                 onChange={(e) => handleStartDateChange(e.target.value)}
-                className={inputClass}
+                className={dateInputClass}
               />
             </div>
             <div>
@@ -378,7 +378,7 @@ export function NewContractForm({ dict }: { dict: Dictionary }) {
                 value={endDate}
                 min={startDate}
                 onChange={(e) => handleEndDateChange(e.target.value)}
-                className={inputClass}
+                className={dateInputClass}
               />
             </div>
             <div>
