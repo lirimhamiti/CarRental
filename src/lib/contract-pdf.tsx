@@ -1,5 +1,5 @@
 import path from "node:path";
-import { Document, Page, Text, View, StyleSheet, Font } from "@react-pdf/renderer";
+import { Document, Page, Text, View, StyleSheet, Font, Svg, Rect, Line } from "@react-pdf/renderer";
 import { formatDate } from "@/lib/dates";
 import { carLabel } from "@/lib/cars";
 
@@ -71,6 +71,10 @@ const styles = StyleSheet.create({
   signCell: { width: "50%", padding: 16 },
   signCellBorder: { borderLeftWidth: 1, borderLeftColor: border },
   signLine: { borderTopWidth: 1, borderTopColor: border, marginTop: 30, paddingTop: 4 },
+
+  damageRow: { flexDirection: "row", borderBottomWidth: 1, borderBottomColor: border },
+  damageCell: { width: "55%", padding: 10, alignItems: "center", justifyContent: "center" },
+  damageCellBorder: { width: "45%", borderLeftWidth: 1, borderLeftColor: border },
 });
 
 function Field({
@@ -119,7 +123,6 @@ export interface ContractPdfData {
   startDate: Date;
   endDate: Date;
   days: number;
-  dailyPrice: number | null;
   totalPrice: number | null;
 }
 
@@ -127,10 +130,24 @@ function formatPrice(value: number | null): string {
   return value != null ? value.toFixed(2) : "-";
 }
 
-function formatIdRange(number: string | null, issue: Date | null, expiry: Date | null): string {
-  if (!number) return "-";
-  const range = issue && expiry ? ` (${formatDate(issue)} – ${formatDate(expiry)})` : "";
-  return `${number}${range}`;
+function formatDateOrDash(date: Date | null): string {
+  return date ? formatDate(date) : "-";
+}
+
+// A blank top-down car outline for marking damage by hand on the printed
+// contract, matching the "damage check form" diagram on the paper template.
+function CarDiagram() {
+  return (
+    <Svg width={200} height={110} viewBox="0 0 220 120">
+      <Rect x={20} y={20} width={180} height={80} rx={18} ry={18} fill="none" stroke="#000" strokeWidth={1.2} />
+      <Line x1={70} y1={20} x2={70} y2={100} stroke="#000" strokeWidth={0.8} />
+      <Line x1={150} y1={20} x2={150} y2={100} stroke="#000" strokeWidth={0.8} />
+      <Rect x={35} y={6} width={26} height={10} rx={3} fill="#000" />
+      <Rect x={35} y={104} width={26} height={10} rx={3} fill="#000" />
+      <Rect x={159} y={6} width={26} height={10} rx={3} fill="#000" />
+      <Rect x={159} y={104} width={26} height={10} rx={3} fill="#000" />
+    </Svg>
+  );
 }
 
 function DriverBlock({ index, total, driver }: { index: number; total: number; driver: DriverPdfData }) {
@@ -145,15 +162,17 @@ function DriverBlock({ index, total, driver }: { index: number; total: number; d
           <Field labelMk="Телефон" labelEn="Phone" value={driver.phone ?? ""} last />
         </View>
         <View style={[styles.panel, styles.panelRight]}>
+          <Field labelMk="Пасош N°" labelEn="Passport N°" value={driver.passportNumber ?? ""} />
           <Field
-            labelMk="Пасош (важи до)"
-            labelEn="Passport (valid until)"
-            value={formatIdRange(driver.passportNumber, driver.passportIssueDate, driver.passportExpiryDate)}
+            labelMk="Пасош важи до"
+            labelEn="Passport valid until"
+            value={formatDateOrDash(driver.passportExpiryDate)}
           />
+          <Field labelMk="Возачка дозвола N°" labelEn="Driving licence N°" value={driver.licenceNumber ?? ""} />
           <Field
-            labelMk="Возачка дозвола (важи до)"
-            labelEn="Driving licence (valid until)"
-            value={formatIdRange(driver.licenceNumber, driver.licenceIssueDate, driver.licenceExpiryDate)}
+            labelMk="Дозвола важи до"
+            labelEn="Licence valid until"
+            value={formatDateOrDash(driver.licenceExpiryDate)}
             last
           />
         </View>
@@ -197,8 +216,23 @@ export function ContractPdf({ data }: { data: ContractPdfData }) {
               </View>
               <View style={[styles.panel, styles.panelRight]}>
                 <Field labelMk="Датум на издавање" labelEn="Date of issue" value={formatDate(data.startDate)} />
-                <Field labelMk="Датум на прием" labelEn="Date of return" value={formatDate(data.endDate)} last />
+                <Field labelMk="Место и датум на прием" labelEn="Place and date of return" value={formatDate(data.endDate)} last />
               </View>
+            </View>
+          </View>
+
+          <Text style={styles.sectionHeader}>Проверка на возилото / Damage check form</Text>
+          <View style={styles.damageRow}>
+            <View style={styles.damageCell}>
+              <CarDiagram />
+            </View>
+            <View style={styles.damageCellBorder}>
+              <Field labelMk="Неограничена км" labelEn="Unlimited km" value="" />
+              <Field labelMk="Километри" labelEn="Kilometri" value="" />
+              <Field labelMk="Цена" labelEn="Price" value="" />
+              <Field labelMk="18% ДДВ" labelEn="18% VAT" value="" />
+              <Field labelMk="Гориво" labelEn="Gasoline" value="" />
+              <Field labelMk="Цена" labelEn="Price" value="" last />
             </View>
           </View>
 
@@ -206,10 +240,6 @@ export function ContractPdf({ data }: { data: ContractPdfData }) {
             <View style={styles.priceCell}>
               <Text style={styles.priceLabel}>Денови / Days</Text>
               <Text style={styles.priceValue}>{data.days}</Text>
-            </View>
-            <View style={[styles.priceCell, styles.priceCellBorder]}>
-              <Text style={styles.priceLabel}>Цена / Daily rate</Text>
-              <Text style={styles.priceValue}>{formatPrice(data.dailyPrice)}</Text>
             </View>
             <View style={[styles.priceCell, styles.priceCellBorder]}>
               <Text style={styles.priceLabel}>Вкупно / Total</Text>
