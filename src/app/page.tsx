@@ -34,6 +34,15 @@ const ICONS = {
       strokeLinejoin="round"
     />
   ),
+  availability: (
+    <path
+      d="M8 3v3M16 3v3M5 6h14a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1ZM4 10h16M8 14h.01M12 14h.01M16 14h.01M8 17h.01M12 17h.01M16 17h.01"
+      stroke="currentColor"
+      strokeWidth={1.5}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+  ),
 };
 
 export default async function Home() {
@@ -122,6 +131,32 @@ export default async function Home() {
             </Link>
           ))}
         </div>
+
+        <Link
+          href="/availability"
+          className="group mt-4 flex items-center gap-4 rounded-xl border border-zinc-200 bg-white p-5 transition hover:bg-ink dark:border-zinc-800 dark:bg-zinc-950 dark:hover:bg-ink"
+        >
+          <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-zinc-300 text-zinc-500 transition group-hover:border-crimson-500/60 group-hover:text-crimson-400 dark:border-zinc-700 dark:text-zinc-400">
+            <svg viewBox="0 0 24 24" fill="none" className="h-5 w-5">
+              {ICONS.availability}
+            </svg>
+          </span>
+          <div className="flex-1">
+            <p className="font-serif text-lg text-zinc-900 transition group-hover:text-white dark:text-zinc-50">
+              {dict.home.sections.availability.title}
+            </p>
+            <p className="mt-0.5 text-sm text-zinc-500 transition group-hover:text-zinc-400 dark:text-zinc-400">
+              {dict.home.sections.availability.description}
+            </p>
+          </div>
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            className="h-4 w-4 shrink-0 text-zinc-300 transition group-hover:text-crimson-400 dark:text-zinc-700"
+          >
+            <path d="M5 12h14m-6-6 6 6-6 6" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+        </Link>
       </div>
     </main>
   );

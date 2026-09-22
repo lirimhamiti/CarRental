@@ -27,6 +27,10 @@ const en = {
         title: "Reports",
         description: "Income per car over the last 6 months.",
       },
+      availability: {
+        title: "Availability",
+        description: "See every car's booked and free dates for the month, side by side.",
+      },
     },
   },
   cars: {
@@ -132,6 +136,12 @@ const en = {
       CAR_UNAVAILABLE: "This car is no longer available for the selected dates",
       GENERIC: "Something went wrong",
     },
+  },
+  availability: {
+    eyebrow: "Fleet overview",
+    title: "Availability",
+    legendFree: "Free",
+    noCars: "No cars in your fleet yet.",
   },
   reports: {
     eyebrow: "Analytics",

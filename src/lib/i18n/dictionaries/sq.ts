@@ -29,6 +29,10 @@ const sq: typeof en = {
         title: "Raportet",
         description: "Të ardhurat për makinë gjatë 6 muajve të fundit.",
       },
+      availability: {
+        title: "Disponueshmëria",
+        description: "Shiko datat e zëna dhe të lira për çdo makinë, krah për krah.",
+      },
     },
   },
   cars: {
@@ -134,6 +138,12 @@ const sq: typeof en = {
       CAR_UNAVAILABLE: "Kjo makinë nuk është më e disponueshme për datat e zgjedhura",
       GENERIC: "Diçka shkoi keq",
     },
+  },
+  availability: {
+    eyebrow: "Pasqyra e flotës",
+    title: "Disponueshmëria",
+    legendFree: "E lirë",
+    noCars: "Ende pa makina në flotën tënde.",
   },
   reports: {
     eyebrow: "Analitika",
