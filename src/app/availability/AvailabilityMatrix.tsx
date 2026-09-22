@@ -156,7 +156,7 @@ export function AvailabilityMatrix({
         <table className="border-collapse text-sm">
           <thead>
             <tr>
-              <th className="sticky left-0 z-10 border-b border-zinc-200 bg-white px-3 py-2 text-left text-[11px] font-medium uppercase tracking-wide text-zinc-500 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-400">
+              <th className="sticky left-0 z-10 border-b border-zinc-200 bg-white px-1.5 py-2 text-left text-[11px] font-medium uppercase tracking-wide text-zinc-500 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-400 sm:px-3">
                 &nbsp;
               </th>
               {dates.map((date) => {
@@ -165,7 +165,7 @@ export function AvailabilityMatrix({
                 return (
                   <th
                     key={date.toISOString()}
-                    className={`min-w-[38px] border-b border-l border-zinc-200 bg-white px-1 py-2 text-center dark:border-zinc-800 dark:bg-zinc-900 ${
+                    className={`min-w-[34px] border-b border-l border-zinc-200 bg-white px-1 py-2 text-center dark:border-zinc-800 dark:bg-zinc-900 sm:min-w-[38px] ${
                       isToday ? "bg-crimson-50/50 text-crimson-600 dark:bg-crimson-500/5 dark:text-crimson-400" : ""
                     }`}
                   >
@@ -179,11 +179,16 @@ export function AvailabilityMatrix({
           <tbody>
             {cars.map((car) => (
               <tr key={car.id}>
-                <td className="sticky left-0 z-10 whitespace-nowrap border-b border-zinc-100 bg-white px-3 py-1.5 text-xs dark:border-zinc-800 dark:bg-zinc-900">
-                  <div className="max-w-[140px] truncate font-medium text-zinc-700 dark:text-zinc-200">
+                <td className="sticky left-0 z-10 whitespace-nowrap border-b border-zinc-100 bg-white px-1.5 py-1.5 text-xs dark:border-zinc-800 dark:bg-zinc-900 sm:px-3">
+                  <div
+                    title={`${car.make} ${car.model}`}
+                    className="max-w-[68px] truncate font-medium text-zinc-700 dark:text-zinc-200 sm:max-w-[140px]"
+                  >
                     {car.make} {car.model}
                   </div>
-                  <div className="font-mono text-[10px] text-zinc-400">{car.plate}</div>
+                  <div className="max-w-[68px] truncate font-mono text-[10px] text-zinc-400 sm:max-w-[140px]">
+                    {car.plate}
+                  </div>
                 </td>
                 {dates.map((date) => {
                   const isToday = isSameDay(date, today);
