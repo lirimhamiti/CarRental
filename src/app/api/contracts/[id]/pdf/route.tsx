@@ -14,7 +14,11 @@ export async function GET(
 
   const contract = await prisma.contract.findFirst({
     where: { id, companyId },
-    include: { client: true, car: true, company: true },
+    include: {
+      drivers: { include: { client: true }, orderBy: { order: "asc" } },
+      car: true,
+      company: true,
+    },
   });
 
   if (!contract) {
@@ -29,7 +33,7 @@ export async function GET(
         id: contract.id,
         createdAt: contract.createdAt,
         companyName: contract.company.name,
-        client: contract.client,
+        drivers: contract.drivers.map((d) => d.client),
         car: contract.car,
         startDate: contract.startDate,
         endDate: contract.endDate,

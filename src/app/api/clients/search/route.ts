@@ -15,7 +15,8 @@ export async function GET(request: Request) {
       OR: [
         { firstName: { contains: q, mode: "insensitive" } },
         { lastName: { contains: q, mode: "insensitive" } },
-        { documentNumber: { contains: q, mode: "insensitive" } },
+        { passportNumber: { contains: q, mode: "insensitive" } },
+        { licenceNumber: { contains: q, mode: "insensitive" } },
       ],
     },
     orderBy: [{ lastName: "asc" }, { firstName: "asc" }],

@@ -74,17 +74,22 @@ model Car {
 }
 
 model Client {
-  id             String   @id @default(cuid())
-  companyId      String
-  firstName      String
-  lastName       String
-  documentNumber String
-  email          String?
-  phone          String?
-  createdAt      DateTime @default(now())
+  id                  String    @id @default(cuid())
+  companyId           String
+  firstName           String
+  lastName            String
+  birthDate           DateTime  @db.Date
+  passportNumber      String?
+  passportIssueDate   DateTime? @db.Date
+  passportExpiryDate  DateTime? @db.Date
+  licenceNumber       String?
+  licenceIssueDate    DateTime? @db.Date
+  licenceExpiryDate   DateTime? @db.Date
+  phone               String?
+  createdAt           DateTime  @default(now())
 
-  company   Company    @relation(fields: [companyId], references: [id], onDelete: Cascade)
-  contracts Contract[]
+  company         Company          @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  contractDrivers ContractDriver[]
 
   @@index([companyId])
   @@index([companyId, firstName, lastName])
@@ -93,7 +98,6 @@ model Client {
 model Contract {
   id         String         @id @default(cuid())
   companyId  String
-  clientId   String
   carId      String
   startDate  DateTime       @db.Date
   endDate    DateTime       @db.Date
@@ -102,10 +106,27 @@ model Contract {
   status     ContractStatus @default(ACTIVE)
   createdAt  DateTime       @default(now())
 
-  company Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
-  client  Client  @relation(fields: [clientId], references: [id])
-  car     Car     @relation(fields: [carId], references: [id])
+  company Company          @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  car     Car              @relation(fields: [carId], references: [id])
+  drivers ContractDriver[]
 
   @@index([companyId])
   @@index([carId, startDate, endDate])
+}
+
+// A contract can list more than one driver. Each row links a contract to a
+// Client (which may be reused/autocompleted across contracts, same as the
+// single-driver model before), with `order` preserving driver 1, 2, 3…
+model ContractDriver {
+  id         String @id @default(cuid())
+  contractId String
+  clientId   String
+  order      Int    @default(0)
+
+  contract Contract @relation(fields: [contractId], references: [id], onDelete: Cascade)
+  client   Client   @relation(fields: [clientId], references: [id])
+
+  @@unique([contractId, clientId])
+  @@index([contractId])
+  @@index([clientId])
 }

@@ -32,7 +32,10 @@ async function main() {
   const clientData = {
     firstName: "Arben",
     lastName: "Krasniqi",
-    documentNumber: "P1234567",
+    birthDate: new Date("1990-04-12"),
+    passportNumber: "P1234567",
+    passportIssueDate: new Date("2022-01-10"),
+    passportExpiryDate: new Date("2032-01-10"),
     phone: "+389 70 123 456",
   };
   const client = await prisma.client.upsert({
@@ -49,28 +52,28 @@ async function main() {
   };
 
   await prisma.contract.deleteMany({ where: { companyId: company.id } });
-  await prisma.contract.createMany({
-    data: [
-      {
-        companyId: company.id,
-        clientId: client.id,
-        carId: cars[0].id,
-        startDate: daysFromNow(2),
-        endDate: daysFromNow(5),
-        dailyPrice: 25,
-        totalPrice: 75,
-      },
-      {
-        companyId: company.id,
-        clientId: client.id,
-        carId: cars[1].id,
-        startDate: daysFromNow(-3),
-        endDate: daysFromNow(1),
-        dailyPrice: 30,
-        totalPrice: 120,
-      },
-    ],
-  });
+  for (const data of [
+    {
+      companyId: company.id,
+      carId: cars[0].id,
+      startDate: daysFromNow(2),
+      endDate: daysFromNow(5),
+      dailyPrice: 25,
+      totalPrice: 75,
+    },
+    {
+      companyId: company.id,
+      carId: cars[1].id,
+      startDate: daysFromNow(-3),
+      endDate: daysFromNow(1),
+      dailyPrice: 30,
+      totalPrice: 120,
+    },
+  ]) {
+    await prisma.contract.create({
+      data: { ...data, drivers: { create: [{ clientId: client.id, order: 0 }] } },
+    });
+  }
 
   console.log(`Seeded company "${company.name}" with ${cars.length} cars.`);
 }

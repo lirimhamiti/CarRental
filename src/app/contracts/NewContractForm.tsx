@@ -1,17 +1,10 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { dateInputClass, inputClass, labelClass, primaryButtonClass, SectionIcon } from "@/components/ui";
 import type { Dictionary } from "@/lib/i18n/get-dictionary";
-
-interface ClientSuggestion {
-  id: string;
-  firstName: string;
-  lastName: string;
-  documentNumber: string;
-  email: string | null;
-  phone: string | null;
-}
+import { isDriverValid } from "@/lib/driver-validation";
+import { DriverFields, emptyDriver, type DriverValue } from "./DriverFields";
 
 interface AvailableCar {
   id: string;
@@ -40,16 +33,14 @@ function addDaysInclusive(start: string, days: number): string {
   return d.toISOString().slice(0, 10);
 }
 
-export function NewContractForm({ dict }: { dict: Dictionary }) {
-  const [clientId, setClientId] = useState<string | undefined>(undefined);
-  const [firstName, setFirstName] = useState("");
-  const [lastName, setLastName] = useState("");
-  const [documentNumber, setDocumentNumber] = useState("");
-  const [email, setEmail] = useState("");
-  const [phone, setPhone] = useState("");
+interface DriverEntry {
+  key: number;
+  value: DriverValue;
+}
 
-  const [suggestions, setSuggestions] = useState<ClientSuggestion[]>([]);
-  const [showSuggestions, setShowSuggestions] = useState(false);
+export function NewContractForm({ dict }: { dict: Dictionary }) {
+  const nextDriverKey = useRef(1);
+  const [drivers, setDrivers] = useState<DriverEntry[]>([{ key: 0, value: emptyDriver() }]);
 
   const [startDate, setStartDate] = useState(today);
   const [daysField, setDaysField] = useState("1");
@@ -65,23 +56,6 @@ export function NewContractForm({ dict }: { dict: Dictionary }) {
   const [createdContractId, setCreatedContractId] = useState<string | null>(null);
 
   useEffect(() => {
-    if (firstName.trim().length < 2 || clientId) {
-      return;
-    }
-    let cancelled = false;
-    const timeout = setTimeout(async () => {
-      const res = await fetch(`/api/clients/search?q=${encodeURIComponent(firstName)}`);
-      if (!cancelled && res.ok) {
-        setSuggestions(await res.json());
-      }
-    }, 250);
-    return () => {
-      cancelled = true;
-      clearTimeout(timeout);
-    };
-  }, [firstName, clientId]);
-
-  useEffect(() => {
     if (!startDate || !endDate || endDate < startDate) return;
     const controller = new AbortController();
     fetch(`/api/cars/available?start=${startDate}&end=${endDate}`, {
@@ -94,24 +68,16 @@ export function NewContractForm({ dict }: { dict: Dictionary }) {
     return () => controller.abort();
   }, [startDate, endDate]);
 
-  function selectClient(client: ClientSuggestion) {
-    setClientId(client.id);
-    setFirstName(client.firstName);
-    setLastName(client.lastName);
-    setDocumentNumber(client.documentNumber);
-    setEmail(client.email ?? "");
-    setPhone(client.phone ?? "");
-    setSuggestions([]);
-    setShowSuggestions(false);
+  function updateDriver(key: number, patch: Partial<DriverValue>) {
+    setDrivers((prev) => prev.map((d) => (d.key === key ? { key, value: { ...d.value, ...patch } } : d)));
   }
 
-  function handleFirstNameChange(value: string) {
-    setFirstName(value);
-    setClientId(undefined);
-    setShowSuggestions(true);
-    if (value.trim().length < 2) {
-      setSuggestions([]);
-    }
+  function addDriver() {
+    setDrivers((prev) => [...prev, { key: nextDriverKey.current++, value: emptyDriver() }]);
+  }
+
+  function removeDriver(key: number) {
+    setDrivers((prev) => prev.filter((d) => d.key !== key));
   }
 
   function handleStartDateChange(value: string) {
@@ -158,12 +124,19 @@ export function NewContractForm({ dict }: { dict: Dictionary }) {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          clientId,
-          firstName,
-          lastName,
-          documentNumber,
-          email: email || undefined,
-          phone: phone || undefined,
+          drivers: drivers.map((d) => ({
+            clientId: d.value.clientId,
+            firstName: d.value.firstName,
+            lastName: d.value.lastName,
+            birthDate: d.value.birthDate,
+            passportNumber: d.value.passportNumber || undefined,
+            passportIssueDate: d.value.passportIssueDate || undefined,
+            passportExpiryDate: d.value.passportExpiryDate || undefined,
+            licenceNumber: d.value.licenceNumber || undefined,
+            licenceIssueDate: d.value.licenceIssueDate || undefined,
+            licenceExpiryDate: d.value.licenceExpiryDate || undefined,
+            phone: d.value.phone || undefined,
+          })),
           carId,
           startDate,
           endDate,
@@ -183,12 +156,8 @@ export function NewContractForm({ dict }: { dict: Dictionary }) {
   }
 
   function resetForm() {
-    setClientId(undefined);
-    setFirstName("");
-    setLastName("");
-    setDocumentNumber("");
-    setEmail("");
-    setPhone("");
+    setDrivers([{ key: 0, value: emptyDriver() }]);
+    nextDriverKey.current = 1;
     setStartDate(today);
     setDaysField("1");
     setEndDate(today);
@@ -204,9 +173,7 @@ export function NewContractForm({ dict }: { dict: Dictionary }) {
 
   const canSubmit =
     created ||
-    (firstName.trim() &&
-      lastName.trim() &&
-      documentNumber.trim() &&
+    (drivers.every((d) => isDriverValid(d.value)) &&
       startDate &&
       endDate &&
       endDate >= startDate &&
@@ -237,94 +204,25 @@ export function NewContractForm({ dict }: { dict: Dictionary }) {
               {dict.contracts.client.title}
             </h2>
           </div>
-          {clientId && (
-            <p className="-mt-2 flex items-center gap-1.5 text-xs font-medium text-emerald-600 dark:text-emerald-400">
-              <svg viewBox="0 0 24 24" fill="none" className="h-3.5 w-3.5">
-                <path
-                  d="M5 13l4 4L19 7"
-                  stroke="currentColor"
-                  strokeWidth={2.2}
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </svg>
-              {dict.contracts.client.existingSelected}
-            </p>
-          )}
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-            <div className="relative">
-              <label className={labelClass}>{dict.contracts.client.nameSurname}</label>
-              <input
-                required
-                placeholder={dict.contracts.client.namePlaceholder}
-                value={firstName}
-                onChange={(e) => handleFirstNameChange(e.target.value)}
-                onFocus={() => setShowSuggestions(true)}
-                onBlur={() => setTimeout(() => setShowSuggestions(false), 150)}
-                className={inputClass}
-              />
-              {showSuggestions && suggestions.length > 0 && (
-                <ul className="absolute z-10 mt-1.5 w-full overflow-hidden rounded-lg border border-zinc-200 bg-white shadow-lg shadow-zinc-200/60 dark:border-zinc-700 dark:bg-zinc-900 dark:shadow-black/30">
-                  {suggestions.map((s) => (
-                    <li key={s.id}>
-                      <button
-                        type="button"
-                        onClick={() => selectClient(s)}
-                        className="flex w-full items-center gap-3 px-3.5 py-2.5 text-left text-sm transition hover:bg-crimson-50 dark:hover:bg-crimson-500/10"
-                      >
-                        <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-ink text-[11px] font-semibold text-crimson-400">
-                          {s.firstName[0]}
-                          {s.lastName[0]}
-                        </span>
-                        <span>
-                          <span className="font-medium text-zinc-900 dark:text-zinc-50">
-                            {s.firstName} {s.lastName}
-                          </span>
-                          <span className="ml-1.5 text-zinc-400">· {s.documentNumber}</span>
-                        </span>
-                      </button>
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </div>
-            <div>
-              <label className={labelClass}>&nbsp;</label>
-              <input
-                required
-                placeholder={dict.contracts.client.surnamePlaceholder}
-                value={lastName}
-                onChange={(e) => setLastName(e.target.value)}
-                className={inputClass}
-              />
-            </div>
-            <div>
-              <label className={labelClass}>{dict.contracts.client.document}</label>
-              <input
-                required
-                value={documentNumber}
-                onChange={(e) => setDocumentNumber(e.target.value)}
-                className={inputClass}
-              />
-            </div>
-            <div>
-              <label className={labelClass}>{dict.contracts.client.email}</label>
-              <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className={inputClass}
-              />
-            </div>
-            <div>
-              <label className={labelClass}>{dict.contracts.client.phone}</label>
-              <input
-                value={phone}
-                onChange={(e) => setPhone(e.target.value)}
-                className={inputClass}
-              />
-            </div>
-          </div>
+
+          {drivers.map((d, index) => (
+            <DriverFields
+              key={d.key}
+              index={index}
+              driver={d.value}
+              dict={dict}
+              onChange={(patch) => updateDriver(d.key, patch)}
+              onRemove={index > 0 ? () => removeDriver(d.key) : undefined}
+            />
+          ))}
+
+          <button
+            type="button"
+            onClick={addDriver}
+            className="self-start rounded-lg border border-dashed border-zinc-300 px-4 py-2 text-xs font-medium uppercase tracking-wider text-zinc-600 transition hover:border-crimson-500 hover:text-crimson-600 dark:border-zinc-700 dark:text-zinc-300 dark:hover:border-crimson-500 dark:hover:text-crimson-400"
+          >
+            + {dict.contracts.client.addDriver}
+          </button>
         </div>
 
         <div className="h-px bg-gradient-to-r from-transparent via-zinc-200 to-transparent dark:via-zinc-800" />

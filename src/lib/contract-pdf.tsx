@@ -38,12 +38,13 @@ const styles = StyleSheet.create({
   panelsRow: { flexDirection: "row", borderBottomWidth: 1, borderBottomColor: border },
   panel: { width: "50%" },
   panelRight: { borderLeftWidth: 1, borderLeftColor: border },
-  panelTitle: {
+  sectionHeader: {
     padding: 5,
     borderBottomWidth: 1,
     borderBottomColor: border,
     backgroundColor: "#f0f0f0",
     fontWeight: "bold",
+    fontSize: 8.5,
   },
 
   field: { flexDirection: "row", borderBottomWidth: 1, borderBottomColor: "#ccc" },
@@ -95,23 +96,65 @@ function Field({
   );
 }
 
+export interface DriverPdfData {
+  firstName: string;
+  lastName: string;
+  birthDate: Date;
+  passportNumber: string | null;
+  passportIssueDate: Date | null;
+  passportExpiryDate: Date | null;
+  licenceNumber: string | null;
+  licenceIssueDate: Date | null;
+  licenceExpiryDate: Date | null;
+  phone: string | null;
+}
+
 export interface ContractPdfData {
   id: string;
   createdAt: Date;
   companyName: string;
-  client: {
-    firstName: string;
-    lastName: string;
-    documentNumber: string;
-    email: string | null;
-    phone: string | null;
-  };
+  drivers: DriverPdfData[];
   car: { make: string; model: string; year: number; plate: string };
   startDate: Date;
   endDate: Date;
   days: number;
   dailyPrice: number;
   totalPrice: number;
+}
+
+function formatIdRange(number: string | null, issue: Date | null, expiry: Date | null): string {
+  if (!number) return "-";
+  const range = issue && expiry ? ` (${formatDate(issue)} – ${formatDate(expiry)})` : "";
+  return `${number}${range}`;
+}
+
+function DriverBlock({ index, total, driver }: { index: number; total: number; driver: DriverPdfData }) {
+  const label = total > 1 ? `Возач ${index + 1} / Driver ${index + 1}` : "Изнајмувач / Renter";
+  return (
+    <View>
+      <Text style={styles.sectionHeader}>{label}</Text>
+      <View style={styles.panelsRow}>
+        <View style={styles.panel}>
+          <Field labelMk="Име и презиме" labelEn="Name" value={`${driver.firstName} ${driver.lastName}`} />
+          <Field labelMk="Дата на раѓање" labelEn="Date of birth" value={formatDate(driver.birthDate)} />
+          <Field labelMk="Телефон" labelEn="Phone" value={driver.phone ?? ""} last />
+        </View>
+        <View style={[styles.panel, styles.panelRight]}>
+          <Field
+            labelMk="Пасош (важи до)"
+            labelEn="Passport (valid until)"
+            value={formatIdRange(driver.passportNumber, driver.passportIssueDate, driver.passportExpiryDate)}
+          />
+          <Field
+            labelMk="Возачка дозвола (важи до)"
+            labelEn="Driving licence (valid until)"
+            value={formatIdRange(driver.licenceNumber, driver.licenceIssueDate, driver.licenceExpiryDate)}
+            last
+          />
+        </View>
+      </View>
+    </View>
+  );
 }
 
 export function ContractPdf({ data }: { data: ContractPdfData }) {
@@ -132,24 +175,25 @@ export function ContractPdf({ data }: { data: ContractPdfData }) {
             </View>
           </View>
 
-          <View style={styles.panelsRow}>
-            <View style={styles.panel}>
-              <Text style={styles.panelTitle}>Renter / Изнајмувач</Text>
-              <Field labelMk="Име и презиме" labelEn="Name" value={`${data.client.firstName} ${data.client.lastName}`} />
-              <Field labelMk="Пасош №/ID" labelEn="Passport N° / ID" value={data.client.documentNumber} />
-              <Field labelMk="Е-пошта" labelEn="Email" value={data.client.email ?? ""} />
-              <Field labelMk="Телефон" labelEn="Telephone" value={data.client.phone ?? ""} last />
-            </View>
-            <View style={[styles.panel, styles.panelRight]}>
-              <Text style={styles.panelTitle}>Vehicle / Возило</Text>
-              <Field
-                labelMk="Тип на кола"
-                labelEn="Car type"
-                value={`${data.car.make} ${data.car.model} (${data.car.year})`}
-              />
-              <Field labelMk="Регистрација" labelEn="Licence N°" value={data.car.plate} />
-              <Field labelMk="Датум на издавање" labelEn="Date of issue" value={formatDate(data.startDate)} />
-              <Field labelMk="Место и датум на прием" labelEn="Date of return" value={formatDate(data.endDate)} last />
+          {data.drivers.map((driver, index) => (
+            <DriverBlock key={index} index={index} total={data.drivers.length} driver={driver} />
+          ))}
+
+          <View>
+            <Text style={styles.sectionHeader}>Возило / Vehicle</Text>
+            <View style={styles.panelsRow}>
+              <View style={styles.panel}>
+                <Field
+                  labelMk="Тип на кола"
+                  labelEn="Car type"
+                  value={`${data.car.make} ${data.car.model} (${data.car.year})`}
+                />
+                <Field labelMk="Регистрација" labelEn="Licence N°" value={data.car.plate} last />
+              </View>
+              <View style={[styles.panel, styles.panelRight]}>
+                <Field labelMk="Датум на издавање" labelEn="Date of issue" value={formatDate(data.startDate)} />
+                <Field labelMk="Датум на прием" labelEn="Date of return" value={formatDate(data.endDate)} last />
+              </View>
             </View>
           </View>
 

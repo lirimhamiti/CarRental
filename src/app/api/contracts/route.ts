@@ -2,14 +2,15 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getCurrentCompanyId } from "@/lib/company";
 import { daysBetweenInclusive, parseDateOnly } from "@/lib/availability";
+import { isDriverValid, type DriverIdentity } from "@/lib/driver-validation";
+
+interface DriverBody extends DriverIdentity {
+  clientId?: string;
+  phone?: string;
+}
 
 interface CreateContractBody {
-  clientId?: string;
-  firstName: string;
-  lastName: string;
-  documentNumber: string;
-  email?: string;
-  phone?: string;
+  drivers: DriverBody[];
   carId: string;
   startDate: string;
   endDate: string;
@@ -20,9 +21,9 @@ export async function POST(request: Request) {
   const body = (await request.json()) as CreateContractBody;
 
   if (
-    !body.firstName?.trim() ||
-    !body.lastName?.trim() ||
-    !body.documentNumber?.trim() ||
+    !Array.isArray(body.drivers) ||
+    body.drivers.length === 0 ||
+    !body.drivers.every(isDriverValid) ||
     !body.carId ||
     !body.startDate ||
     !body.endDate ||
@@ -58,46 +59,46 @@ export async function POST(request: Request) {
     return NextResponse.json({ code: "CAR_UNAVAILABLE" }, { status: 409 });
   }
 
-  let clientId = body.clientId;
-  if (clientId) {
-    const existing = await prisma.client.findFirst({ where: { id: clientId, companyId } });
-    if (!existing) {
-      return NextResponse.json({ code: "CLIENT_NOT_FOUND" }, { status: 404 });
+  const driverData = (d: DriverBody) => ({
+    firstName: d.firstName.trim(),
+    lastName: d.lastName.trim(),
+    birthDate: parseDateOnly(d.birthDate),
+    passportNumber: d.passportNumber?.trim() || null,
+    passportIssueDate: d.passportIssueDate ? parseDateOnly(d.passportIssueDate) : null,
+    passportExpiryDate: d.passportExpiryDate ? parseDateOnly(d.passportExpiryDate) : null,
+    licenceNumber: d.licenceNumber?.trim() || null,
+    licenceIssueDate: d.licenceIssueDate ? parseDateOnly(d.licenceIssueDate) : null,
+    licenceExpiryDate: d.licenceExpiryDate ? parseDateOnly(d.licenceExpiryDate) : null,
+    phone: d.phone?.trim() || null,
+  });
+
+  const clientIds: string[] = [];
+  for (const d of body.drivers) {
+    if (d.clientId) {
+      const existing = await prisma.client.findFirst({ where: { id: d.clientId, companyId } });
+      if (!existing) {
+        return NextResponse.json({ code: "CLIENT_NOT_FOUND" }, { status: 404 });
+      }
+      await prisma.client.update({ where: { id: d.clientId }, data: driverData(d) });
+      clientIds.push(d.clientId);
+    } else {
+      const created = await prisma.client.create({ data: { companyId, ...driverData(d) } });
+      clientIds.push(created.id);
     }
-    await prisma.client.update({
-      where: { id: clientId },
-      data: {
-        firstName: body.firstName.trim(),
-        lastName: body.lastName.trim(),
-        documentNumber: body.documentNumber.trim(),
-        email: body.email?.trim() || null,
-        phone: body.phone?.trim() || null,
-      },
-    });
-  } else {
-    const created = await prisma.client.create({
-      data: {
-        companyId,
-        firstName: body.firstName.trim(),
-        lastName: body.lastName.trim(),
-        documentNumber: body.documentNumber.trim(),
-        email: body.email?.trim() || null,
-        phone: body.phone?.trim() || null,
-      },
-    });
-    clientId = created.id;
   }
 
   try {
     const contract = await prisma.contract.create({
       data: {
         companyId,
-        clientId,
         carId: car.id,
         startDate,
         endDate,
         dailyPrice,
         totalPrice,
+        drivers: {
+          create: clientIds.map((clientId, order) => ({ clientId, order })),
+        },
       },
     });
     return NextResponse.json({ id: contract.id });

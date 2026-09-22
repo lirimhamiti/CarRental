@@ -31,7 +31,7 @@ export default async function CarDetailPage({
       contracts: {
         where: { status: "ACTIVE" },
         orderBy: { startDate: "asc" },
-        include: { client: true },
+        include: { drivers: { include: { client: true }, orderBy: { order: "asc" } } },
       },
     },
   });
@@ -47,6 +47,10 @@ export default async function CarDetailPage({
     isDateInRange(today, c.startDate, c.endDate),
   );
   const upcomingBookings = car.contracts.filter((c) => c.endDate >= today);
+
+  function driverNames(contract: (typeof upcomingBookings)[number]): string {
+    return contract.drivers.map((d) => `${d.client.firstName} ${d.client.lastName}`).join(", ");
+  }
 
   return (
     <main className="bg-showroom-light min-h-screen">
@@ -94,7 +98,7 @@ export default async function CarDetailPage({
                 id: b.id,
                 startDate: b.startDate,
                 endDate: b.endDate,
-                clientName: `${b.client.firstName} ${b.client.lastName}`,
+                clientName: driverNames(b),
               }))}
               today={today}
               dict={dict}
@@ -114,7 +118,7 @@ export default async function CarDetailPage({
                       {formatDate(booking.startDate, locale)} – {formatDate(booking.endDate, locale)}
                     </span>
                     <span className="text-zinc-500 dark:text-zinc-400">
-                      {booking.client.firstName} {booking.client.lastName}
+                      {driverNames(booking)}
                     </span>
                   </li>
                 ))}
