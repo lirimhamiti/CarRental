@@ -35,13 +35,16 @@ body {
   font-family: Arial, Helvetica, sans-serif;
 }
 
-/* Racing navy surface with a soft crimson spotlight glow and a faint
-   asphalt-grain texture — reads as an automotive showroom, not a flat fill. */
+/* Racing navy surface with a soft crimson spotlight glow and a fine,
+   uniformly tiled grain — reads as an automotive showroom, not a flat fill.
+   A tiled dot (not repeating-radial-gradient) avoids visible concentric
+   rings on short containers like the header. */
 .bg-showroom-dark {
   background-color: var(--color-ink);
   background-image:
     radial-gradient(ellipse 700px 320px at 50% -15%, color-mix(in srgb, var(--color-crimson-500) 22%, transparent), transparent 60%),
-    repeating-radial-gradient(circle at 20% 30%, rgba(255, 255, 255, 0.05) 0px, rgba(255, 255, 255, 0.05) 1px, transparent 1px, transparent 3px);
+    radial-gradient(circle, rgba(255, 255, 255, 0.09) 1px, transparent 1.4px);
+  background-size: auto, 5px 5px;
 }
 
 /* Same grain, much quieter, for light page backgrounds. */
@@ -49,7 +52,8 @@ body {
   background-color: #ffffff;
   background-image:
     radial-gradient(ellipse 900px 420px at 50% 0%, color-mix(in srgb, var(--color-ink) 4%, transparent), transparent 65%),
-    repeating-radial-gradient(circle at 20% 30%, color-mix(in srgb, var(--color-ink) 3%, transparent) 0px, color-mix(in srgb, var(--color-ink) 3%, transparent) 1px, transparent 1px, transparent 3px);
+    radial-gradient(circle, color-mix(in srgb, var(--color-ink) 7%, transparent) 1px, transparent 1.4px);
+  background-size: auto, 5px 5px;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -57,6 +61,7 @@ body {
     background-color: #09090b;
     background-image:
       radial-gradient(ellipse 900px 420px at 50% 0%, color-mix(in srgb, var(--color-crimson-500) 6%, transparent), transparent 65%),
-      repeating-radial-gradient(circle at 20% 30%, color-mix(in srgb, var(--color-crimson-400) 5%, transparent) 0px, color-mix(in srgb, var(--color-crimson-400) 5%, transparent) 1px, transparent 1px, transparent 3px);
+      radial-gradient(circle, color-mix(in srgb, var(--color-crimson-400) 11%, transparent) 1px, transparent 1.4px);
+    background-size: auto, 5px 5px;
   }
 }
