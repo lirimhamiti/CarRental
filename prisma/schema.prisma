@@ -40,9 +40,15 @@ enum ContractStatus {
   CANCELED
 }
 
+enum Role {
+  OWNER
+  STAFF
+}
+
 model Company {
   id                 String             @id @default(cuid())
   name               String
+  logoUrl            String?
   subscriptionStatus SubscriptionStatus @default(TRIALING)
   stripeCustomerId   String?            @unique
   createdAt          DateTime           @default(now())
@@ -55,17 +61,34 @@ model Company {
   reservations Reservation[]
 }
 
+// One row per login: the company's own OWNER account plus up to 3 STAFF
+// accounts it creates. Both roles have identical access to the app itself —
+// the only thing STAFF can't do is manage users.
 model User {
   id           String   @id @default(cuid())
   companyId    String
-  email        String   @unique
+  username     String   @unique
   passwordHash String
-  name         String
+  role         Role     @default(STAFF)
   createdAt    DateTime @default(now())
 
-  company Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  company  Company   @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  sessions Session[]
 
   @@index([companyId])
+}
+
+// Database-backed session so removing a staff user immediately invalidates
+// any session they're still holding, not just future logins.
+model Session {
+  id        String   @id
+  userId    String
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
 }
 
 model Car {

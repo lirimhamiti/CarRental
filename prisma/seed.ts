@@ -1,8 +1,12 @@
+import bcrypt from "bcryptjs";
 import { PrismaPg } from "@prisma/adapter-pg";
 import { PrismaClient } from "../src/generated/prisma/client";
 
 const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL });
 const prisma = new PrismaClient({ adapter });
+
+const DEMO_OWNER_USERNAME = "demo-owner";
+const DEMO_OWNER_PASSWORD = "demo1234";
 
 async function main() {
   const company = await prisma.company.upsert({
@@ -12,6 +16,17 @@ async function main() {
       id: "demo-company",
       name: "Demo Rentals",
       subscriptionStatus: "ACTIVE",
+    },
+  });
+
+  await prisma.user.upsert({
+    where: { username: DEMO_OWNER_USERNAME },
+    update: {},
+    create: {
+      companyId: company.id,
+      username: DEMO_OWNER_USERNAME,
+      passwordHash: await bcrypt.hash(DEMO_OWNER_PASSWORD, 10),
+      role: "OWNER",
     },
   });
 
@@ -100,6 +115,7 @@ async function main() {
   }
 
   console.log(`Seeded company "${company.name}" with ${cars.length} cars.`);
+  console.log(`Login: ${DEMO_OWNER_USERNAME} / ${DEMO_OWNER_PASSWORD}`);
 }
 
 main()

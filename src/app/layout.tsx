@@ -5,6 +5,8 @@ import "./globals.css";
 import { getLocale } from "@/lib/i18n/get-locale";
 import { getDictionary } from "@/lib/i18n/get-dictionary";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
+import { LogoutButton } from "@/components/LogoutButton";
+import { getSessionUser } from "@/lib/session";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -29,6 +31,7 @@ export const metadata: Metadata = {
 export default async function RootLayout({ children }: LayoutProps<"/">) {
   const locale = await getLocale();
   const dict = getDictionary(locale);
+  const user = await getSessionUser();
 
   return (
     <html
@@ -51,7 +54,23 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
             </span>
             <span className="font-serif text-base tracking-wide text-white">{dict.brand}</span>
           </Link>
-          <LanguageSwitcher locale={locale} />
+          <div className="flex items-center gap-3 sm:gap-4">
+            {user && (
+              <>
+                <span className="hidden text-xs text-zinc-400 sm:inline">{user.username}</span>
+                {user.role === "OWNER" && (
+                  <Link
+                    href="/users"
+                    className="text-xs font-medium uppercase tracking-wider text-zinc-300 transition hover:text-crimson-400"
+                  >
+                    {dict.users.navLabel}
+                  </Link>
+                )}
+                <LogoutButton label={dict.auth.logout} />
+              </>
+            )}
+            <LanguageSwitcher locale={locale} />
+          </div>
         </header>
         {children}
       </body>

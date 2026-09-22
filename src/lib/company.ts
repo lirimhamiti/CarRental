@@ -1,11 +1,15 @@
-import { prisma } from "@/lib/prisma";
+import { redirect } from "next/navigation";
+import { getSessionUser, type SessionUser } from "@/lib/session";
 
-// Placeholder until auth exists: every page resolves "the current company"
-// through this one function. Once login is added, this becomes the only
-// place that changes — read companyId from the session instead.
+export async function getCurrentUser(): Promise<SessionUser> {
+  const user = await getSessionUser();
+  if (!user) {
+    redirect("/login");
+  }
+  return user;
+}
+
 export async function getCurrentCompanyId(): Promise<string> {
-  const company = await prisma.company.findFirstOrThrow({
-    orderBy: { createdAt: "asc" },
-  });
-  return company.id;
+  const user = await getCurrentUser();
+  return user.companyId;
 }
