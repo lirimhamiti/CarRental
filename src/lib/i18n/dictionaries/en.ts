@@ -98,6 +98,7 @@ const en = {
     rental: {
       title: "Rental",
       startDate: "Start date *",
+      daysLabel: "Days *",
       endDate: "End date *",
       dailyPrice: "Daily price *",
       availableCar: "Available car *",

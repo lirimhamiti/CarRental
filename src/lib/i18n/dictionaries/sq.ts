@@ -100,6 +100,7 @@ const sq: typeof en = {
     rental: {
       title: "Qiraja",
       startDate: "Data e fillimit *",
+      daysLabel: "Ditë *",
       endDate: "Data e mbarimit *",
       dailyPrice: "Çmimi ditor *",
       availableCar: "Makina e disponueshme *",

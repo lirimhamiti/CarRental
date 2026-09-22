@@ -12,14 +12,14 @@
   --font-mono: var(--font-geist-mono);
   --font-serif: var(--font-display);
 
-  /* Luxury automotive palette: deep sapphire ink + cool sapphire-blue accent. */
-  --color-ink: #0a1f44;
-  --color-ink-soft: #12305c;
-  --color-sapphire-50: #eef4ff;
-  --color-sapphire-100: #dbe7ff;
-  --color-sapphire-400: #4f8ff0;
-  --color-sapphire-500: #3d74d6;
-  --color-sapphire-600: #2a4f96;
+  /* Racing automotive palette: deep racing navy ink + crimson-red accent. */
+  --color-ink: #0b1530;
+  --color-ink-soft: #142149;
+  --color-crimson-50: #fdecec;
+  --color-crimson-100: #f8d0d1;
+  --color-crimson-400: #e2555a;
+  --color-crimson-500: #b3282c;
+  --color-crimson-600: #96181c;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -35,31 +35,28 @@ body {
   font-family: Arial, Helvetica, sans-serif;
 }
 
-/* Dark sapphire surface with a soft blue spotlight glow and a faint
-   carbon-fibre weave texture — reads as an automotive showroom, not a flat fill. */
+/* Racing navy surface with a soft crimson spotlight glow and a faint
+   asphalt-grain texture — reads as an automotive showroom, not a flat fill. */
 .bg-showroom-dark {
   background-color: var(--color-ink);
   background-image:
-    radial-gradient(ellipse 700px 320px at 50% -15%, color-mix(in srgb, var(--color-sapphire-400) 26%, transparent), transparent 60%),
-    repeating-linear-gradient(45deg, rgba(255, 255, 255, 0.045) 0px, rgba(255, 255, 255, 0.045) 2px, transparent 2px, transparent 6px),
-    repeating-linear-gradient(-45deg, rgba(255, 255, 255, 0.045) 0px, rgba(255, 255, 255, 0.045) 2px, transparent 2px, transparent 6px);
+    radial-gradient(ellipse 700px 320px at 50% -15%, color-mix(in srgb, var(--color-crimson-500) 22%, transparent), transparent 60%),
+    repeating-radial-gradient(circle at 20% 30%, rgba(255, 255, 255, 0.05) 0px, rgba(255, 255, 255, 0.05) 1px, transparent 1px, transparent 3px);
 }
 
-/* Same weave, much quieter, for light page backgrounds. */
+/* Same grain, much quieter, for light page backgrounds. */
 .bg-showroom-light {
   background-color: #ffffff;
   background-image:
     radial-gradient(ellipse 900px 420px at 50% 0%, color-mix(in srgb, var(--color-ink) 4%, transparent), transparent 65%),
-    repeating-linear-gradient(45deg, color-mix(in srgb, var(--color-ink) 2.5%, transparent) 0px, color-mix(in srgb, var(--color-ink) 2.5%, transparent) 1px, transparent 1px, transparent 7px),
-    repeating-linear-gradient(-45deg, color-mix(in srgb, var(--color-ink) 2.5%, transparent) 0px, color-mix(in srgb, var(--color-ink) 2.5%, transparent) 1px, transparent 1px, transparent 7px);
+    repeating-radial-gradient(circle at 20% 30%, color-mix(in srgb, var(--color-ink) 3%, transparent) 0px, color-mix(in srgb, var(--color-ink) 3%, transparent) 1px, transparent 1px, transparent 3px);
 }
 
 @media (prefers-color-scheme: dark) {
   .bg-showroom-light {
     background-color: #09090b;
     background-image:
-      radial-gradient(ellipse 900px 420px at 50% 0%, color-mix(in srgb, var(--color-sapphire-400) 6%, transparent), transparent 65%),
-      repeating-linear-gradient(45deg, color-mix(in srgb, var(--color-sapphire-400) 4%, transparent) 0px, color-mix(in srgb, var(--color-sapphire-400) 4%, transparent) 1px, transparent 1px, transparent 7px),
-      repeating-linear-gradient(-45deg, color-mix(in srgb, var(--color-sapphire-400) 4%, transparent) 0px, color-mix(in srgb, var(--color-sapphire-400) 4%, transparent) 1px, transparent 1px, transparent 7px);
+      radial-gradient(ellipse 900px 420px at 50% 0%, color-mix(in srgb, var(--color-crimson-500) 6%, transparent), transparent 65%),
+      repeating-radial-gradient(circle at 20% 30%, color-mix(in srgb, var(--color-crimson-400) 5%, transparent) 0px, color-mix(in srgb, var(--color-crimson-400) 5%, transparent) 1px, transparent 1px, transparent 3px);
   }
 }

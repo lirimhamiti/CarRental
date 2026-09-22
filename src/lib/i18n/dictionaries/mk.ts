@@ -100,6 +100,7 @@ const mk: typeof en = {
     rental: {
       title: "Изнајмување",
       startDate: "Датум на почеток *",
+      daysLabel: "Денови *",
       endDate: "Датум на завршување *",
       dailyPrice: "Дневна цена *",
       availableCar: "Достапно возило *",

@@ -31,7 +31,7 @@ export default async function CarsPage() {
     <main className="bg-showroom-light min-h-screen">
       <div className="mx-auto flex w-full max-w-4xl flex-col gap-6 px-4 py-12 sm:px-8">
         <div>
-          <p className="text-xs font-medium uppercase tracking-[0.2em] text-sapphire-600 dark:text-sapphire-400">
+          <p className="text-xs font-medium uppercase tracking-[0.2em] text-crimson-600 dark:text-crimson-400">
             {dict.cars.eyebrow}
           </p>
           <h1 className="font-serif text-3xl text-zinc-900 dark:text-zinc-50">{dict.cars.title}</h1>
@@ -62,11 +62,11 @@ export default async function CarsPage() {
                   return (
                     <tr
                       key={car.id}
-                      className="group transition hover:bg-sapphire-50/60 dark:hover:bg-sapphire-500/5"
+                      className="group transition hover:bg-crimson-50/60 dark:hover:bg-crimson-500/5"
                     >
                       <td className="px-6 py-4">
                         <Link href={`/cars/${car.id}`} className="flex items-center gap-3">
-                          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-ink text-sapphire-400">
+                          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-ink text-crimson-400">
                             <svg viewBox="0 0 24 24" fill="none" className="h-4.5 w-4.5">
                               <path
                                 d="M3 12h18M5 12V8a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v4M5 12v5a1 1 0 0 0 1 1h1a1 1 0 0 0 1-1v-1h8v1a1 1 0 0 0 1 1h1a1 1 0 0 0 1-1v-5"
@@ -77,7 +77,7 @@ export default async function CarsPage() {
                               />
                             </svg>
                           </span>
-                          <span className="font-medium text-zinc-900 group-hover:text-sapphire-600 dark:text-zinc-50 dark:group-hover:text-sapphire-400">
+                          <span className="font-medium text-zinc-900 group-hover:text-crimson-600 dark:text-zinc-50 dark:group-hover:text-crimson-400">
                             {car.make} {car.model} ({car.year})
                           </span>
                         </Link>
@@ -104,7 +104,7 @@ export default async function CarsPage() {
                       <td className="px-6 py-4 text-right">
                         <Link
                           href={`/cars/${car.id}`}
-                          className="text-zinc-300 transition group-hover:text-sapphire-500 dark:text-zinc-700"
+                          className="text-zinc-300 transition group-hover:text-crimson-500 dark:text-zinc-700"
                         >
                           <svg viewBox="0 0 24 24" fill="none" className="h-4 w-4">
                             <path

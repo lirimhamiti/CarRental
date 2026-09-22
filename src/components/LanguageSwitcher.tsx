@@ -19,7 +19,7 @@ export function LanguageSwitcher({ locale }: { locale: Locale }) {
   }
 
   return (
-    <div className="flex items-center gap-0.5 rounded-full border border-sapphire-500/25 bg-white/5 p-0.5 text-xs font-medium tracking-wide">
+    <div className="flex items-center gap-0.5 rounded-full border border-crimson-500/25 bg-white/5 p-0.5 text-xs font-medium tracking-wide">
       {locales.map((loc) => (
         <button
           key={loc}
@@ -29,8 +29,8 @@ export function LanguageSwitcher({ locale }: { locale: Locale }) {
           onClick={() => switchTo(loc)}
           className={`rounded-full px-2.5 py-1 transition ${
             loc === locale
-              ? "bg-sapphire-500 text-ink"
-              : "text-sapphire-100/70 hover:text-sapphire-100"
+              ? "bg-crimson-500 text-ink"
+              : "text-crimson-100/70 hover:text-crimson-100"
           }`}
         >
           {SHORT_LABEL[loc]}

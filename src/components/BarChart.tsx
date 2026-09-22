@@ -31,7 +31,7 @@ export function BarChart({
                 {i === maxIndex && max > 0 ? formatValue(d.value) : ""}
               </span>
               <div
-                className="w-6 rounded-t-[4px] bg-sapphire-500"
+                className="w-6 rounded-t-[4px] bg-crimson-500"
                 style={{ height: `${height}px` }}
               />
             </div>

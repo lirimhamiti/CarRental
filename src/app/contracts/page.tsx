@@ -10,7 +10,7 @@ export default async function ContractsPage() {
     <main className="bg-showroom-light min-h-screen">
       <div className="mx-auto flex w-full max-w-2xl flex-col gap-6 px-4 py-12 sm:px-8">
         <div>
-          <p className="text-xs font-medium uppercase tracking-[0.2em] text-sapphire-600 dark:text-sapphire-400">
+          <p className="text-xs font-medium uppercase tracking-[0.2em] text-crimson-600 dark:text-crimson-400">
             {dict.contracts.eyebrow}
           </p>
           <h1 className="font-serif text-3xl text-zinc-900 dark:text-zinc-50">

@@ -34,6 +34,12 @@ function daysBetweenInclusive(start: string, end: string): number {
   return Math.round(ms / (1000 * 60 * 60 * 24)) + 1;
 }
 
+function addDaysInclusive(start: string, days: number): string {
+  const d = new Date(`${start}T00:00:00Z`);
+  d.setUTCDate(d.getUTCDate() + days - 1);
+  return d.toISOString().slice(0, 10);
+}
+
 export function NewContractForm({ dict }: { dict: Dictionary }) {
   const [clientId, setClientId] = useState<string | undefined>(undefined);
   const [firstName, setFirstName] = useState("");
@@ -46,6 +52,7 @@ export function NewContractForm({ dict }: { dict: Dictionary }) {
   const [showSuggestions, setShowSuggestions] = useState(false);
 
   const [startDate, setStartDate] = useState(today);
+  const [daysField, setDaysField] = useState("1");
   const [endDate, setEndDate] = useState(today);
   const [dailyPrice, setDailyPrice] = useState("");
 
@@ -109,13 +116,31 @@ export function NewContractForm({ dict }: { dict: Dictionary }) {
 
   function handleStartDateChange(value: string) {
     setStartDate(value);
-    if (endDate < value) setEndDate(value);
+    const numDays = Number(daysField);
+    if (numDays > 0) {
+      setEndDate(addDaysInclusive(value, numDays));
+    } else if (endDate < value) {
+      setEndDate(value);
+    }
     setLoadingCars(true);
     setCarId("");
   }
 
+  function handleDaysFieldChange(value: string) {
+    setDaysField(value);
+    const numDays = Number(value);
+    if (numDays > 0 && startDate) {
+      setEndDate(addDaysInclusive(startDate, numDays));
+      setLoadingCars(true);
+      setCarId("");
+    }
+  }
+
   function handleEndDateChange(value: string) {
     setEndDate(value);
+    if (startDate && value >= startDate) {
+      setDaysField(String(daysBetweenInclusive(startDate, value)));
+    }
     setLoadingCars(true);
     setCarId("");
   }
@@ -165,6 +190,7 @@ export function NewContractForm({ dict }: { dict: Dictionary }) {
     setEmail("");
     setPhone("");
     setStartDate(today);
+    setDaysField("1");
     setEndDate(today);
     setDailyPrice("");
     setCarId("");
@@ -244,9 +270,9 @@ export function NewContractForm({ dict }: { dict: Dictionary }) {
                       <button
                         type="button"
                         onClick={() => selectClient(s)}
-                        className="flex w-full items-center gap-3 px-3.5 py-2.5 text-left text-sm transition hover:bg-sapphire-50 dark:hover:bg-sapphire-500/10"
+                        className="flex w-full items-center gap-3 px-3.5 py-2.5 text-left text-sm transition hover:bg-crimson-50 dark:hover:bg-crimson-500/10"
                       >
-                        <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-ink text-[11px] font-semibold text-sapphire-400">
+                        <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-ink text-[11px] font-semibold text-crimson-400">
                           {s.firstName[0]}
                           {s.lastName[0]}
                         </span>
@@ -320,7 +346,7 @@ export function NewContractForm({ dict }: { dict: Dictionary }) {
               {dict.contracts.rental.title}
             </h2>
           </div>
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
             <div>
               <label className={labelClass}>{dict.contracts.rental.startDate}</label>
               <input
@@ -329,6 +355,18 @@ export function NewContractForm({ dict }: { dict: Dictionary }) {
                 value={startDate}
                 min={today}
                 onChange={(e) => handleStartDateChange(e.target.value)}
+                className={inputClass}
+              />
+            </div>
+            <div>
+              <label className={labelClass}>{dict.contracts.rental.daysLabel}</label>
+              <input
+                type="number"
+                required
+                min={1}
+                step={1}
+                value={daysField}
+                onChange={(e) => handleDaysFieldChange(e.target.value)}
                 className={inputClass}
               />
             </div>
@@ -387,15 +425,15 @@ export function NewContractForm({ dict }: { dict: Dictionary }) {
           </div>
 
           {total > 0 && (
-            <div className="flex items-center justify-between rounded-lg border border-sapphire-500/30 bg-ink px-5 py-4 text-white">
+            <div className="flex items-center justify-between rounded-lg border border-crimson-500/30 bg-ink px-5 py-4 text-white">
               <div>
-                <p className="text-xs font-medium uppercase tracking-widest text-sapphire-100/70">
+                <p className="text-xs font-medium uppercase tracking-widest text-crimson-100/70">
                   {days} {days === 1 ? dict.contracts.rental.day : dict.contracts.rental.days} ·{" "}
                   {Number(dailyPrice).toFixed(2)} {dict.contracts.rental.perDay}
                 </p>
                 <p className="font-serif text-lg">{dict.contracts.rental.totalPrice}</p>
               </div>
-              <p className="font-serif text-2xl tabular-nums text-sapphire-400">{total.toFixed(2)}</p>
+              <p className="font-serif text-2xl tabular-nums text-crimson-400">{total.toFixed(2)}</p>
             </div>
           )}
         </div>

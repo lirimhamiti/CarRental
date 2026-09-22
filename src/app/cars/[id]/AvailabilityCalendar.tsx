@@ -95,7 +95,7 @@ export function AvailabilityCalendar({
                 booking
                   ? "bg-red-100 text-red-700 dark:bg-red-500/20 dark:text-red-400"
                   : "text-zinc-600 dark:text-zinc-300"
-              } ${isToday ? "ring-2 ring-sapphire-500 ring-inset" : ""}`}
+              } ${isToday ? "ring-2 ring-crimson-500 ring-inset" : ""}`}
             >
               {date.getUTCDate()}
             </div>
@@ -109,7 +109,7 @@ export function AvailabilityCalendar({
           {dict.cars.detail.calendar.legendBooked}
         </span>
         <span className="flex items-center gap-1.5">
-          <span className="h-2.5 w-2.5 rounded-full ring-2 ring-sapphire-500" />
+          <span className="h-2.5 w-2.5 rounded-full ring-2 ring-crimson-500" />
           {dict.cars.detail.calendar.legendToday}
         </span>
       </div>
