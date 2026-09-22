@@ -244,9 +244,9 @@ export function NewContractForm({ dict }: { dict: Dictionary }) {
                       <button
                         type="button"
                         onClick={() => selectClient(s)}
-                        className="flex w-full items-center gap-3 px-3.5 py-2.5 text-left text-sm transition hover:bg-gold-50 dark:hover:bg-gold-500/10"
+                        className="flex w-full items-center gap-3 px-3.5 py-2.5 text-left text-sm transition hover:bg-sapphire-50 dark:hover:bg-sapphire-500/10"
                       >
-                        <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-ink text-[11px] font-semibold text-gold-400">
+                        <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-ink text-[11px] font-semibold text-sapphire-400">
                           {s.firstName[0]}
                           {s.lastName[0]}
                         </span>
@@ -387,15 +387,15 @@ export function NewContractForm({ dict }: { dict: Dictionary }) {
           </div>
 
           {total > 0 && (
-            <div className="flex items-center justify-between rounded-lg border border-gold-500/30 bg-ink px-5 py-4 text-white">
+            <div className="flex items-center justify-between rounded-lg border border-sapphire-500/30 bg-ink px-5 py-4 text-white">
               <div>
-                <p className="text-xs font-medium uppercase tracking-widest text-gold-100/70">
+                <p className="text-xs font-medium uppercase tracking-widest text-sapphire-100/70">
                   {days} {days === 1 ? dict.contracts.rental.day : dict.contracts.rental.days} ·{" "}
                   {Number(dailyPrice).toFixed(2)} {dict.contracts.rental.perDay}
                 </p>
                 <p className="font-serif text-lg">{dict.contracts.rental.totalPrice}</p>
               </div>
-              <p className="font-serif text-2xl tabular-nums text-gold-400">{total.toFixed(2)}</p>
+              <p className="font-serif text-2xl tabular-nums text-sapphire-400">{total.toFixed(2)}</p>
             </div>
           )}
         </div>

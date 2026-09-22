@@ -73,7 +73,7 @@ export default async function Home() {
         <div className="mx-auto flex w-full max-w-4xl flex-col items-center gap-3 px-4 py-6 text-center sm:flex-row sm:justify-between sm:px-8 sm:py-7">
           <div className="sm:text-left">
             <h1 className="font-serif text-xl text-white sm:text-2xl">{company.name}</h1>
-            <p className="text-[10px] uppercase tracking-[0.2em] text-gold-400/90">
+            <p className="text-[10px] uppercase tracking-[0.2em] text-sapphire-400/90">
               {dict.home.tagline}
             </p>
           </div>
@@ -81,7 +81,7 @@ export default async function Home() {
           <div className="flex items-center gap-5 sm:gap-6">
             {stats.map((stat) => (
               <div key={stat.label} className="flex flex-col items-center gap-0.5">
-                <span className="font-serif text-lg text-gold-400 sm:text-xl">
+                <span className="font-serif text-lg text-sapphire-400 sm:text-xl">
                   {stat.value}
                 </span>
                 <span className="text-[9px] font-medium uppercase tracking-wider text-zinc-400">
@@ -101,7 +101,7 @@ export default async function Home() {
               href={section.href}
               className="group relative flex flex-col gap-5 bg-white p-8 transition hover:bg-ink dark:bg-zinc-950 dark:hover:bg-ink sm:p-9"
             >
-              <span className="flex h-12 w-12 items-center justify-center rounded-full border border-zinc-300 text-zinc-500 transition group-hover:border-gold-500/60 group-hover:text-gold-400 dark:border-zinc-700 dark:text-zinc-400">
+              <span className="flex h-12 w-12 items-center justify-center rounded-full border border-zinc-300 text-zinc-500 transition group-hover:border-sapphire-500/60 group-hover:text-sapphire-400 dark:border-zinc-700 dark:text-zinc-400">
                 <svg viewBox="0 0 24 24" fill="none" className="h-5 w-5">
                   {section.icon}
                 </svg>
@@ -114,7 +114,7 @@ export default async function Home() {
                   {section.description}
                 </p>
               </div>
-              <span className="mt-1 flex items-center gap-1 text-xs font-medium uppercase tracking-wider text-zinc-400 opacity-0 transition group-hover:text-gold-400 group-hover:opacity-100">
+              <span className="mt-1 flex items-center gap-1 text-xs font-medium uppercase tracking-wider text-zinc-400 opacity-0 transition group-hover:text-sapphire-400 group-hover:opacity-100">
                 <svg viewBox="0 0 24 24" fill="none" className="h-3 w-3">
                   <path d="M5 12h14m-6-6 6 6-6 6" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" />
                 </svg>
