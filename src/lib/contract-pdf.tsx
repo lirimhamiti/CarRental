@@ -118,8 +118,12 @@ export interface ContractPdfData {
   startDate: Date;
   endDate: Date;
   days: number;
-  dailyPrice: number;
-  totalPrice: number;
+  dailyPrice: number | null;
+  totalPrice: number | null;
+}
+
+function formatPrice(value: number | null): string {
+  return value != null ? value.toFixed(2) : "-";
 }
 
 function formatIdRange(number: string | null, issue: Date | null, expiry: Date | null): string {
@@ -204,11 +208,11 @@ export function ContractPdf({ data }: { data: ContractPdfData }) {
             </View>
             <View style={[styles.priceCell, styles.priceCellBorder]}>
               <Text style={styles.priceLabel}>Цена / Daily rate</Text>
-              <Text style={styles.priceValue}>{data.dailyPrice.toFixed(2)}</Text>
+              <Text style={styles.priceValue}>{formatPrice(data.dailyPrice)}</Text>
             </View>
             <View style={[styles.priceCell, styles.priceCellBorder]}>
               <Text style={styles.priceLabel}>Вкупно / Total</Text>
-              <Text style={styles.priceValue}>{data.totalPrice.toFixed(2)}</Text>
+              <Text style={styles.priceValue}>{formatPrice(data.totalPrice)}</Text>
             </View>
           </View>
 

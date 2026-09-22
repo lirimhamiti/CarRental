@@ -38,8 +38,8 @@ export async function GET(
         startDate: contract.startDate,
         endDate: contract.endDate,
         days,
-        dailyPrice: Number(contract.dailyPrice),
-        totalPrice: Number(contract.totalPrice),
+        dailyPrice: contract.dailyPrice != null ? Number(contract.dailyPrice) : null,
+        totalPrice: contract.totalPrice != null ? Number(contract.totalPrice) : null,
       }}
     />,
   );

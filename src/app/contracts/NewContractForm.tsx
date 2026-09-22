@@ -45,7 +45,7 @@ export function NewContractForm({ dict }: { dict: Dictionary }) {
   const [startDate, setStartDate] = useState(today);
   const [daysField, setDaysField] = useState("1");
   const [endDate, setEndDate] = useState(today);
-  const [dailyPrice, setDailyPrice] = useState("");
+  const [totalPriceField, setTotalPriceField] = useState("");
 
   const [availableCars, setAvailableCars] = useState<AvailableCar[]>([]);
   const [carId, setCarId] = useState("");
@@ -140,7 +140,7 @@ export function NewContractForm({ dict }: { dict: Dictionary }) {
           carId,
           startDate,
           endDate,
-          dailyPrice: Number(dailyPrice),
+          totalPrice: totalPriceField ? Number(totalPriceField) : undefined,
         }),
       });
       const data = await res.json();
@@ -161,7 +161,7 @@ export function NewContractForm({ dict }: { dict: Dictionary }) {
     setStartDate(today);
     setDaysField("1");
     setEndDate(today);
-    setDailyPrice("");
+    setTotalPriceField("");
     setCarId("");
     setCreatedContractId(null);
     setError(null);
@@ -169,7 +169,7 @@ export function NewContractForm({ dict }: { dict: Dictionary }) {
 
   const created = Boolean(createdContractId);
   const days = startDate && endDate && endDate >= startDate ? daysBetweenInclusive(startDate, endDate) : 0;
-  const total = days > 0 && Number(dailyPrice) > 0 ? days * Number(dailyPrice) : 0;
+  const total = Number(totalPriceField) > 0 ? Number(totalPriceField) : 0;
 
   const canSubmit =
     created ||
@@ -178,7 +178,6 @@ export function NewContractForm({ dict }: { dict: Dictionary }) {
       endDate &&
       endDate >= startDate &&
       carId &&
-      Number(dailyPrice) > 0 &&
       !submitting);
 
   return (
@@ -280,14 +279,13 @@ export function NewContractForm({ dict }: { dict: Dictionary }) {
               />
             </div>
             <div>
-              <label className={labelClass}>{dict.contracts.rental.dailyPrice}</label>
+              <label className={labelClass}>{dict.contracts.rental.totalPrice}</label>
               <input
                 type="number"
-                required
                 min={0.01}
                 step="0.01"
-                value={dailyPrice}
-                onChange={(e) => setDailyPrice(e.target.value)}
+                value={totalPriceField}
+                onChange={(e) => setTotalPriceField(e.target.value)}
                 className={inputClass}
               />
             </div>
@@ -326,8 +324,7 @@ export function NewContractForm({ dict }: { dict: Dictionary }) {
             <div className="flex items-center justify-between rounded-lg border border-crimson-500/30 bg-ink px-5 py-4 text-white">
               <div>
                 <p className="text-xs font-medium uppercase tracking-widest text-crimson-100/70">
-                  {days} {days === 1 ? dict.contracts.rental.day : dict.contracts.rental.days} ·{" "}
-                  {Number(dailyPrice).toFixed(2)} {dict.contracts.rental.perDay}
+                  {days} {days === 1 ? dict.contracts.rental.day : dict.contracts.rental.days}
                 </p>
                 <p className="font-serif text-lg">{dict.contracts.rental.totalPrice}</p>
               </div>

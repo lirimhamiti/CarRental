@@ -14,7 +14,7 @@ interface CreateContractBody {
   carId: string;
   startDate: string;
   endDate: string;
-  dailyPrice: number;
+  totalPrice?: number;
 }
 
 export async function POST(request: Request) {
@@ -26,85 +26,92 @@ export async function POST(request: Request) {
     !body.drivers.every(isDriverValid) ||
     !body.carId ||
     !body.startDate ||
-    !body.endDate ||
-    !(Number(body.dailyPrice) > 0)
+    !body.endDate
   ) {
     return NextResponse.json({ code: "MISSING_FIELDS" }, { status: 400 });
   }
 
-  const companyId = await getCurrentCompanyId();
-  const startDate = parseDateOnly(body.startDate);
-  const endDate = parseDateOnly(body.endDate);
-  if (endDate < startDate) {
-    return NextResponse.json({ code: "END_BEFORE_START" }, { status: 400 });
-  }
-  const days = daysBetweenInclusive(startDate, endDate);
-  const dailyPrice = Number(body.dailyPrice);
-  const totalPrice = dailyPrice * days;
-
-  const car = await prisma.car.findFirst({ where: { id: body.carId, companyId } });
-  if (!car) {
-    return NextResponse.json({ code: "CAR_NOT_FOUND" }, { status: 404 });
-  }
-
-  const overlapping = await prisma.contract.findFirst({
-    where: {
-      carId: car.id,
-      status: "ACTIVE",
-      startDate: { lte: endDate },
-      endDate: { gte: startDate },
-    },
-  });
-  if (overlapping) {
-    return NextResponse.json({ code: "CAR_UNAVAILABLE" }, { status: 409 });
-  }
-
-  const driverData = (d: DriverBody) => ({
-    firstName: d.firstName.trim(),
-    lastName: d.lastName.trim(),
-    birthDate: parseDateOnly(d.birthDate),
-    passportNumber: d.passportNumber?.trim() || null,
-    passportIssueDate: d.passportIssueDate ? parseDateOnly(d.passportIssueDate) : null,
-    passportExpiryDate: d.passportExpiryDate ? parseDateOnly(d.passportExpiryDate) : null,
-    licenceNumber: d.licenceNumber?.trim() || null,
-    licenceIssueDate: d.licenceIssueDate ? parseDateOnly(d.licenceIssueDate) : null,
-    licenceExpiryDate: d.licenceExpiryDate ? parseDateOnly(d.licenceExpiryDate) : null,
-    phone: d.phone?.trim() || null,
-  });
-
-  const clientIds: string[] = [];
-  for (const d of body.drivers) {
-    if (d.clientId) {
-      const existing = await prisma.client.findFirst({ where: { id: d.clientId, companyId } });
-      if (!existing) {
-        return NextResponse.json({ code: "CLIENT_NOT_FOUND" }, { status: 404 });
-      }
-      await prisma.client.update({ where: { id: d.clientId }, data: driverData(d) });
-      clientIds.push(d.clientId);
-    } else {
-      const created = await prisma.client.create({ data: { companyId, ...driverData(d) } });
-      clientIds.push(created.id);
-    }
-  }
-
   try {
-    const contract = await prisma.contract.create({
-      data: {
-        companyId,
+    const companyId = await getCurrentCompanyId();
+    const startDate = parseDateOnly(body.startDate);
+    const endDate = parseDateOnly(body.endDate);
+    if (endDate < startDate) {
+      return NextResponse.json({ code: "END_BEFORE_START" }, { status: 400 });
+    }
+    const days = daysBetweenInclusive(startDate, endDate);
+    const totalPrice = body.totalPrice != null && Number(body.totalPrice) > 0 ? Number(body.totalPrice) : null;
+    const dailyPrice = totalPrice != null ? Math.round((totalPrice / days) * 100) / 100 : null;
+
+    const car = await prisma.car.findFirst({ where: { id: body.carId, companyId } });
+    if (!car) {
+      return NextResponse.json({ code: "CAR_NOT_FOUND" }, { status: 404 });
+    }
+
+    const overlapping = await prisma.contract.findFirst({
+      where: {
         carId: car.id,
-        startDate,
-        endDate,
-        dailyPrice,
-        totalPrice,
-        drivers: {
-          create: clientIds.map((clientId, order) => ({ clientId, order })),
-        },
+        status: "ACTIVE",
+        startDate: { lte: endDate },
+        endDate: { gte: startDate },
       },
     });
-    return NextResponse.json({ id: contract.id });
-  } catch {
-    // Guards the race condition the app-level check above can't fully close;
-    // the DB exclusion constraint (see migration car_no_overlap) rejects it.
-    return NextResponse.json({ code: "CAR_UNAVAILABLE" }, { status: 409 });
+    if (overlapping) {
+      return NextResponse.json({ code: "CAR_UNAVAILABLE" }, { status: 409 });
+    }
+
+    const driverData = (d: DriverBody) => ({
+      firstName: d.firstName.trim(),
+      lastName: d.lastName.trim(),
+      birthDate: parseDateOnly(d.birthDate),
+      passportNumber: d.passportNumber?.trim() || null,
+      passportIssueDate: d.passportIssueDate ? parseDateOnly(d.passportIssueDate) : null,
+      passportExpiryDate: d.passportExpiryDate ? parseDateOnly(d.passportExpiryDate) : null,
+      licenceNumber: d.licenceNumber?.trim() || null,
+      licenceIssueDate: d.licenceIssueDate ? parseDateOnly(d.licenceIssueDate) : null,
+      licenceExpiryDate: d.licenceExpiryDate ? parseDateOnly(d.licenceExpiryDate) : null,
+      phone: d.phone?.trim() || null,
+    });
+
+    const clientIds: string[] = [];
+    for (const d of body.drivers) {
+      if (d.clientId) {
+        const existing = await prisma.client.findFirst({ where: { id: d.clientId, companyId } });
+        if (!existing) {
+          return NextResponse.json({ code: "CLIENT_NOT_FOUND" }, { status: 404 });
+        }
+        await prisma.client.update({ where: { id: d.clientId }, data: driverData(d) });
+        clientIds.push(d.clientId);
+      } else {
+        const created = await prisma.client.create({ data: { companyId, ...driverData(d) } });
+        clientIds.push(created.id);
+      }
+    }
+
+    try {
+      const contract = await prisma.contract.create({
+        data: {
+          companyId,
+          carId: car.id,
+          startDate,
+          endDate,
+          dailyPrice,
+          totalPrice,
+          drivers: {
+            create: clientIds.map((clientId, order) => ({ clientId, order })),
+          },
+        },
+      });
+      return NextResponse.json({ id: contract.id });
+    } catch {
+      // Guards the race condition the app-level check above can't fully close;
+      // the DB exclusion constraint (see migration car_no_overlap) rejects it.
+      return NextResponse.json({ code: "CAR_UNAVAILABLE" }, { status: 409 });
+    }
+  } catch (err) {
+    // Any unexpected failure (e.g. a DB schema out of sync with a pending
+    // migration) must still return JSON — an uncaught throw here leaves the
+    // client with an empty response body and a confusing JSON-parse crash.
+    console.error("POST /api/contracts failed:", err);
+    return NextResponse.json({ code: "GENERIC" }, { status: 500 });
   }
 }

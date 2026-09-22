@@ -101,8 +101,8 @@ model Contract {
   carId      String
   startDate  DateTime       @db.Date
   endDate    DateTime       @db.Date
-  dailyPrice Decimal        @db.Decimal(10, 2)
-  totalPrice Decimal        @db.Decimal(10, 2)
+  dailyPrice Decimal?       @db.Decimal(10, 2)
+  totalPrice Decimal?       @db.Decimal(10, 2)
   status     ContractStatus @default(ACTIVE)
   createdAt  DateTime       @default(now())
 
