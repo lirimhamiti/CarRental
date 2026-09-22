@@ -18,64 +18,82 @@ Font.register({
 const border = "#000";
 
 const styles = StyleSheet.create({
-  page: { padding: 28, fontSize: 9, fontFamily: "Roboto" },
+  page: { padding: 22, fontSize: 8.5, fontFamily: "Roboto" },
   outer: { borderWidth: 1, borderColor: border },
 
   headerRow: { flexDirection: "row", borderBottomWidth: 1, borderBottomColor: border },
-  headerLeft: { width: "55%", padding: 10, justifyContent: "center" },
+  headerLeft: { width: "55%", padding: 8, justifyContent: "center" },
   headerRight: {
     width: "45%",
-    padding: 10,
+    padding: 8,
     borderLeftWidth: 1,
     borderLeftColor: border,
     alignItems: "center",
     justifyContent: "center",
   },
-  companyName: { fontSize: 14, fontWeight: "bold" },
-  titleMk: { fontSize: 11, fontWeight: "bold", textAlign: "center" },
-  titleEn: { fontSize: 9, textAlign: "center", marginTop: 2, color: "#333" },
-  contractNo: { fontSize: 9, marginTop: 6, textAlign: "center" },
+  companyName: { fontSize: 13, fontWeight: "bold" },
+  titleMk: { fontSize: 10, fontWeight: "bold", textAlign: "center" },
+  titleEn: { fontSize: 8.5, textAlign: "center", marginTop: 2, color: "#333" },
+  contractNo: { fontSize: 8.5, marginTop: 4, textAlign: "center" },
 
   panelsRow: { flexDirection: "row", borderBottomWidth: 1, borderBottomColor: border },
   panel: { width: "50%" },
   panelRight: { borderLeftWidth: 1, borderLeftColor: border },
   sectionHeader: {
-    padding: 5,
+    padding: 3,
     borderBottomWidth: 1,
     borderBottomColor: border,
     backgroundColor: "#f0f0f0",
     fontWeight: "bold",
-    fontSize: 8.5,
+    fontSize: 8,
   },
 
   field: { flexDirection: "row", borderBottomWidth: 1, borderBottomColor: "#ccc" },
   fieldLast: { flexDirection: "row" },
-  fieldLabel: { width: "45%", padding: 5, color: "#333" },
-  fieldLabelMk: { fontWeight: "bold", fontSize: 8 },
-  fieldLabelEn: { fontSize: 8, color: "#555" },
+  fieldLabel: { width: "45%", padding: 3, color: "#333" },
+  fieldLabelMk: { fontWeight: "bold", fontSize: 7.5 },
+  fieldLabelEn: { fontSize: 7.5, color: "#555" },
   fieldValue: {
     width: "55%",
-    padding: 5,
+    padding: 3,
     borderLeftWidth: 1,
     borderLeftColor: "#ccc",
     justifyContent: "center",
   },
 
   priceRow: { flexDirection: "row", borderBottomWidth: 1, borderBottomColor: border },
-  priceCell: { flex: 1, padding: 8, alignItems: "center" },
+  priceCell: { flex: 1, padding: 5, alignItems: "center" },
   priceCellBorder: { borderLeftWidth: 1, borderLeftColor: border },
-  priceLabel: { fontSize: 8, color: "#333" },
-  priceValue: { fontSize: 12, fontWeight: "bold", marginTop: 3 },
+  priceLabel: { fontSize: 7.5, color: "#333" },
+  priceValue: { fontSize: 11, fontWeight: "bold", marginTop: 2 },
 
   signRow: { flexDirection: "row" },
-  signCell: { width: "50%", padding: 16 },
+  signCell: { width: "50%", padding: 8 },
   signCellBorder: { borderLeftWidth: 1, borderLeftColor: border },
-  signLine: { borderTopWidth: 1, borderTopColor: border, marginTop: 30, paddingTop: 4 },
+  signLine: { borderTopWidth: 1, borderTopColor: border, marginTop: 14, paddingTop: 3 },
 
   damageRow: { flexDirection: "row", borderBottomWidth: 1, borderBottomColor: border },
-  damageCell: { width: "55%", padding: 10, alignItems: "center", justifyContent: "center" },
+  damageCell: { width: "55%", padding: 6, alignItems: "center", justifyContent: "center" },
   damageCellBorder: { width: "45%", borderLeftWidth: 1, borderLeftColor: border },
+
+  notice: {
+    padding: 5,
+    borderBottomWidth: 1,
+    borderBottomColor: border,
+    fontSize: 6,
+    lineHeight: 1.3,
+    color: "#333",
+  },
 });
+
+const NOTICE_TEXT =
+  "IMPORTANT If an accident occurs (a) it must be reported immediately to the company; " +
+  "(b) the names and addresses of all persons involved and any witness(es) and the police " +
+  "should be obtained and a sketch plan should be made. YOU MUST NOT make any admission " +
+  "that you were at fault or liable nor make or promise any payment. I hereby acknowledge " +
+  "receipt of the above car in good condition and the following tools supplied with the " +
+  "car, for which I accept full responsibility and for which I shall make full payment if " +
+  "they are missing on return. SPARE WHEEL, BRACE & JACK.";
 
 function Field({
   labelMk,
@@ -138,7 +156,7 @@ function formatDateOrDash(date: Date | null): string {
 // contract, matching the "damage check form" diagram on the paper template.
 function CarDiagram() {
   return (
-    <Svg width={200} height={110} viewBox="0 0 220 120">
+    <Svg width={160} height={87} viewBox="0 0 220 120">
       <Rect x={20} y={20} width={180} height={80} rx={18} ry={18} fill="none" stroke="#000" strokeWidth={1.2} />
       <Line x1={70} y1={20} x2={70} y2={100} stroke="#000" strokeWidth={0.8} />
       <Line x1={150} y1={20} x2={150} y2={100} stroke="#000" strokeWidth={0.8} />
@@ -215,8 +233,17 @@ export function ContractPdf({ data }: { data: ContractPdfData }) {
                 <Field labelMk="Регистрација" labelEn="Licence N°" value={data.car.plate} last />
               </View>
               <View style={[styles.panel, styles.panelRight]}>
-                <Field labelMk="Датум на издавање" labelEn="Date of issue" value={formatDate(data.startDate)} />
-                <Field labelMk="Место и датум на прием" labelEn="Place and date of return" value={formatDate(data.endDate)} last />
+                <Field
+                  labelMk="Датум на издавање"
+                  labelEn="Date of issue"
+                  value={`${formatDate(data.startDate)} · 11:00`}
+                />
+                <Field
+                  labelMk="Место и датум на прием"
+                  labelEn="Place and date of return"
+                  value={`${formatDate(data.endDate)} · 21:00`}
+                  last
+                />
               </View>
             </View>
           </View>
@@ -246,6 +273,8 @@ export function ContractPdf({ data }: { data: ContractPdfData }) {
               <Text style={styles.priceValue}>{formatPrice(data.totalPrice)}</Text>
             </View>
           </View>
+
+          <Text style={styles.notice}>{NOTICE_TEXT}</Text>
 
           <View style={styles.signRow}>
             <View style={styles.signCell}>
