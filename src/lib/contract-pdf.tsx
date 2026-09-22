@@ -63,6 +63,15 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
 
+  // A dual-column field row where the left and right halves are siblings in
+  // the SAME row (rather than two independently stacked columns), so a
+  // border always spans a real row and two columns with different field
+  // counts never end up with a stray, misaligned half-width line.
+  dualRow: { flexDirection: "row", borderBottomWidth: 1, borderBottomColor: "#ccc" },
+  dualRowLast: { flexDirection: "row" },
+  dualHalf: { width: "50%", flexDirection: "row" },
+  dualHalfRight: { borderLeftWidth: 1, borderLeftColor: border },
+
   priceRow: { flexDirection: "row", borderBottomWidth: 1, borderBottomColor: border },
   priceCell: { flex: 1, padding: 5, alignItems: "center" },
   priceCellBorder: { borderLeftWidth: 1, borderLeftColor: border },
@@ -155,33 +164,65 @@ function formatDateOrDash(date: Date | null): string {
   return date ? formatDate(date) : "-";
 }
 
+interface FieldSpec {
+  labelMk: string;
+  labelEn: string;
+  value: string;
+}
+
+function DualFieldHalf({ field }: { field: FieldSpec | null }) {
+  if (!field) return <View style={{ width: "100%" }} />;
+  return (
+    <>
+      <View style={styles.fieldLabel}>
+        <Text style={styles.fieldLabelMk}>{field.labelMk}</Text>
+        <Text style={styles.fieldLabelEn}>{field.labelEn}</Text>
+      </View>
+      <View style={styles.fieldValue}>
+        <Text>{field.value || "-"}</Text>
+      </View>
+    </>
+  );
+}
+
+function DualField({ left, right, last }: { left: FieldSpec | null; right: FieldSpec | null; last?: boolean }) {
+  return (
+    <View style={last ? styles.dualRowLast : styles.dualRow}>
+      <View style={styles.dualHalf}>
+        <DualFieldHalf field={left} />
+      </View>
+      <View style={[styles.dualHalf, styles.dualHalfRight]}>
+        <DualFieldHalf field={right} />
+      </View>
+    </View>
+  );
+}
+
 function DriverBlock({ index, total, driver }: { index: number; total: number; driver: DriverPdfData }) {
   const label = total > 1 ? `Возач ${index + 1} / Driver ${index + 1}` : "Изнајмувач / Renter";
+  const leftFields: FieldSpec[] = [
+    { labelMk: "Име и презиме", labelEn: "Name", value: `${driver.firstName} ${driver.lastName}` },
+    { labelMk: "Дата на раѓање", labelEn: "Date of birth", value: formatDate(driver.birthDate) },
+    { labelMk: "Телефон", labelEn: "Phone", value: driver.phone ?? "" },
+  ];
+  const rightFields: FieldSpec[] = [
+    { labelMk: "Пасош N°", labelEn: "Passport N°", value: driver.passportNumber ?? "" },
+    { labelMk: "Пасош важи до", labelEn: "Passport valid until", value: formatDateOrDash(driver.passportExpiryDate) },
+    { labelMk: "Возачка дозвола N°", labelEn: "Driving licence N°", value: driver.licenceNumber ?? "" },
+    { labelMk: "Дозвола важи до", labelEn: "Licence valid until", value: formatDateOrDash(driver.licenceExpiryDate) },
+  ];
+  const rowCount = Math.max(leftFields.length, rightFields.length);
   return (
     <View>
       <Text style={styles.sectionHeader}>{label}</Text>
-      <View style={styles.panelsRow}>
-        <View style={styles.panel}>
-          <Field labelMk="Име и презиме" labelEn="Name" value={`${driver.firstName} ${driver.lastName}`} />
-          <Field labelMk="Дата на раѓање" labelEn="Date of birth" value={formatDate(driver.birthDate)} />
-          <Field labelMk="Телефон" labelEn="Phone" value={driver.phone ?? ""} last />
-        </View>
-        <View style={[styles.panel, styles.panelRight]}>
-          <Field labelMk="Пасош N°" labelEn="Passport N°" value={driver.passportNumber ?? ""} />
-          <Field
-            labelMk="Пасош важи до"
-            labelEn="Passport valid until"
-            value={formatDateOrDash(driver.passportExpiryDate)}
-          />
-          <Field labelMk="Возачка дозвола N°" labelEn="Driving licence N°" value={driver.licenceNumber ?? ""} />
-          <Field
-            labelMk="Дозвола важи до"
-            labelEn="Licence valid until"
-            value={formatDateOrDash(driver.licenceExpiryDate)}
-            last
-          />
-        </View>
-      </View>
+      {Array.from({ length: rowCount }, (_, i) => (
+        <DualField
+          key={i}
+          left={leftFields[i] ?? null}
+          right={rightFields[i] ?? null}
+          last={i === rowCount - 1}
+        />
+      ))}
     </View>
   );
 }
