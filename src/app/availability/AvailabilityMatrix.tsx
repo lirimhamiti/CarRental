@@ -159,64 +159,66 @@ export function AvailabilityMatrix({
               <th className="sticky left-0 z-10 border-b border-zinc-200 bg-white px-3 py-2 text-left text-[11px] font-medium uppercase tracking-wide text-zinc-500 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-400">
                 &nbsp;
               </th>
-              {cars.map((car) => (
-                <th
-                  key={car.id}
-                  className="border-b border-l border-zinc-200 bg-white px-2 py-2 text-center align-bottom dark:border-zinc-800 dark:bg-zinc-900"
-                >
-                  <div className="max-w-[120px] truncate text-xs font-medium text-zinc-700 dark:text-zinc-200">
-                    {car.make} {car.model}
-                  </div>
-                  <div className="font-mono text-[10px] text-zinc-400">{car.plate}</div>
-                </th>
-              ))}
+              {dates.map((date) => {
+                const isToday = isSameDay(date, today);
+                const weekday = calendar.weekdays[(date.getUTCDay() + 6) % 7];
+                return (
+                  <th
+                    key={date.toISOString()}
+                    className={`min-w-[38px] border-b border-l border-zinc-200 bg-white px-1 py-2 text-center dark:border-zinc-800 dark:bg-zinc-900 ${
+                      isToday ? "bg-crimson-50/50 text-crimson-600 dark:bg-crimson-500/5 dark:text-crimson-400" : ""
+                    }`}
+                  >
+                    <div className="text-[10px] uppercase text-zinc-400">{weekday}</div>
+                    <div className="text-xs font-medium">{date.getUTCDate()}</div>
+                  </th>
+                );
+              })}
             </tr>
           </thead>
           <tbody>
-            {dates.map((date) => {
-              const isToday = isSameDay(date, today);
-              const weekday = calendar.weekdays[(date.getUTCDay() + 6) % 7];
-              return (
-                <tr key={date.toISOString()} className={isToday ? "bg-crimson-50/50 dark:bg-crimson-500/5" : ""}>
-                  <td
-                    className={`sticky left-0 z-10 whitespace-nowrap border-b border-zinc-100 bg-white px-3 py-1.5 text-xs font-medium text-zinc-600 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-300 ${
-                      isToday ? "text-crimson-600 dark:text-crimson-400" : ""
-                    }`}
-                  >
-                    {weekday} {date.getUTCDate()}
-                  </td>
-                  {cars.map((car) => {
-                    const booking = bookingFor(car.id, date);
-                    const reservation = !booking ? reservationFor(car.id, date) : undefined;
-                    return (
-                      <td
-                        key={car.id}
-                        className="border-b border-l border-zinc-100 p-1 text-center dark:border-zinc-800"
-                      >
-                        {booking ? (
-                          <span
-                            title={booking.driverNames}
-                            className="inline-block h-5 w-5 rounded bg-red-400 dark:bg-red-500/70"
-                          />
-                        ) : reservation ? (
-                          <span
-                            title={reservation.clientName}
-                            className="inline-block h-5 w-5 rounded bg-amber-300 dark:bg-amber-500/70"
-                          />
-                        ) : (
-                          <button
-                            type="button"
-                            onClick={() => openDialog(car, date)}
-                            title={dict.availability.reserveTitle}
-                            className="inline-block h-5 w-5 rounded bg-emerald-100 transition hover:bg-emerald-300 dark:bg-emerald-500/10 dark:hover:bg-emerald-500/40"
-                          />
-                        )}
-                      </td>
-                    );
-                  })}
-                </tr>
-              );
-            })}
+            {cars.map((car) => (
+              <tr key={car.id}>
+                <td className="sticky left-0 z-10 whitespace-nowrap border-b border-zinc-100 bg-white px-3 py-1.5 text-xs dark:border-zinc-800 dark:bg-zinc-900">
+                  <div className="max-w-[140px] truncate font-medium text-zinc-700 dark:text-zinc-200">
+                    {car.make} {car.model}
+                  </div>
+                  <div className="font-mono text-[10px] text-zinc-400">{car.plate}</div>
+                </td>
+                {dates.map((date) => {
+                  const isToday = isSameDay(date, today);
+                  const booking = bookingFor(car.id, date);
+                  const reservation = !booking ? reservationFor(car.id, date) : undefined;
+                  return (
+                    <td
+                      key={date.toISOString()}
+                      className={`border-b border-l border-zinc-100 p-1 text-center dark:border-zinc-800 ${
+                        isToday ? "bg-crimson-50/50 dark:bg-crimson-500/5" : ""
+                      }`}
+                    >
+                      {booking ? (
+                        <span
+                          title={booking.driverNames}
+                          className="inline-block h-5 w-5 rounded bg-red-400 dark:bg-red-500/70"
+                        />
+                      ) : reservation ? (
+                        <span
+                          title={reservation.clientName}
+                          className="inline-block h-5 w-5 rounded bg-amber-300 dark:bg-amber-500/70"
+                        />
+                      ) : (
+                        <button
+                          type="button"
+                          onClick={() => openDialog(car, date)}
+                          title={dict.availability.reserveTitle}
+                          className="inline-block h-5 w-5 rounded bg-emerald-100 transition hover:bg-emerald-300 dark:bg-emerald-500/10 dark:hover:bg-emerald-500/40"
+                        />
+                      )}
+                    </td>
+                  );
+                })}
+              </tr>
+            ))}
           </tbody>
         </table>
       </div>
