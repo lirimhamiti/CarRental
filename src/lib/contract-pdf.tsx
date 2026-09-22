@@ -1,5 +1,5 @@
 import path from "node:path";
-import { Document, Page, Text, View, StyleSheet, Font, Svg, Rect, Line } from "@react-pdf/renderer";
+import { Document, Page, Text, View, StyleSheet, Font, Image } from "@react-pdf/renderer";
 import { formatDate } from "@/lib/dates";
 import { carLabel } from "@/lib/cars";
 
@@ -14,6 +14,8 @@ Font.register({
     { src: path.join(fontsDir, "Roboto-Bold.ttf"), fontWeight: "bold" },
   ],
 });
+
+const damageDiagramPath = path.join(process.cwd(), "src/assets/images/damage-check-diagram.png");
 
 const border = "#000";
 
@@ -74,6 +76,7 @@ const styles = StyleSheet.create({
 
   damageRow: { flexDirection: "row", borderBottomWidth: 1, borderBottomColor: border },
   damageCell: { width: "55%", padding: 6, alignItems: "center", justifyContent: "center" },
+  damageImage: { width: 210 },
   damageCellBorder: { width: "45%", borderLeftWidth: 1, borderLeftColor: border },
 
   notice: {
@@ -150,22 +153,6 @@ function formatPrice(value: number | null): string {
 
 function formatDateOrDash(date: Date | null): string {
   return date ? formatDate(date) : "-";
-}
-
-// A blank top-down car outline for marking damage by hand on the printed
-// contract, matching the "damage check form" diagram on the paper template.
-function CarDiagram() {
-  return (
-    <Svg width={160} height={87} viewBox="0 0 220 120">
-      <Rect x={20} y={20} width={180} height={80} rx={18} ry={18} fill="none" stroke="#000" strokeWidth={1.2} />
-      <Line x1={70} y1={20} x2={70} y2={100} stroke="#000" strokeWidth={0.8} />
-      <Line x1={150} y1={20} x2={150} y2={100} stroke="#000" strokeWidth={0.8} />
-      <Rect x={35} y={6} width={26} height={10} rx={3} fill="#000" />
-      <Rect x={35} y={104} width={26} height={10} rx={3} fill="#000" />
-      <Rect x={159} y={6} width={26} height={10} rx={3} fill="#000" />
-      <Rect x={159} y={104} width={26} height={10} rx={3} fill="#000" />
-    </Svg>
-  );
 }
 
 function DriverBlock({ index, total, driver }: { index: number; total: number; driver: DriverPdfData }) {
@@ -251,7 +238,9 @@ export function ContractPdf({ data }: { data: ContractPdfData }) {
           <Text style={styles.sectionHeader}>Проверка на возилото / Damage check form</Text>
           <View style={styles.damageRow}>
             <View style={styles.damageCell}>
-              <CarDiagram />
+              {/* eslint-disable-next-line jsx-a11y/alt-text -- react-pdf's Image is a PDF
+                  drawing primitive, not an HTML img; it has no alt prop. */}
+              <Image src={damageDiagramPath} style={styles.damageImage} />
             </View>
             <View style={styles.damageCellBorder}>
               <Field labelMk="Неограничена км" labelEn="Unlimited km" value="" />
