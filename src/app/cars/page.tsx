@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { getCurrentCompanyId } from "@/lib/company";
-import { formatDate, isDateInRange } from "@/lib/dates";
+import { formatDate } from "@/lib/dates";
 import { carLabel, registrationUrgency } from "@/lib/cars";
 import { getLocale } from "@/lib/i18n/get-locale";
 import { getDictionary, interpolate } from "@/lib/i18n/get-dictionary";
@@ -21,7 +21,6 @@ export default async function CarsPage() {
   const companyId = await getCurrentCompanyId();
   const cars = await prisma.car.findMany({
     where: { companyId },
-    include: { contracts: { where: { status: "ACTIVE" } } },
     orderBy: [{ make: "asc" }, { model: "asc" }],
   });
 
@@ -47,7 +46,7 @@ export default async function CarsPage() {
             </p>
           ) : (
             <div className="overflow-x-auto [-webkit-overflow-scrolling:touch]">
-              <table className="w-full min-w-[880px] text-left text-sm">
+              <table className="w-full min-w-[760px] text-left text-sm">
               <thead>
                 <tr className="border-b border-zinc-200 text-xs uppercase tracking-wide text-zinc-500 dark:border-zinc-800 dark:text-zinc-400">
                   <th className="px-6 py-3 font-medium">{dict.cars.table.car}</th>
@@ -56,13 +55,11 @@ export default async function CarsPage() {
                   <th className="px-6 py-3 font-medium">{dict.cars.table.transmission}</th>
                   <th className="px-6 py-3 font-medium">{dict.cars.table.fuelType}</th>
                   <th className="px-6 py-3 font-medium">{dict.cars.table.status}</th>
-                  <th className="px-6 py-3 font-medium">{dict.cars.table.availability}</th>
                   <th className="px-6 py-3" />
                 </tr>
               </thead>
               <tbody className="divide-y divide-zinc-100 dark:divide-zinc-800">
                 {cars.map((car) => {
-                  const current = car.contracts.find((c) => isDateInRange(today, c.startDate, c.endDate));
                   return (
                     <tr
                       key={car.id}
@@ -122,15 +119,6 @@ export default async function CarsPage() {
                         >
                           {dict.cars.status[car.status]}
                         </span>
-                      </td>
-                      <td className="px-6 py-4 text-xs">
-                        {current ? (
-                          <span className="text-red-600 dark:text-red-400">
-                            {interpolate(dict.cars.rentedUntil, { date: formatDate(current.endDate, locale) })}
-                          </span>
-                        ) : (
-                          <span className="text-emerald-600 dark:text-emerald-400">{dict.cars.freeNow}</span>
-                        )}
                       </td>
                       <td className="px-6 py-4 text-right">
                         <Link
