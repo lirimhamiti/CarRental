@@ -222,7 +222,7 @@ export function DriverFields({
 
       <p className="-mb-1 text-xs text-zinc-500 dark:text-zinc-400">{dict.contracts.client.idHint}</p>
 
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+      <div className="flex flex-col gap-4">
         <div>
           <label className={labelClass}>{dict.contracts.client.passportNumber}</label>
           <input
@@ -231,27 +231,29 @@ export function DriverFields({
             className={inputClass}
           />
         </div>
-        <div>
-          <label className={labelClass}>{dict.contracts.client.passportIssueDate}</label>
-          <input
-            type="date"
-            value={driver.passportIssueDate}
-            onChange={(e) => handlePassportIssueChange(e.target.value)}
-            className={dateInputClass}
-          />
-        </div>
-        <div>
-          <label className={labelClass}>{dict.contracts.client.passportExpiryDate}</label>
-          <input
-            type="date"
-            value={driver.passportExpiryDate}
-            onChange={(e) => onChange({ passportExpiryDate: e.target.value })}
-            className={dateInputClass}
-          />
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <label className={labelClass}>{dict.contracts.client.passportIssueDate}</label>
+            <input
+              type="date"
+              value={driver.passportIssueDate}
+              onChange={(e) => handlePassportIssueChange(e.target.value)}
+              className={dateInputClass}
+            />
+          </div>
+          <div>
+            <label className={labelClass}>{dict.contracts.client.passportExpiryDate}</label>
+            <input
+              type="date"
+              value={driver.passportExpiryDate}
+              onChange={(e) => onChange({ passportExpiryDate: e.target.value })}
+              className={dateInputClass}
+            />
+          </div>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+      <div className="flex flex-col gap-4">
         <div>
           <label className={labelClass}>{dict.contracts.client.licenceNumber}</label>
           <input
@@ -260,23 +262,25 @@ export function DriverFields({
             className={inputClass}
           />
         </div>
-        <div>
-          <label className={labelClass}>{dict.contracts.client.licenceIssueDate}</label>
-          <input
-            type="date"
-            value={driver.licenceIssueDate}
-            onChange={(e) => handleLicenceIssueChange(e.target.value)}
-            className={dateInputClass}
-          />
-        </div>
-        <div>
-          <label className={labelClass}>{dict.contracts.client.licenceExpiryDate}</label>
-          <input
-            type="date"
-            value={driver.licenceExpiryDate}
-            onChange={(e) => onChange({ licenceExpiryDate: e.target.value })}
-            className={dateInputClass}
-          />
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <label className={labelClass}>{dict.contracts.client.licenceIssueDate}</label>
+            <input
+              type="date"
+              value={driver.licenceIssueDate}
+              onChange={(e) => handleLicenceIssueChange(e.target.value)}
+              className={dateInputClass}
+            />
+          </div>
+          <div>
+            <label className={labelClass}>{dict.contracts.client.licenceExpiryDate}</label>
+            <input
+              type="date"
+              value={driver.licenceExpiryDate}
+              onChange={(e) => onChange({ licenceExpiryDate: e.target.value })}
+              className={dateInputClass}
+            />
+          </div>
         </div>
       </div>
     </div>
