@@ -26,7 +26,7 @@ interface ReservationRow {
   clientName: string;
 }
 
-const WINDOW_DAYS = 14;
+const WINDOW_DAYS = 30;
 
 function addDays(date: Date, n: number): Date {
   const d = new Date(date);
