@@ -223,6 +223,9 @@ export function DriverFields({
       <p className="-mb-1 text-xs text-zinc-500 dark:text-zinc-400">{dict.contracts.client.idHint}</p>
 
       <div className="flex flex-col gap-4">
+        <p className="text-[11px] font-semibold uppercase tracking-wider text-zinc-400 dark:text-zinc-500">
+          {dict.contracts.client.passportSection}
+        </p>
         <div>
           <label className={labelClass}>{dict.contracts.client.passportNumber}</label>
           <input
@@ -253,7 +256,12 @@ export function DriverFields({
         </div>
       </div>
 
+      <div className="h-px bg-gradient-to-r from-transparent via-zinc-200 to-transparent dark:via-zinc-800" />
+
       <div className="flex flex-col gap-4">
+        <p className="text-[11px] font-semibold uppercase tracking-wider text-zinc-400 dark:text-zinc-500">
+          {dict.contracts.client.licenceSection}
+        </p>
         <div>
           <label className={labelClass}>{dict.contracts.client.licenceNumber}</label>
           <input
