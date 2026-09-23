@@ -1,12 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import { inputClass, labelClass, primaryButtonClass } from "@/components/ui";
 import type { Dictionary } from "@/lib/i18n/get-dictionary";
 
 export function LoginForm({ dict }: { dict: Dictionary }) {
-  const router = useRouter();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [submitting, setSubmitting] = useState(false);
@@ -18,24 +16,27 @@ export function LoginForm({ dict }: { dict: Dictionary }) {
     e.preventDefault();
     setError(null);
     setSubmitting(true);
-    try {
-      const res = await fetch("/api/auth/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username, password }),
-      });
-      if (!res.ok) {
-        setError(dict.auth.login.error);
-        return;
-      }
-      // No router.push here: LoginPage itself redirects home once it sees a
-      // session, so refresh() alone triggers that — one clean navigation
-      // instead of two racing ones (push + the redirect refresh() also
-      // triggers), which is what caused the "page couldn't load" bug.
-      router.refresh();
-    } finally {
+    const res = await fetch("/api/auth/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ username, password }),
+    });
+    if (!res.ok) {
+      setError(dict.auth.login.error);
       setSubmitting(false);
+      return;
     }
+    // A hard navigation, not router.push/refresh: Next's client router moves
+    // between routes via history.pushState/replaceState, and under
+    // real-world latency (slow mobile, Vercel cold starts) those calls can
+    // fire in a tight enough burst that Chrome's own flood protection
+    // ("Throttling navigation to prevent the browser from hanging") drops
+    // them — leaving the user stuck on /login with a stale page. A plain
+    // browser navigation is a single atomic operation that protection
+    // doesn't apply to, and it shows the browser's native loading state for
+    // the brief gap until "/" finishes loading.
+    // eslint-disable-next-line @next/next/no-location-assign-relative-destination -- intentional hard navigation, see comment above
+    window.location.href = "/";
   }
 
   return (

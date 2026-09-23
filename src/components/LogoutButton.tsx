@@ -1,19 +1,19 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 
 export function LogoutButton({ label }: { label: string }) {
-  const router = useRouter();
   const [loading, setLoading] = useState(false);
 
   async function handleLogout() {
     setLoading(true);
     await fetch("/api/auth/logout", { method: "POST" });
-    // No router.push here: the current page's own auth check redirects to
-    // /login once the session is gone, so refresh() alone triggers that —
-    // avoids the same push+refresh navigation race fixed in LoginForm.
-    router.refresh();
+    // Hard navigation, not router.push/refresh — see LoginForm.tsx for why:
+    // under real-world latency Chrome's navigation-flood protection can
+    // drop the client router's history.replaceState call and strand the
+    // user on the current page. A plain browser navigation sidesteps it.
+    // eslint-disable-next-line @next/next/no-location-assign-relative-destination -- intentional hard navigation, see comment above
+    window.location.href = "/login";
   }
 
   return (

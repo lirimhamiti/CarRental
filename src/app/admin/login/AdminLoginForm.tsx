@@ -1,12 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import { inputClass, labelClass, primaryButtonClass } from "@/components/ui";
 import type { Dictionary } from "@/lib/i18n/get-dictionary";
 
 export function AdminLoginForm({ dict }: { dict: Dictionary }) {
-  const router = useRouter();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [submitting, setSubmitting] = useState(false);
@@ -18,23 +16,22 @@ export function AdminLoginForm({ dict }: { dict: Dictionary }) {
     e.preventDefault();
     setError(null);
     setSubmitting(true);
-    try {
-      const res = await fetch("/api/admin/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username, password }),
-      });
-      if (!res.ok) {
-        setError(dict.admin.login.error);
-        return;
-      }
-      // No router.push here: AdminLoginPage itself redirects to /admin once
-      // it sees an admin session, so refresh() alone triggers that — avoids
-      // the same push+refresh navigation race fixed in the user LoginForm.
-      router.refresh();
-    } finally {
+    const res = await fetch("/api/admin/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ username, password }),
+    });
+    if (!res.ok) {
+      setError(dict.admin.login.error);
       setSubmitting(false);
+      return;
     }
+    // Hard navigation, not router.push/refresh — see LoginForm.tsx for why:
+    // under real-world latency Chrome's navigation-flood protection can
+    // drop the client router's history.replaceState call and strand the
+    // user on the login page. A plain browser navigation sidesteps it.
+    // eslint-disable-next-line @next/next/no-location-assign-relative-destination -- intentional hard navigation, see comment above
+    window.location.href = "/admin";
   }
 
   return (
