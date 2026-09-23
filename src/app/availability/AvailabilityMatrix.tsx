@@ -26,8 +26,12 @@ interface ReservationRow {
   clientName: string;
 }
 
-function startOfMonth(date: Date): Date {
-  return new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), 1));
+const WINDOW_DAYS = 14;
+
+function addDays(date: Date, n: number): Date {
+  const d = new Date(date);
+  d.setUTCDate(d.getUTCDate() + n);
+  return d;
 }
 
 function isSameDay(a: Date, b: Date): boolean {
@@ -70,7 +74,7 @@ export function AvailabilityMatrix({
 }) {
   const router = useRouter();
   const todayStr = toDateOnly(today);
-  const [viewMonth, setViewMonth] = useState(() => startOfMonth(today));
+  const [viewStart, setViewStart] = useState(() => today);
   const [selected, setSelected] = useState<CarRow | null>(null);
   const [clientName, setClientName] = useState("");
   const [startDate, setStartDate] = useState(todayStr);
@@ -80,14 +84,13 @@ export function AvailabilityMatrix({
   const [error, setError] = useState<string | null>(null);
 
   const calendar = dict.cars.detail.calendar;
-  const monthLabel = `${calendar.months[viewMonth.getUTCMonth()]} ${viewMonth.getUTCFullYear()}`;
-
-  const year = viewMonth.getUTCFullYear();
-  const month = viewMonth.getUTCMonth();
-  const daysInMonth = new Date(Date.UTC(year, month + 1, 0)).getUTCDate();
-  const isCurrentMonth = year === today.getUTCFullYear() && month === today.getUTCMonth();
-  const firstDay = isCurrentMonth ? today.getUTCDate() : 1;
-  const dates = Array.from({ length: daysInMonth - firstDay + 1 }, (_, i) => new Date(Date.UTC(year, month, firstDay + i)));
+  const dates = Array.from({ length: WINDOW_DAYS }, (_, i) => addDays(viewStart, i));
+  const rangeStart = dates[0];
+  const rangeEnd = dates[dates.length - 1];
+  const monthLabel =
+    rangeStart.getUTCMonth() === rangeEnd.getUTCMonth() && rangeStart.getUTCFullYear() === rangeEnd.getUTCFullYear()
+      ? `${calendar.months[rangeStart.getUTCMonth()]} ${rangeStart.getUTCFullYear()}`
+      : `${calendar.months[rangeStart.getUTCMonth()].slice(0, 3)} ${rangeStart.getUTCDate()} – ${calendar.months[rangeEnd.getUTCMonth()].slice(0, 3)} ${rangeEnd.getUTCDate()}, ${rangeEnd.getUTCFullYear()}`;
 
   function bookingFor(carId: string, date: Date): Booking | undefined {
     // endDate is the checkout/return day (exclusive) — see nightsBetween.
@@ -171,7 +174,7 @@ export function AvailabilityMatrix({
         <button
           type="button"
           aria-label={calendar.prevMonth}
-          onClick={() => setViewMonth(new Date(Date.UTC(year, month - 1, 1)))}
+          onClick={() => setViewStart(addDays(viewStart, -WINDOW_DAYS))}
           className="flex h-8 w-8 items-center justify-center rounded-lg text-zinc-500 transition hover:bg-zinc-100 dark:text-zinc-400 dark:hover:bg-zinc-800"
         >
           <svg viewBox="0 0 24 24" fill="none" className="h-4 w-4">
@@ -182,7 +185,7 @@ export function AvailabilityMatrix({
         <button
           type="button"
           aria-label={calendar.nextMonth}
-          onClick={() => setViewMonth(new Date(Date.UTC(year, month + 1, 1)))}
+          onClick={() => setViewStart(addDays(viewStart, WINDOW_DAYS))}
           className="flex h-8 w-8 items-center justify-center rounded-lg text-zinc-500 transition hover:bg-zinc-100 dark:text-zinc-400 dark:hover:bg-zinc-800"
         >
           <svg viewBox="0 0 24 24" fill="none" className="h-4 w-4">
@@ -209,7 +212,14 @@ export function AvailabilityMatrix({
                     }`}
                   >
                     <div className="text-[10px] uppercase text-zinc-400">{weekday}</div>
-                    <div className="text-xs font-medium">{date.getUTCDate()}</div>
+                    <div className="text-xs font-medium">
+                      {date.getUTCDate()}
+                      {date.getUTCDate() === 1 && (
+                        <span className="ml-0.5 text-[9px] font-normal text-zinc-400">
+                          {calendar.months[date.getUTCMonth()].slice(0, 3)}
+                        </span>
+                      )}
+                    </div>
                   </th>
                 );
               })}
