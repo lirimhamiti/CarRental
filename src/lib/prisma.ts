@@ -20,8 +20,10 @@ const adapter = new PrismaPg({
   ssl: requiresSsl ? true : undefined,
 });
 
+// Cached in every environment, not just dev: a warm serverless instance on
+// Vercel reuses this module scope across requests, so without caching here
+// each request opens a brand-new, never-closed DB connection on top of the
+// last — connections pile up on that instance until Neon's limit is hit and
+// queries start failing intermittently.
 export const prisma = globalForPrisma.prisma ?? new PrismaClient({ adapter });
-
-if (process.env.NODE_ENV !== "production") {
-  globalForPrisma.prisma = prisma;
-}
+globalForPrisma.prisma = prisma;
