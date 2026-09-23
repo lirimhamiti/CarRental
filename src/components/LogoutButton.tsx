@@ -10,7 +10,9 @@ export function LogoutButton({ label }: { label: string }) {
   async function handleLogout() {
     setLoading(true);
     await fetch("/api/auth/logout", { method: "POST" });
-    router.push("/login");
+    // No router.push here: the current page's own auth check redirects to
+    // /login once the session is gone, so refresh() alone triggers that —
+    // avoids the same push+refresh navigation race fixed in LoginForm.
     router.refresh();
   }
 

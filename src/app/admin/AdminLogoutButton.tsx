@@ -10,7 +10,10 @@ export function AdminLogoutButton({ label }: { label: string }) {
   async function handleLogout() {
     setLoading(true);
     await fetch("/api/admin/logout", { method: "POST" });
-    router.push("/admin/login");
+    // No router.push here: AdminPage's own auth check redirects to
+    // /admin/login once the admin session is gone, so refresh() alone
+    // triggers that — avoids the same push+refresh navigation race fixed
+    // in LoginForm.
     router.refresh();
   }
 

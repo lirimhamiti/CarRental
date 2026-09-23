@@ -28,7 +28,9 @@ export function AdminLoginForm({ dict }: { dict: Dictionary }) {
         setError(dict.admin.login.error);
         return;
       }
-      router.push("/admin");
+      // No router.push here: AdminLoginPage itself redirects to /admin once
+      // it sees an admin session, so refresh() alone triggers that — avoids
+      // the same push+refresh navigation race fixed in the user LoginForm.
       router.refresh();
     } finally {
       setSubmitting(false);

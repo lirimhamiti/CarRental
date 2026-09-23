@@ -28,7 +28,10 @@ export function LoginForm({ dict }: { dict: Dictionary }) {
         setError(dict.auth.login.error);
         return;
       }
-      router.push("/");
+      // No router.push here: LoginPage itself redirects home once it sees a
+      // session, so refresh() alone triggers that — one clean navigation
+      // instead of two racing ones (push + the redirect refresh() also
+      // triggers), which is what caused the "page couldn't load" bug.
       router.refresh();
     } finally {
       setSubmitting(false);
