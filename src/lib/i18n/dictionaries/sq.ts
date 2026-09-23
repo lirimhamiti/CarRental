@@ -278,6 +278,35 @@ const sq: typeof en = {
     eyebrow: "Periudha provuese ka përfunduar",
     title: "Periudha juaj provuese falas ka përfunduar",
     message: "Periudha provuese 15-ditore përfundoi më {date}. Na kontakto për të vazhduar përdorimin e aplikacionit.",
+    viewPlans: "Shiko planet",
+  },
+  billing: {
+    navLabel: "Planet",
+    eyebrow: "Abonimi",
+    title: "Planet",
+    currentPlan: "Plani aktual",
+    trialUntil: "Je në periudhë provuese falas deri më {date}.",
+    status: {
+      TRIALING: "Provë",
+      ACTIVE: "Aktiv",
+      PAST_DUE: "Pagesë e vonuar",
+      CANCELED: "Anuluar",
+    },
+    manage: "Menaxho faturimin",
+    subscribe: "Abonohu",
+    ownerOnly: "Vetëm pronari i llogarisë mund të menaxhojë faturimin.",
+    success: "Abonimi u konfirmua — faleminderit!",
+    canceled: "Pagesa u anulua.",
+    tiers: {
+      SMALL: "Deri në 20 makina",
+      LARGE: "20–40 makina",
+    },
+    intervals: {
+      MONTHLY: "Mujore",
+      QUARTERLY: "Çdo 3 muaj",
+      SEMIANNUAL: "Çdo 6 muaj",
+      ANNUAL: "Vjetore",
+    },
   },
 };
 

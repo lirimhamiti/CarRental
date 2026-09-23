@@ -276,6 +276,35 @@ const en = {
     eyebrow: "Trial ended",
     title: "Your free trial has ended",
     message: "Your 15-day free trial ended on {date}. Contact us to keep using this app.",
+    viewPlans: "View plans",
+  },
+  billing: {
+    navLabel: "Plans",
+    eyebrow: "Subscription",
+    title: "Plans",
+    currentPlan: "Current plan",
+    trialUntil: "You're on a free trial until {date}.",
+    status: {
+      TRIALING: "Trial",
+      ACTIVE: "Active",
+      PAST_DUE: "Payment past due",
+      CANCELED: "Canceled",
+    },
+    manage: "Manage billing",
+    subscribe: "Subscribe",
+    ownerOnly: "Only the account owner can manage billing.",
+    success: "Subscription confirmed — thank you!",
+    canceled: "Checkout canceled.",
+    tiers: {
+      SMALL: "Up to 20 cars",
+      LARGE: "20–40 cars",
+    },
+    intervals: {
+      MONTHLY: "Monthly",
+      QUARTERLY: "Every 3 months",
+      SEMIANNUAL: "Every 6 months",
+      ANNUAL: "Annual",
+    },
   },
 };
 

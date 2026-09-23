@@ -59,12 +59,20 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
               <>
                 <span className="hidden text-xs text-zinc-400 sm:inline">{user.username}</span>
                 {user.role === "OWNER" && (
-                  <Link
-                    href="/users"
-                    className="text-xs font-medium uppercase tracking-wider text-zinc-300 transition hover:text-crimson-400"
-                  >
-                    {dict.users.navLabel}
-                  </Link>
+                  <>
+                    <Link
+                      href="/users"
+                      className="text-xs font-medium uppercase tracking-wider text-zinc-300 transition hover:text-crimson-400"
+                    >
+                      {dict.users.navLabel}
+                    </Link>
+                    <Link
+                      href="/billing"
+                      className="text-xs font-medium uppercase tracking-wider text-zinc-300 transition hover:text-crimson-400"
+                    >
+                      {dict.billing.navLabel}
+                    </Link>
+                  </>
                 )}
                 <LogoutButton label={dict.auth.logout} />
               </>

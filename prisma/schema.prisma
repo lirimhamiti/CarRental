@@ -46,14 +46,16 @@ enum Role {
 }
 
 model Company {
-  id                 String             @id @default(cuid())
-  name               String
-  logoUrl            String?
-  subscriptionStatus SubscriptionStatus @default(TRIALING)
-  trialEndsAt        DateTime
-  stripeCustomerId   String?            @unique
-  createdAt          DateTime           @default(now())
-  updatedAt          DateTime           @updatedAt
+  id                   String             @id @default(cuid())
+  name                 String
+  logoUrl              String?
+  subscriptionStatus   SubscriptionStatus @default(TRIALING)
+  trialEndsAt          DateTime
+  stripeCustomerId     String?            @unique
+  stripeSubscriptionId String?            @unique
+  currentPriceId       String?
+  createdAt            DateTime           @default(now())
+  updatedAt            DateTime           @updatedAt
 
   users        User[]
   cars         Car[]
@@ -93,17 +95,17 @@ model Session {
 }
 
 model Car {
-  id                     String            @id @default(cuid())
+  id                     String           @id @default(cuid())
   companyId              String
   plate                  String
   make                   String
   model                  String
   year                   Int?
-  registrationExpiryDate DateTime          @db.Date
+  registrationExpiryDate DateTime         @db.Date
   transmission           CarTransmission?
   fuelType               CarFuelType?
-  status                 CarStatus         @default(ACTIVE)
-  createdAt              DateTime          @default(now())
+  status                 CarStatus        @default(ACTIVE)
+  createdAt              DateTime         @default(now())
 
   company      Company       @relation(fields: [companyId], references: [id], onDelete: Cascade)
   contracts    Contract[]
@@ -114,19 +116,19 @@ model Car {
 }
 
 model Client {
-  id                  String    @id @default(cuid())
-  companyId           String
-  firstName           String
-  lastName            String
-  birthDate           DateTime  @db.Date
-  passportNumber      String?
-  passportIssueDate   DateTime? @db.Date
-  passportExpiryDate  DateTime? @db.Date
-  licenceNumber       String?
-  licenceIssueDate    DateTime? @db.Date
-  licenceExpiryDate   DateTime? @db.Date
-  phone               String?
-  createdAt           DateTime  @default(now())
+  id                 String    @id @default(cuid())
+  companyId          String
+  firstName          String
+  lastName           String
+  birthDate          DateTime  @db.Date
+  passportNumber     String?
+  passportIssueDate  DateTime? @db.Date
+  passportExpiryDate DateTime? @db.Date
+  licenceNumber      String?
+  licenceIssueDate   DateTime? @db.Date
+  licenceExpiryDate  DateTime? @db.Date
+  phone              String?
+  createdAt          DateTime  @default(now())
 
   company         Company          @relation(fields: [companyId], references: [id], onDelete: Cascade)
   contractDrivers ContractDriver[]

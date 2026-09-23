@@ -1,9 +1,11 @@
+import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getSessionUser } from "@/lib/session";
 import { hasAccess } from "@/lib/company";
 import { getLocale } from "@/lib/i18n/get-locale";
 import { getDictionary, interpolate } from "@/lib/i18n/get-dictionary";
 import { formatDate } from "@/lib/dates";
+import { primaryButtonClass } from "@/components/ui";
 
 export const dynamic = "force-dynamic";
 
@@ -29,6 +31,9 @@ export default async function TrialExpiredPage() {
         <p className="mt-4 text-sm text-zinc-500 dark:text-zinc-400">
           {interpolate(dict.trialExpired.message, { date: formatDate(user.trialEndsAt, locale) })}
         </p>
+        <Link href="/billing" className={`mt-6 inline-flex ${primaryButtonClass}`}>
+          {dict.trialExpired.viewPlans}
+        </Link>
       </div>
     </main>
   );
