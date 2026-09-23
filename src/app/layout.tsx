@@ -54,7 +54,7 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
             </span>
             <span className="font-serif text-base tracking-wide text-white">{dict.brand}</span>
           </Link>
-          <div className="flex items-center gap-3 sm:gap-4">
+          <div className="flex items-center gap-2.5 sm:gap-4">
             {user && (
               <>
                 <span className="hidden text-xs text-zinc-400 sm:inline">{user.username}</span>
@@ -62,15 +62,35 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
                   <>
                     <Link
                       href="/users"
-                      className="text-xs font-medium uppercase tracking-wider text-zinc-300 transition hover:text-crimson-400"
+                      title={dict.users.navLabel}
+                      className="flex items-center gap-1.5 text-xs font-medium uppercase tracking-wider text-zinc-300 transition hover:text-crimson-400"
                     >
-                      {dict.users.navLabel}
+                      <svg viewBox="0 0 24 24" fill="none" className="h-4 w-4 shrink-0">
+                        <path
+                          d="M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8ZM4 21v-1a6 6 0 0 1 6-6h4a6 6 0 0 1 6 6v1"
+                          stroke="currentColor"
+                          strokeWidth={1.6}
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        />
+                      </svg>
+                      <span className="hidden sm:inline">{dict.users.navLabel}</span>
                     </Link>
                     <Link
                       href="/billing"
-                      className="text-xs font-medium uppercase tracking-wider text-zinc-300 transition hover:text-crimson-400"
+                      title={dict.billing.navLabel}
+                      className="flex items-center gap-1.5 text-xs font-medium uppercase tracking-wider text-zinc-300 transition hover:text-crimson-400"
                     >
-                      {dict.billing.navLabel}
+                      <svg viewBox="0 0 24 24" fill="none" className="h-4 w-4 shrink-0">
+                        <path
+                          d="M3 6h18a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1ZM2 10h20"
+                          stroke="currentColor"
+                          strokeWidth={1.6}
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        />
+                      </svg>
+                      <span className="hidden sm:inline">{dict.billing.navLabel}</span>
                     </Link>
                   </>
                 )}
