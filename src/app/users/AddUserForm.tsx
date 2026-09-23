@@ -9,16 +9,22 @@ export function AddUserForm({ dict, disabled }: { dict: Dictionary; disabled: bo
   const router = useRouter();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [passwordConfirm, setPasswordConfirm] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
 
-  const canSubmit = !disabled && username.trim() && password.length >= 6 && !submitting;
+  const passwordsMatch = password === passwordConfirm;
+  const canSubmit = !disabled && username.trim() && password.length >= 6 && passwordsMatch && !submitting;
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
     setSuccess(false);
+    if (!passwordsMatch) {
+      setError(dict.users.addForm.passwordMismatch);
+      return;
+    }
     setSubmitting(true);
     try {
       const res = await fetch("/api/users", {
@@ -33,6 +39,7 @@ export function AddUserForm({ dict, disabled }: { dict: Dictionary; disabled: bo
       }
       setUsername("");
       setPassword("");
+      setPasswordConfirm("");
       setSuccess(true);
       router.refresh();
     } finally {
@@ -74,6 +81,18 @@ export function AddUserForm({ dict, disabled }: { dict: Dictionary; disabled: bo
             minLength={6}
             value={password}
             onChange={(e) => setPassword(e.target.value)}
+            className={inputClass}
+          />
+        </div>
+        <div>
+          <label className={labelClass}>{dict.users.addForm.passwordConfirm}</label>
+          <input
+            required
+            disabled={disabled}
+            type="password"
+            minLength={6}
+            value={passwordConfirm}
+            onChange={(e) => setPasswordConfirm(e.target.value)}
             className={inputClass}
           />
         </div>

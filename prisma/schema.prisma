@@ -178,6 +178,7 @@ model Reservation {
   companyId  String
   carId      String
   clientName String
+  note       String?
   startDate  DateTime @db.Date
   endDate    DateTime @db.Date
   createdAt  DateTime @default(now())

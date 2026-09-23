@@ -93,8 +93,8 @@ export function DriverFields({
   function selectClient(client: ClientSuggestion) {
     onChange({
       clientId: client.id,
-      firstName: client.firstName,
-      lastName: client.lastName,
+      firstName: client.firstName.toUpperCase(),
+      lastName: client.lastName.toUpperCase(),
       birthDate: client.birthDate?.slice(0, 10) ?? "",
       passportNumber: client.passportNumber ?? "",
       passportIssueDate: client.passportIssueDate?.slice(0, 10) ?? "",
@@ -109,7 +109,7 @@ export function DriverFields({
   }
 
   function handleFirstNameChange(value: string) {
-    onChange({ firstName: value, clientId: undefined });
+    onChange({ firstName: value.toUpperCase(), clientId: undefined });
     setShowSuggestions(true);
     if (value.trim().length < 2) {
       setSuggestions([]);
@@ -207,7 +207,7 @@ export function DriverFields({
             required
             placeholder={dict.contracts.client.surnamePlaceholder}
             value={driver.lastName}
-            onChange={(e) => onChange({ lastName: e.target.value })}
+            onChange={(e) => onChange({ lastName: e.target.value.toUpperCase() })}
             className={inputClass}
           />
         </div>

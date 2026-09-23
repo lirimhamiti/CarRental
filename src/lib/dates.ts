@@ -14,6 +14,8 @@ export function formatDate(date: Date, locale: Locale = "en"): string {
   }).format(date);
 }
 
+// end is the checkout/return day (exclusive) — see nightsBetween in
+// src/lib/availability.ts for why.
 export function isDateInRange(date: Date, start: Date, end: Date): boolean {
-  return date >= start && date <= end;
+  return date >= start && date < end;
 }

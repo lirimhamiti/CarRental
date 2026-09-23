@@ -23,14 +23,16 @@ function downloadPdf(contractId: string) {
   link.click();
 }
 
-function daysBetweenInclusive(start: string, end: string): number {
+// endDate is the checkout/return day (exclusive) — see nightsBetween in
+// src/lib/availability.ts for why. The UI still labels this "days".
+function nightsBetween(start: string, end: string): number {
   const ms = new Date(`${end}T00:00:00Z`).getTime() - new Date(`${start}T00:00:00Z`).getTime();
-  return Math.round(ms / (1000 * 60 * 60 * 24)) + 1;
+  return Math.round(ms / (1000 * 60 * 60 * 24));
 }
 
-function addDaysInclusive(start: string, days: number): string {
+function addNights(start: string, nights: number): string {
   const d = new Date(`${start}T00:00:00Z`);
-  d.setUTCDate(d.getUTCDate() + days - 1);
+  d.setUTCDate(d.getUTCDate() + nights);
   return d.toISOString().slice(0, 10);
 }
 
@@ -45,7 +47,7 @@ export function NewContractForm({ dict }: { dict: Dictionary }) {
 
   const [startDate, setStartDate] = useState(today);
   const [daysField, setDaysField] = useState("1");
-  const [endDate, setEndDate] = useState(today);
+  const [endDate, setEndDate] = useState(() => addNights(today, 1));
   const [totalPriceField, setTotalPriceField] = useState("");
 
   const [availableCars, setAvailableCars] = useState<AvailableCar[]>([]);
@@ -57,7 +59,7 @@ export function NewContractForm({ dict }: { dict: Dictionary }) {
   const [createdContractId, setCreatedContractId] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!startDate || !endDate || endDate < startDate) return;
+    if (!startDate || !endDate || endDate <= startDate) return;
     const controller = new AbortController();
     fetch(`/api/cars/available?start=${startDate}&end=${endDate}`, {
       signal: controller.signal,
@@ -85,9 +87,9 @@ export function NewContractForm({ dict }: { dict: Dictionary }) {
     setStartDate(value);
     const numDays = Number(daysField);
     if (numDays > 0) {
-      setEndDate(addDaysInclusive(value, numDays));
-    } else if (endDate < value) {
-      setEndDate(value);
+      setEndDate(addNights(value, numDays));
+    } else if (endDate <= value) {
+      setEndDate(addNights(value, 1));
     }
     setLoadingCars(true);
     setCarId("");
@@ -97,7 +99,7 @@ export function NewContractForm({ dict }: { dict: Dictionary }) {
     setDaysField(value);
     const numDays = Number(value);
     if (numDays > 0 && startDate) {
-      setEndDate(addDaysInclusive(startDate, numDays));
+      setEndDate(addNights(startDate, numDays));
       setLoadingCars(true);
       setCarId("");
     }
@@ -105,8 +107,8 @@ export function NewContractForm({ dict }: { dict: Dictionary }) {
 
   function handleEndDateChange(value: string) {
     setEndDate(value);
-    if (startDate && value >= startDate) {
-      setDaysField(String(daysBetweenInclusive(startDate, value)));
+    if (startDate && value > startDate) {
+      setDaysField(String(nightsBetween(startDate, value)));
     }
     setLoadingCars(true);
     setCarId("");
@@ -161,7 +163,7 @@ export function NewContractForm({ dict }: { dict: Dictionary }) {
     nextDriverKey.current = 1;
     setStartDate(today);
     setDaysField("1");
-    setEndDate(today);
+    setEndDate(addNights(today, 1));
     setTotalPriceField("");
     setCarId("");
     setCreatedContractId(null);
@@ -169,7 +171,7 @@ export function NewContractForm({ dict }: { dict: Dictionary }) {
   }
 
   const created = Boolean(createdContractId);
-  const days = startDate && endDate && endDate >= startDate ? daysBetweenInclusive(startDate, endDate) : 0;
+  const days = startDate && endDate && endDate > startDate ? nightsBetween(startDate, endDate) : 0;
   const total = Number(totalPriceField) > 0 ? Number(totalPriceField) : 0;
 
   const canSubmit =
@@ -177,7 +179,7 @@ export function NewContractForm({ dict }: { dict: Dictionary }) {
     (drivers.every((d) => isDriverValid(d.value)) &&
       startDate &&
       endDate &&
-      endDate >= startDate &&
+      endDate > startDate &&
       carId &&
       !submitting);
 
@@ -274,7 +276,7 @@ export function NewContractForm({ dict }: { dict: Dictionary }) {
                 type="date"
                 required
                 value={endDate}
-                min={startDate}
+                min={startDate ? addNights(startDate, 1) : undefined}
                 onChange={(e) => handleEndDateChange(e.target.value)}
                 className={dateInputClass}
               />

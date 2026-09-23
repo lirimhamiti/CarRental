@@ -27,8 +27,8 @@ export async function GET(request: Request) {
       contracts: {
         none: {
           status: "ACTIVE",
-          startDate: { lte: end },
-          endDate: { gte: start },
+          startDate: { lt: end },
+          endDate: { gt: start },
         },
       },
     },

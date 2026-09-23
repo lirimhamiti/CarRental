@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getCurrentCompanyId } from "@/lib/company";
-import { daysBetweenInclusive, parseDateOnly } from "@/lib/availability";
+import { nightsBetween, parseDateOnly } from "@/lib/availability";
 import { isDriverValid, type DriverIdentity } from "@/lib/driver-validation";
 
 interface DriverBody extends DriverIdentity {
@@ -35,10 +35,10 @@ export async function POST(request: Request) {
     const companyId = await getCurrentCompanyId();
     const startDate = parseDateOnly(body.startDate);
     const endDate = parseDateOnly(body.endDate);
-    if (endDate < startDate) {
+    if (endDate <= startDate) {
       return NextResponse.json({ code: "END_BEFORE_START" }, { status: 400 });
     }
-    const days = daysBetweenInclusive(startDate, endDate);
+    const days = nightsBetween(startDate, endDate);
     const totalPrice = body.totalPrice != null && Number(body.totalPrice) > 0 ? Number(body.totalPrice) : null;
     const dailyPrice = totalPrice != null ? Math.round((totalPrice / days) * 100) / 100 : null;
 
@@ -51,8 +51,8 @@ export async function POST(request: Request) {
       where: {
         carId: car.id,
         status: "ACTIVE",
-        startDate: { lte: endDate },
-        endDate: { gte: startDate },
+        startDate: { lt: endDate },
+        endDate: { gt: startDate },
       },
     });
     if (overlapping) {

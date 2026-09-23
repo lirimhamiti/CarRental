@@ -201,7 +201,7 @@ function DualField({ left, right, last }: { left: FieldSpec | null; right: Field
 function DriverBlock({ index, total, driver }: { index: number; total: number; driver: DriverPdfData }) {
   const label = total > 1 ? `Возач ${index + 1} / Driver ${index + 1}` : "Изнајмувач / Renter";
   const leftFields: FieldSpec[] = [
-    { labelMk: "Име и презиме", labelEn: "Name", value: `${driver.firstName} ${driver.lastName}` },
+    { labelMk: "Име и презиме", labelEn: "Name", value: `${driver.firstName} ${driver.lastName}`.toUpperCase() },
     { labelMk: "Дата на раѓање", labelEn: "Date of birth", value: formatDate(driver.birthDate) },
     { labelMk: "Телефон", labelEn: "Phone", value: driver.phone ?? "" },
   ];

@@ -39,6 +39,7 @@ export default async function AvailabilityPage() {
     startDate: r.startDate,
     endDate: r.endDate,
     clientName: r.clientName,
+    note: r.note,
   }));
 
   return (

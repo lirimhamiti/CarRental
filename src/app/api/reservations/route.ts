@@ -1,13 +1,14 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getCurrentCompanyId } from "@/lib/company";
-import { addDaysInclusive, parseDateOnly } from "@/lib/availability";
+import { addNights, parseDateOnly } from "@/lib/availability";
 
 interface CreateReservationBody {
   carId: string;
   startDate: string;
   days: number;
   clientName: string;
+  note?: string;
 }
 
 export async function POST(request: Request) {
@@ -25,14 +26,14 @@ export async function POST(request: Request) {
     }
 
     const startDate = parseDateOnly(body.startDate);
-    const endDate = addDaysInclusive(startDate, Number(body.days));
+    const endDate = addNights(startDate, Number(body.days));
 
     const overlappingContract = await prisma.contract.findFirst({
       where: {
         carId: car.id,
         status: "ACTIVE",
-        startDate: { lte: endDate },
-        endDate: { gte: startDate },
+        startDate: { lt: endDate },
+        endDate: { gt: startDate },
       },
     });
     if (overlappingContract) {
@@ -42,8 +43,8 @@ export async function POST(request: Request) {
     const overlappingReservation = await prisma.reservation.findFirst({
       where: {
         carId: car.id,
-        startDate: { lte: endDate },
-        endDate: { gte: startDate },
+        startDate: { lt: endDate },
+        endDate: { gt: startDate },
       },
     });
     if (overlappingReservation) {
@@ -55,6 +56,7 @@ export async function POST(request: Request) {
         companyId,
         carId: car.id,
         clientName: body.clientName.trim(),
+        note: body.note?.trim() || null,
         startDate,
         endDate,
       },

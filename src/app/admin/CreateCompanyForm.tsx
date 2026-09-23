@@ -10,17 +10,24 @@ export function CreateCompanyForm({ dict }: { dict: Dictionary }) {
   const [name, setName] = useState("");
   const [ownerUsername, setOwnerUsername] = useState("");
   const [ownerPassword, setOwnerPassword] = useState("");
+  const [ownerPasswordConfirm, setOwnerPasswordConfirm] = useState("");
   const [logo, setLogo] = useState<File | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
 
-  const canSubmit = name.trim() && ownerUsername.trim() && ownerPassword.length >= 6 && !submitting;
+  const passwordsMatch = ownerPassword === ownerPasswordConfirm;
+  const canSubmit =
+    name.trim() && ownerUsername.trim() && ownerPassword.length >= 6 && passwordsMatch && !submitting;
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
     setSuccess(false);
+    if (!passwordsMatch) {
+      setError(dict.admin.createForm.passwordMismatch);
+      return;
+    }
     setSubmitting(true);
     try {
       const formData = new FormData();
@@ -43,6 +50,7 @@ export function CreateCompanyForm({ dict }: { dict: Dictionary }) {
       setName("");
       setOwnerUsername("");
       setOwnerPassword("");
+      setOwnerPasswordConfirm("");
       setLogo(null);
       setSuccess(true);
       router.refresh();
@@ -96,6 +104,17 @@ export function CreateCompanyForm({ dict }: { dict: Dictionary }) {
             minLength={6}
             value={ownerPassword}
             onChange={(e) => setOwnerPassword(e.target.value)}
+            className={inputClass}
+          />
+        </div>
+        <div>
+          <label className={labelClass}>{dict.admin.createForm.ownerPasswordConfirm}</label>
+          <input
+            required
+            type="password"
+            minLength={6}
+            value={ownerPasswordConfirm}
+            onChange={(e) => setOwnerPasswordConfirm(e.target.value)}
             className={inputClass}
           />
         </div>

@@ -48,7 +48,8 @@ export function AvailabilityCalendar({
   while (cells.length % 7 !== 0) cells.push(null);
 
   function bookingFor(date: Date): Booking | undefined {
-    return bookings.find((b) => date >= b.startDate && date <= b.endDate);
+    // endDate is the checkout/return day (exclusive) — see nightsBetween.
+    return bookings.find((b) => date >= b.startDate && date < b.endDate);
   }
 
   return (

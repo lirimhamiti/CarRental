@@ -24,6 +24,7 @@ interface ReservationRow {
   startDate: Date;
   endDate: Date;
   clientName: string;
+  note: string | null;
 }
 
 function startOfMonth(date: Date): Date {
@@ -42,9 +43,11 @@ function toDateOnly(date: Date): string {
   return date.toISOString().slice(0, 10);
 }
 
-function addDaysInclusive(start: Date, days: number): Date {
+// endDate is the checkout/return day (exclusive) — see nightsBetween in
+// src/lib/availability.ts for why.
+function addNights(start: Date, nights: number): Date {
   const d = new Date(start);
-  d.setUTCDate(d.getUTCDate() + days - 1);
+  d.setUTCDate(d.getUTCDate() + nights);
   return d;
 }
 
@@ -63,9 +66,10 @@ export function AvailabilityMatrix({
 }) {
   const router = useRouter();
   const [viewMonth, setViewMonth] = useState(() => startOfMonth(today));
-  const [selected, setSelected] = useState<{ car: CarRow; date: Date } | null>(null);
+  const [selected, setSelected] = useState<{ car: CarRow; date: Date; isReturnDay: boolean } | null>(null);
   const [clientName, setClientName] = useState("");
   const [days, setDays] = useState("1");
+  const [note, setNote] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -78,17 +82,24 @@ export function AvailabilityMatrix({
   const dates = Array.from({ length: daysInMonth }, (_, i) => new Date(Date.UTC(year, month, i + 1)));
 
   function bookingFor(carId: string, date: Date): Booking | undefined {
-    return bookings.find((b) => b.carId === carId && date >= b.startDate && date <= b.endDate);
+    // endDate is the checkout/return day (exclusive) — see nightsBetween.
+    return bookings.find((b) => b.carId === carId && date >= b.startDate && date < b.endDate);
   }
 
   function reservationFor(carId: string, date: Date): ReservationRow | undefined {
-    return reservations.find((r) => r.carId === carId && date >= r.startDate && date <= r.endDate);
+    return reservations.find((r) => r.carId === carId && date >= r.startDate && date < r.endDate);
+  }
+
+  function returnsOn(carId: string, date: Date): boolean {
+    return bookings.some((b) => b.carId === carId && isSameDay(b.endDate, date));
   }
 
   function openDialog(car: CarRow, date: Date) {
-    setSelected({ car, date });
+    const isReturnDay = returnsOn(car.id, date);
+    setSelected({ car, date, isReturnDay });
     setClientName("");
     setDays("1");
+    setNote(isReturnDay ? dict.availability.carReturnsNote : "");
     setError(null);
   }
 
@@ -110,6 +121,7 @@ export function AvailabilityMatrix({
           startDate: toDateOnly(selected.date),
           days: Number(days),
           clientName,
+          note: note || undefined,
         }),
       });
       const data = await res.json();
@@ -124,7 +136,7 @@ export function AvailabilityMatrix({
     }
   }
 
-  const untilDate = selected && Number(days) > 0 ? addDaysInclusive(selected.date, Number(days)) : null;
+  const untilDate = selected && Number(days) > 0 ? addNights(selected.date, Number(days)) : null;
 
   return (
     <div className="flex flex-col gap-3">
@@ -208,7 +220,7 @@ export function AvailabilityMatrix({
                         />
                       ) : reservation ? (
                         <span
-                          title={reservation.clientName}
+                          title={reservation.note ? `${reservation.clientName} — ${reservation.note}` : reservation.clientName}
                           className="inline-block h-5 w-5 rounded bg-amber-300 dark:bg-amber-500/70"
                         />
                       ) : (
@@ -265,6 +277,12 @@ export function AvailabilityMatrix({
               {calendar.months[selected.date.getUTCMonth()]}
             </p>
 
+            {selected.isReturnDay && (
+              <p className="mt-3 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-700 dark:border-amber-900 dark:bg-amber-950 dark:text-amber-400">
+                {dict.availability.carReturnsToday}
+              </p>
+            )}
+
             <form onSubmit={handleSubmit} className="mt-4 flex flex-col gap-4">
               <div>
                 <label className={labelClass}>{dict.availability.clientName}</label>
@@ -295,6 +313,15 @@ export function AvailabilityMatrix({
                   {calendar.months[untilDate.getUTCMonth()]}
                 </p>
               )}
+              <div>
+                <label className={labelClass}>{dict.availability.note}</label>
+                <textarea
+                  rows={2}
+                  value={note}
+                  onChange={(e) => setNote(e.target.value)}
+                  className={inputClass}
+                />
+              </div>
 
               {error && (
                 <p className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-xs text-red-700 dark:border-red-900 dark:bg-red-950 dark:text-red-400">
