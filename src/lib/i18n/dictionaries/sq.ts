@@ -124,7 +124,6 @@ const sq: typeof en = {
       licenceNumber: "Numri i patentës së shoferit",
       licenceIssueDate: "Data e lëshimit të patentës",
       licenceExpiryDate: "Data e skadimit të patentës",
-      phone: "Numri i telefonit",
     },
     rental: {
       title: "Qiraja",

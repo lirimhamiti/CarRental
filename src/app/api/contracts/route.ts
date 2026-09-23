@@ -6,7 +6,6 @@ import { isDriverValid, type DriverIdentity } from "@/lib/driver-validation";
 
 interface DriverBody extends DriverIdentity {
   clientId?: string;
-  phone?: string;
 }
 
 interface CreateContractBody {
@@ -69,7 +68,6 @@ export async function POST(request: Request) {
       licenceNumber: d.licenceNumber?.trim() || null,
       licenceIssueDate: d.licenceIssueDate ? parseDateOnly(d.licenceIssueDate) : null,
       licenceExpiryDate: d.licenceExpiryDate ? parseDateOnly(d.licenceExpiryDate) : null,
-      phone: d.phone?.trim() || null,
     });
 
     const clientIds: string[] = [];

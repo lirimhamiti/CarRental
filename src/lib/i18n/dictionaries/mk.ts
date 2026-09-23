@@ -124,7 +124,6 @@ const mk: typeof en = {
       licenceNumber: "Број на возачка дозвола",
       licenceIssueDate: "Датум на издавање на дозвола",
       licenceExpiryDate: "Датум на важност на дозвола",
-      phone: "Телефонски број",
     },
     rental: {
       title: "Изнајмување",

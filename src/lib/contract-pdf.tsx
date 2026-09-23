@@ -141,7 +141,6 @@ export interface DriverPdfData {
   licenceNumber: string | null;
   licenceIssueDate: Date | null;
   licenceExpiryDate: Date | null;
-  phone: string | null;
 }
 
 export interface ContractPdfData {
@@ -203,7 +202,6 @@ function DriverBlock({ index, total, driver }: { index: number; total: number; d
   const leftFields: FieldSpec[] = [
     { labelMk: "Име и презиме", labelEn: "Name", value: `${driver.firstName} ${driver.lastName}`.toUpperCase() },
     { labelMk: "Дата на раѓање", labelEn: "Date of birth", value: formatDate(driver.birthDate) },
-    { labelMk: "Телефон", labelEn: "Phone", value: driver.phone ?? "" },
   ];
   const rightFields: FieldSpec[] = [
     { labelMk: "Пасош N°", labelEn: "Passport N°", value: driver.passportNumber ?? "" },

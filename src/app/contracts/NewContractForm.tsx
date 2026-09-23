@@ -138,7 +138,6 @@ export function NewContractForm({ dict }: { dict: Dictionary }) {
             licenceNumber: d.value.licenceNumber || undefined,
             licenceIssueDate: d.value.licenceIssueDate || undefined,
             licenceExpiryDate: d.value.licenceExpiryDate || undefined,
-            phone: d.value.phone || undefined,
           })),
           carId,
           startDate,

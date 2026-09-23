@@ -122,7 +122,6 @@ const en = {
       licenceNumber: "Driving licence ID",
       licenceIssueDate: "Licence issue date",
       licenceExpiryDate: "Licence expiry date",
-      phone: "Phone number",
     },
     rental: {
       title: "Rental",

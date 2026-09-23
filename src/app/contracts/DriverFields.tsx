@@ -23,7 +23,6 @@ interface ClientSuggestion {
   licenceNumber: string | null;
   licenceIssueDate: string | null;
   licenceExpiryDate: string | null;
-  phone: string | null;
 }
 
 export interface DriverValue {
@@ -37,7 +36,6 @@ export interface DriverValue {
   licenceNumber: string;
   licenceIssueDate: string;
   licenceExpiryDate: string;
-  phone: string;
 }
 
 export function emptyDriver(): DriverValue {
@@ -52,7 +50,6 @@ export function emptyDriver(): DriverValue {
     licenceNumber: "",
     licenceIssueDate: "",
     licenceExpiryDate: "",
-    phone: "",
   };
 }
 
@@ -102,7 +99,6 @@ export function DriverFields({
       licenceNumber: client.licenceNumber ?? "",
       licenceIssueDate: client.licenceIssueDate?.slice(0, 10) ?? "",
       licenceExpiryDate: client.licenceExpiryDate?.slice(0, 10) ?? "",
-      phone: client.phone ?? "",
     });
     setSuggestions([]);
     setShowSuggestions(false);
@@ -162,7 +158,7 @@ export function DriverFields({
         </p>
       )}
 
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
         <div className="relative">
           <label className={labelClass}>{dict.contracts.client.nameSurname}</label>
           <input
@@ -222,19 +218,11 @@ export function DriverFields({
             className={dateInputClass}
           />
         </div>
-        <div>
-          <label className={labelClass}>{dict.contracts.client.phone}</label>
-          <input
-            value={driver.phone}
-            onChange={(e) => onChange({ phone: e.target.value })}
-            className={inputClass}
-          />
-        </div>
       </div>
 
       <p className="-mb-1 text-xs text-zinc-500 dark:text-zinc-400">{dict.contracts.client.idHint}</p>
 
-      <div className="grid grid-cols-2 gap-4 lg:grid-cols-3">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
         <div>
           <label className={labelClass}>{dict.contracts.client.passportNumber}</label>
           <input
@@ -263,7 +251,7 @@ export function DriverFields({
         </div>
       </div>
 
-      <div className="grid grid-cols-2 gap-4 lg:grid-cols-3">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
         <div>
           <label className={labelClass}>{dict.contracts.client.licenceNumber}</label>
           <input
