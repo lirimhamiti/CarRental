@@ -8,7 +8,6 @@ interface CreateReservationBody {
   startDate: string;
   days: number;
   clientName: string;
-  note?: string;
 }
 
 export async function POST(request: Request) {
@@ -56,7 +55,6 @@ export async function POST(request: Request) {
         companyId,
         carId: car.id,
         clientName: body.clientName.trim(),
-        note: body.note?.trim() || null,
         startDate,
         endDate,
       },
