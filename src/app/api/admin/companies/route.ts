@@ -4,6 +4,8 @@ import { prisma } from "@/lib/prisma";
 import { hashPassword } from "@/lib/auth";
 import { isAdminAuthenticated } from "@/lib/session";
 
+const TRIAL_DAYS = 15;
+
 export async function POST(request: Request) {
   if (!(await isAdminAuthenticated())) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -35,6 +37,7 @@ export async function POST(request: Request) {
       data: {
         name,
         logoUrl,
+        trialEndsAt: new Date(Date.now() + TRIAL_DAYS * 24 * 60 * 60 * 1000),
         users: { create: { username: ownerUsername, passwordHash, role: "OWNER" } },
       },
     });

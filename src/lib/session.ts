@@ -2,7 +2,7 @@ import crypto from "node:crypto";
 import { cookies } from "next/headers";
 import { prisma } from "@/lib/prisma";
 import { SESSION_COOKIE, ADMIN_SESSION_COOKIE } from "@/lib/session-cookie-names";
-import type { Role } from "@/generated/prisma/client";
+import type { Role, SubscriptionStatus } from "@/generated/prisma/client";
 
 const SESSION_TTL_MS = 30 * 24 * 60 * 60 * 1000; // 30 days
 const ADMIN_TTL_MS = 12 * 60 * 60 * 1000; // 12 hours
@@ -12,6 +12,8 @@ export interface SessionUser {
   companyId: string;
   username: string;
   role: Role;
+  subscriptionStatus: SubscriptionStatus;
+  trialEndsAt: Date;
 }
 
 // --- Company/staff logins (database-backed) ---
@@ -47,7 +49,7 @@ export async function getSessionUser(): Promise<SessionUser | null> {
 
   const session = await prisma.session.findUnique({
     where: { id: token },
-    include: { user: true },
+    include: { user: { include: { company: true } } },
   });
 
   if (!session || session.expiresAt < new Date()) {
@@ -62,6 +64,8 @@ export async function getSessionUser(): Promise<SessionUser | null> {
     companyId: session.user.companyId,
     username: session.user.username,
     role: session.user.role,
+    subscriptionStatus: session.user.company.subscriptionStatus,
+    trialEndsAt: session.user.company.trialEndsAt,
   };
 }
 

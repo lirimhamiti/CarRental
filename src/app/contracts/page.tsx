@@ -1,8 +1,10 @@
+import { getCurrentUser } from "@/lib/company";
 import { getLocale } from "@/lib/i18n/get-locale";
 import { getDictionary } from "@/lib/i18n/get-dictionary";
 import { NewContractForm } from "./NewContractForm";
 
 export default async function ContractsPage() {
+  await getCurrentUser();
   const locale = await getLocale();
   const dict = getDictionary(locale);
 

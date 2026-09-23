@@ -274,6 +274,11 @@ const sq: typeof en = {
       GENERIC: "Diçka shkoi keq",
     },
   },
+  trialExpired: {
+    eyebrow: "Periudha provuese ka përfunduar",
+    title: "Periudha juaj provuese falas ka përfunduar",
+    message: "Periudha provuese 15-ditore përfundoi më {date}. Na kontakto për të vazhduar përdorimin e aplikacionit.",
+  },
 };
 
 export default sq;

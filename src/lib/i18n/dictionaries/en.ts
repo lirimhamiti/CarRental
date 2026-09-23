@@ -272,6 +272,11 @@ const en = {
       GENERIC: "Something went wrong",
     },
   },
+  trialExpired: {
+    eyebrow: "Trial ended",
+    title: "Your free trial has ended",
+    message: "Your 15-day free trial ended on {date}. Contact us to keep using this app.",
+  },
 };
 
 export default en;

@@ -50,6 +50,7 @@ model Company {
   name               String
   logoUrl            String?
   subscriptionStatus SubscriptionStatus @default(TRIALING)
+  trialEndsAt        DateTime
   stripeCustomerId   String?            @unique
   createdAt          DateTime           @default(now())
   updatedAt          DateTime           @updatedAt

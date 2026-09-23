@@ -16,6 +16,7 @@ async function main() {
       id: "demo-company",
       name: "Demo Rentals",
       subscriptionStatus: "ACTIVE",
+      trialEndsAt: new Date(Date.now() + 15 * 24 * 60 * 60 * 1000),
     },
   });
 
