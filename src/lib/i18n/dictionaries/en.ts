@@ -117,7 +117,7 @@ const en = {
       birthDate: "Date of birth *",
       idHint: "Provide at least a passport or a driving licence number.",
       passportNumber: "Passport ID",
-      passportIssueDate: "Passport issue date",
+      passportIssueDate: "Passport issued",
       passportExpiryDate: "Passport expiry date",
       licenceNumber: "Driving licence ID",
       licenceIssueDate: "Licence issue date",

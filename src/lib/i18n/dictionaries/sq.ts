@@ -119,7 +119,7 @@ const sq: typeof en = {
       birthDate: "Data e lindjes *",
       idHint: "Jepni të paktën një numër pasaporte ose patente shoferi.",
       passportNumber: "Numri i pasaportës",
-      passportIssueDate: "Data e lëshimit të pasaportës",
+      passportIssueDate: "Lëshimi i pasaportës",
       passportExpiryDate: "Data e skadimit të pasaportës",
       licenceNumber: "Numri i patentës së shoferit",
       licenceIssueDate: "Data e lëshimit të patentës",

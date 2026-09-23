@@ -119,7 +119,7 @@ const mk: typeof en = {
       birthDate: "Датум на раѓање *",
       idHint: "Внесете барем број на пасош или на возачка дозвола.",
       passportNumber: "Број на пасош",
-      passportIssueDate: "Датум на издавање на пасош",
+      passportIssueDate: "Издавање на пасош",
       passportExpiryDate: "Датум на важност на пасош",
       licenceNumber: "Број на возачка дозвола",
       licenceIssueDate: "Датум на издавање на дозвола",
