@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { inputClass, labelClass, primaryButtonClass } from "@/components/ui";
+import { dateInputClass, inputClass, labelClass, primaryButtonClass } from "@/components/ui";
 import type { Dictionary } from "@/lib/i18n/get-dictionary";
 
 interface CarRow {
@@ -43,11 +43,16 @@ function toDateOnly(date: Date): string {
 }
 
 // endDate is the checkout/return day (exclusive) — see nightsBetween in
-// src/lib/availability.ts for why.
-function addNights(start: Date, nights: number): Date {
-  const d = new Date(start);
+// src/lib/availability.ts for why. The UI still labels this "days".
+function nightsBetween(start: string, end: string): number {
+  const ms = new Date(`${end}T00:00:00Z`).getTime() - new Date(`${start}T00:00:00Z`).getTime();
+  return Math.round(ms / (1000 * 60 * 60 * 24));
+}
+
+function addNights(start: string, nights: number): string {
+  const d = new Date(`${start}T00:00:00Z`);
   d.setUTCDate(d.getUTCDate() + nights);
-  return d;
+  return d.toISOString().slice(0, 10);
 }
 
 export function AvailabilityMatrix({
@@ -64,10 +69,13 @@ export function AvailabilityMatrix({
   dict: Dictionary;
 }) {
   const router = useRouter();
+  const todayStr = toDateOnly(today);
   const [viewMonth, setViewMonth] = useState(() => startOfMonth(today));
-  const [selected, setSelected] = useState<{ car: CarRow; date: Date } | null>(null);
+  const [selected, setSelected] = useState<CarRow | null>(null);
   const [clientName, setClientName] = useState("");
-  const [days, setDays] = useState("1");
+  const [startDate, setStartDate] = useState(todayStr);
+  const [daysField, setDaysField] = useState("1");
+  const [endDate, setEndDate] = useState(() => addNights(todayStr, 1));
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -77,7 +85,9 @@ export function AvailabilityMatrix({
   const year = viewMonth.getUTCFullYear();
   const month = viewMonth.getUTCMonth();
   const daysInMonth = new Date(Date.UTC(year, month + 1, 0)).getUTCDate();
-  const dates = Array.from({ length: daysInMonth }, (_, i) => new Date(Date.UTC(year, month, i + 1)));
+  const isCurrentMonth = year === today.getUTCFullYear() && month === today.getUTCMonth();
+  const firstDay = isCurrentMonth ? today.getUTCDate() : 1;
+  const dates = Array.from({ length: daysInMonth - firstDay + 1 }, (_, i) => new Date(Date.UTC(year, month, firstDay + i)));
 
   function bookingFor(carId: string, date: Date): Booking | undefined {
     // endDate is the checkout/return day (exclusive) — see nightsBetween.
@@ -89,14 +99,42 @@ export function AvailabilityMatrix({
   }
 
   function openDialog(car: CarRow, date: Date) {
-    setSelected({ car, date });
+    setSelected(car);
     setClientName("");
-    setDays("1");
+    const start = toDateOnly(date);
+    setStartDate(start);
+    setDaysField("1");
+    setEndDate(addNights(start, 1));
     setError(null);
   }
 
   function closeDialog() {
     setSelected(null);
+  }
+
+  function handleStartDateChange(value: string) {
+    setStartDate(value);
+    const numDays = Number(daysField);
+    if (numDays > 0) {
+      setEndDate(addNights(value, numDays));
+    } else if (endDate <= value) {
+      setEndDate(addNights(value, 1));
+    }
+  }
+
+  function handleDaysFieldChange(value: string) {
+    setDaysField(value);
+    const numDays = Number(value);
+    if (numDays > 0 && startDate) {
+      setEndDate(addNights(startDate, numDays));
+    }
+  }
+
+  function handleEndDateChange(value: string) {
+    setEndDate(value);
+    if (startDate && value > startDate) {
+      setDaysField(String(nightsBetween(startDate, value)));
+    }
   }
 
   async function handleSubmit(e: React.FormEvent) {
@@ -109,9 +147,9 @@ export function AvailabilityMatrix({
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          carId: selected.car.id,
-          startDate: toDateOnly(selected.date),
-          days: Number(days),
+          carId: selected.id,
+          startDate,
+          days: Number(daysField),
           clientName,
         }),
       });
@@ -126,8 +164,6 @@ export function AvailabilityMatrix({
       setSubmitting(false);
     }
   }
-
-  const untilDate = selected && Number(days) > 0 ? addNights(selected.date, Number(days)) : null;
 
   return (
     <div className="flex flex-col gap-3">
@@ -263,9 +299,7 @@ export function AvailabilityMatrix({
               {dict.availability.reserveTitle}
             </h3>
             <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
-              {selected.car.make} {selected.car.model} · {selected.car.plate} ·{" "}
-              {calendar.weekdays[(selected.date.getUTCDay() + 6) % 7]} {selected.date.getUTCDate()}{" "}
-              {calendar.months[selected.date.getUTCMonth()]}
+              {selected.make} {selected.model} · {selected.plate}
             </p>
 
             <form onSubmit={handleSubmit} className="mt-4 flex flex-col gap-4">
@@ -279,25 +313,42 @@ export function AvailabilityMatrix({
                   autoFocus
                 />
               </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className={labelClass}>{dict.contracts.rental.startDate}</label>
+                  <input
+                    type="date"
+                    required
+                    value={startDate}
+                    min={todayStr}
+                    onChange={(e) => handleStartDateChange(e.target.value)}
+                    className={dateInputClass}
+                  />
+                </div>
+                <div>
+                  <label className={labelClass}>{dict.contracts.rental.daysLabel}</label>
+                  <input
+                    type="number"
+                    required
+                    min={1}
+                    step={1}
+                    value={daysField}
+                    onChange={(e) => handleDaysFieldChange(e.target.value)}
+                    className={inputClass}
+                  />
+                </div>
+              </div>
               <div>
-                <label className={labelClass}>{dict.contracts.rental.daysLabel}</label>
+                <label className={labelClass}>{dict.contracts.rental.endDate}</label>
                 <input
-                  type="number"
+                  type="date"
                   required
-                  min={1}
-                  step={1}
-                  value={days}
-                  onChange={(e) => setDays(e.target.value)}
-                  className={inputClass}
+                  value={endDate}
+                  min={startDate ? addNights(startDate, 1) : undefined}
+                  onChange={(e) => handleEndDateChange(e.target.value)}
+                  className={dateInputClass}
                 />
               </div>
-              {untilDate && (
-                <p className="-mt-2 text-xs text-zinc-500 dark:text-zinc-400">
-                  {dict.availability.until}:{" "}
-                  {calendar.weekdays[(untilDate.getUTCDay() + 6) % 7]} {untilDate.getUTCDate()}{" "}
-                  {calendar.months[untilDate.getUTCMonth()]}
-                </p>
-              )}
 
               {error && (
                 <p className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-xs text-red-700 dark:border-red-900 dark:bg-red-950 dark:text-red-400">
