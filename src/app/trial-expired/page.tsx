@@ -29,7 +29,7 @@ export default async function TrialExpiredPage() {
         </p>
         <h1 className="mt-1 font-serif text-2xl text-zinc-900 dark:text-zinc-50">{dict.trialExpired.title}</h1>
         <p className="mt-4 text-sm text-zinc-500 dark:text-zinc-400">
-          {interpolate(dict.trialExpired.message, { date: formatDate(user.trialEndsAt, locale) })}
+          {interpolate(dict.trialExpired.message, { date: formatDate(user.trialEndsAt) })}
         </p>
         <Link href="/billing" className={`mt-6 inline-flex ${primaryButtonClass}`}>
           {dict.trialExpired.viewPlans}

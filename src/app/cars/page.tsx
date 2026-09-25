@@ -89,7 +89,7 @@ export default async function CarsPage() {
                       <td className="px-6 py-4 text-xs">
                         {(() => {
                           const urgency = registrationUrgency(car.registrationExpiryDate, today);
-                          const formatted = formatDate(car.registrationExpiryDate, locale);
+                          const formatted = formatDate(car.registrationExpiryDate);
                           if (urgency === "expired") {
                             return (
                               <span className="font-medium text-red-600 dark:text-red-400">

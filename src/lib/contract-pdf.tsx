@@ -78,10 +78,23 @@ const styles = StyleSheet.create({
   priceLabel: { fontSize: 7.5, color: "#333" },
   priceValue: { fontSize: 11, fontWeight: "bold", marginTop: 2 },
 
-  signRow: { flexDirection: "row" },
-  signCell: { width: "50%", padding: 8 },
-  signCellBorder: { borderLeftWidth: 1, borderLeftColor: border },
-  signLine: { borderTopWidth: 1, borderTopColor: border, marginTop: 14, paddingTop: 3 },
+  footer: {
+    position: "absolute",
+    bottom: 22,
+    left: 22,
+    right: 22,
+    flexDirection: "row",
+    alignItems: "flex-end",
+  },
+  footerBlock: { width: "35%" },
+  footerSpacer: { width: "30%" },
+  footerLine: {
+    borderTopWidth: 1,
+    borderTopColor: border,
+    paddingTop: 3,
+    textAlign: "center",
+    fontSize: 7.5,
+  },
 
   damageRow: { flexDirection: "row", borderBottomWidth: 1, borderBottomColor: border },
   damageCell: { width: "55%", padding: 6, alignItems: "center", justifyContent: "center" },
@@ -205,8 +218,10 @@ function DriverBlock({ index, total, driver }: { index: number; total: number; d
   ];
   const rightFields: FieldSpec[] = [
     { labelMk: "Пасош N°", labelEn: "Passport N°", value: driver.passportNumber ?? "" },
+    { labelMk: "Пасош издаден", labelEn: "Passport issued", value: formatDateOrDash(driver.passportIssueDate) },
     { labelMk: "Пасош важи до", labelEn: "Passport valid until", value: formatDateOrDash(driver.passportExpiryDate) },
     { labelMk: "Возачка дозвола N°", labelEn: "Driving licence N°", value: driver.licenceNumber ?? "" },
+    { labelMk: "Дозвола издадена", labelEn: "Licence issued", value: formatDateOrDash(driver.licenceIssueDate) },
     { labelMk: "Дозвола важи до", labelEn: "Licence valid until", value: formatDateOrDash(driver.licenceExpiryDate) },
   ];
   const rowCount = Math.max(leftFields.length, rightFields.length);
@@ -291,6 +306,8 @@ export function ContractPdf({ data }: { data: ContractPdfData }) {
             </View>
           </View>
 
+          <Text style={styles.notice}>{NOTICE_TEXT}</Text>
+
           <View style={styles.priceRow}>
             <View style={styles.priceCell}>
               <Text style={styles.priceLabel}>Денови / Days</Text>
@@ -301,16 +318,15 @@ export function ContractPdf({ data }: { data: ContractPdfData }) {
               <Text style={styles.priceValue}>{formatPrice(data.totalPrice)}</Text>
             </View>
           </View>
+        </View>
 
-          <Text style={styles.notice}>{NOTICE_TEXT}</Text>
-
-          <View style={styles.signRow}>
-            <View style={styles.signCell}>
-              <Text style={styles.signLine}>Renter / Изнајмувач</Text>
-            </View>
-            <View style={[styles.signCell, styles.signCellBorder]}>
-              <Text style={styles.signLine}>{data.companyName}</Text>
-            </View>
+        <View style={styles.footer}>
+          <View style={styles.footerBlock}>
+            <Text style={styles.footerLine}>Computed by / Изготвил</Text>
+          </View>
+          <View style={styles.footerSpacer} />
+          <View style={styles.footerBlock}>
+            <Text style={styles.footerLine}>Renter / Изнајмувач</Text>
           </View>
         </View>
       </Page>

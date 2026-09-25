@@ -52,7 +52,6 @@ export default async function BillingPage({
           subscriptionStatus={company.subscriptionStatus}
           currentPriceId={company.currentPriceId}
           trialEndsAt={company.trialEndsAt.toISOString()}
-          locale={locale}
         />
       </div>
     </main>

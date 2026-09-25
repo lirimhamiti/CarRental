@@ -4,7 +4,6 @@ import { useState } from "react";
 import { primaryButtonClass } from "@/components/ui";
 import { interpolate, type Dictionary } from "@/lib/i18n/get-dictionary";
 import { formatDate } from "@/lib/dates";
-import type { Locale } from "@/lib/i18n/locales";
 import type { PlanTier, PricingPlan } from "@/lib/pricing-plans";
 
 const TIERS: PlanTier[] = ["SMALL", "LARGE"];
@@ -16,7 +15,6 @@ interface Props {
   subscriptionStatus: "TRIALING" | "ACTIVE" | "PAST_DUE" | "CANCELED";
   currentPriceId: string | null;
   trialEndsAt: string;
-  locale: Locale;
 }
 
 function planLabel(plans: PricingPlan[], priceId: string | null, dict: Dictionary): string {
@@ -32,7 +30,6 @@ export function BillingPlans({
   subscriptionStatus,
   currentPriceId,
   trialEndsAt,
-  locale,
 }: Props) {
   const [loadingPriceId, setLoadingPriceId] = useState<string | null>(null);
   const [loadingPortal, setLoadingPortal] = useState(false);
@@ -100,7 +97,7 @@ export function BillingPlans({
       ) : (
         subscriptionStatus === "TRIALING" && (
           <p className="text-sm text-zinc-500 dark:text-zinc-400">
-            {interpolate(dict.billing.trialUntil, { date: formatDate(new Date(trialEndsAt), locale) })}
+            {interpolate(dict.billing.trialUntil, { date: formatDate(new Date(trialEndsAt)) })}
           </p>
         )
       )}

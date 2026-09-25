@@ -1,17 +1,7 @@
-import type { Locale } from "@/lib/i18n/locales";
-
-export const INTL_LOCALE: Record<Locale, string> = {
-  en: "en-GB",
-  sq: "sq-AL",
-  mk: "mk-MK",
-};
-
-export function formatDate(date: Date, locale: Locale = "en"): string {
-  return new Intl.DateTimeFormat(INTL_LOCALE[locale], {
-    day: "2-digit",
-    month: "short",
-    year: "numeric",
-  }).format(date);
+export function formatDate(date: Date): string {
+  const day = String(date.getUTCDate()).padStart(2, "0");
+  const month = String(date.getUTCMonth() + 1).padStart(2, "0");
+  return `${day}.${month}.${date.getUTCFullYear()}`;
 }
 
 // end is the checkout/return day (exclusive) — see nightsBetween in

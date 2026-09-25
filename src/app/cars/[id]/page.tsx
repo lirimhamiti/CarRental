@@ -86,7 +86,7 @@ export default async function CarDetailPage({
             }`}
           >
             {currentBooking
-              ? interpolate(dict.cars.detail.notFree, { date: formatDate(currentBooking.endDate, locale) })
+              ? interpolate(dict.cars.detail.notFree, { date: formatDate(currentBooking.endDate) })
               : dict.cars.detail.freeNow}
           </div>
 
@@ -116,7 +116,7 @@ export default async function CarDetailPage({
                     className="flex flex-col gap-0.5 rounded-xl border border-zinc-200 bg-white p-3 text-sm dark:border-zinc-800 dark:bg-zinc-900 sm:flex-row sm:items-center sm:justify-between"
                   >
                     <span className="font-medium text-zinc-900 dark:text-zinc-50">
-                      {formatDate(booking.startDate, locale)} – {formatDate(booking.endDate, locale)}
+                      {formatDate(booking.startDate)} – {formatDate(booking.endDate)}
                     </span>
                     <span className="text-zinc-500 dark:text-zinc-400">
                       {driverNames(booking)}
