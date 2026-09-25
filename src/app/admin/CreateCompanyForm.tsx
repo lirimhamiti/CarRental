@@ -5,6 +5,8 @@ import { useRouter } from "next/navigation";
 import { inputClass, labelClass, primaryButtonClass, SectionIcon } from "@/components/ui";
 import type { Dictionary } from "@/lib/i18n/get-dictionary";
 
+const MAX_PHONES = 3;
+
 export function CreateCompanyForm({ dict }: { dict: Dictionary }) {
   const router = useRouter();
   const [name, setName] = useState("");
@@ -12,6 +14,9 @@ export function CreateCompanyForm({ dict }: { dict: Dictionary }) {
   const [ownerPassword, setOwnerPassword] = useState("");
   const [ownerPasswordConfirm, setOwnerPasswordConfirm] = useState("");
   const [logo, setLogo] = useState<File | null>(null);
+  const [address, setAddress] = useState("");
+  const [email, setEmail] = useState("");
+  const [phones, setPhones] = useState<string[]>([""]);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
@@ -19,6 +24,18 @@ export function CreateCompanyForm({ dict }: { dict: Dictionary }) {
   const passwordsMatch = ownerPassword === ownerPasswordConfirm;
   const canSubmit =
     name.trim() && ownerUsername.trim() && ownerPassword.length >= 6 && passwordsMatch && !submitting;
+
+  function updatePhone(index: number, value: string) {
+    setPhones((prev) => prev.map((p, i) => (i === index ? value : p)));
+  }
+
+  function addPhone() {
+    setPhones((prev) => (prev.length < MAX_PHONES ? [...prev, ""] : prev));
+  }
+
+  function removePhone(index: number) {
+    setPhones((prev) => prev.filter((_, i) => i !== index));
+  }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -37,6 +54,11 @@ export function CreateCompanyForm({ dict }: { dict: Dictionary }) {
       if (logo) {
         formData.set("logo", logo);
       }
+      if (address.trim()) formData.set("address", address);
+      if (email.trim()) formData.set("email", email);
+      for (const phone of phones) {
+        if (phone.trim()) formData.append("phones", phone);
+      }
 
       const res = await fetch("/api/admin/companies", { method: "POST", body: formData });
       const data = await res.json();
@@ -52,6 +74,9 @@ export function CreateCompanyForm({ dict }: { dict: Dictionary }) {
       setOwnerPassword("");
       setOwnerPasswordConfirm("");
       setLogo(null);
+      setAddress("");
+      setEmail("");
+      setPhones([""]);
       setSuccess(true);
       router.refresh();
     } finally {
@@ -118,6 +143,51 @@ export function CreateCompanyForm({ dict }: { dict: Dictionary }) {
             className={inputClass}
           />
         </div>
+        <div>
+          <label className={labelClass}>{dict.admin.createForm.address}</label>
+          <input value={address} onChange={(e) => setAddress(e.target.value)} className={inputClass} />
+        </div>
+        <div className="sm:col-span-2">
+          <label className={labelClass}>{dict.admin.createForm.email}</label>
+          <input
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            className={inputClass}
+          />
+        </div>
+      </div>
+
+      <div className="flex flex-col gap-3">
+        <label className={labelClass}>{dict.admin.createForm.phone}</label>
+        {phones.map((phone, index) => (
+          <div key={index} className="flex items-center gap-3">
+            <input
+              type="tel"
+              value={phone}
+              onChange={(e) => updatePhone(index, e.target.value)}
+              className={inputClass}
+            />
+            {phones.length > 1 && (
+              <button
+                type="button"
+                onClick={() => removePhone(index)}
+                className="shrink-0 text-xs font-medium uppercase tracking-wider text-red-600 transition hover:underline dark:text-red-400"
+              >
+                {dict.admin.createForm.removePhone}
+              </button>
+            )}
+          </div>
+        ))}
+        {phones.length < MAX_PHONES && (
+          <button
+            type="button"
+            onClick={addPhone}
+            className="self-start rounded-lg border border-dashed border-zinc-300 px-4 py-2 text-xs font-medium uppercase tracking-wider text-zinc-600 transition hover:border-crimson-500 hover:text-crimson-600 dark:border-zinc-700 dark:text-zinc-300 dark:hover:border-crimson-500 dark:hover:text-crimson-400"
+          >
+            + {dict.admin.createForm.addPhone}
+          </button>
+        )}
       </div>
 
       {error && (
