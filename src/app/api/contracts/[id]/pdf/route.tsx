@@ -2,7 +2,6 @@ import { NextResponse } from "next/server";
 import { renderToBuffer } from "@react-pdf/renderer";
 import { prisma } from "@/lib/prisma";
 import { getCurrentCompanyId } from "@/lib/company";
-import { nightsBetween } from "@/lib/availability";
 import { ContractPdf } from "@/lib/contract-pdf";
 
 export async function GET(
@@ -25,8 +24,6 @@ export async function GET(
     return NextResponse.json({ error: "Contract not found" }, { status: 404 });
   }
 
-  const days = nightsBetween(contract.startDate, contract.endDate);
-
   const buffer = await renderToBuffer(
     <ContractPdf
       data={{
@@ -40,8 +37,6 @@ export async function GET(
         car: contract.car,
         startDate: contract.startDate,
         endDate: contract.endDate,
-        days,
-        totalPrice: contract.totalPrice != null ? Number(contract.totalPrice) : null,
         crossBorder: contract.crossBorder,
         gps: contract.gps,
         babySeat: contract.babySeat,

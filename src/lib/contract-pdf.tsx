@@ -73,12 +73,6 @@ const styles = StyleSheet.create({
   dualHalf: { width: "50%", flexDirection: "row" },
   dualHalfRight: { borderLeftWidth: 1, borderLeftColor: border },
 
-  priceRow: { flexDirection: "row", borderBottomWidth: 1, borderBottomColor: border },
-  priceCell: { flex: 1, padding: 5, alignItems: "center" },
-  priceCellBorder: { borderLeftWidth: 1, borderLeftColor: border },
-  priceLabel: { fontSize: 7.5, color: "#333" },
-  priceValue: { fontSize: 11, fontWeight: "bold", marginTop: 2 },
-
   footer: {
     position: "absolute",
     bottom: 22,
@@ -100,7 +94,8 @@ const styles = StyleSheet.create({
   damageRow: { flexDirection: "row", borderBottomWidth: 1, borderBottomColor: border },
   damageCell: { width: "55%", padding: 6, alignItems: "center", justifyContent: "center" },
   damageImage: { width: 210 },
-  damageCellBorder: { width: "45%", borderLeftWidth: 1, borderLeftColor: border },
+  damageMiddle: { width: "23%", borderLeftWidth: 1, borderLeftColor: border },
+  damageRight: { width: "22%", borderLeftWidth: 1, borderLeftColor: border },
 
   notice: {
     padding: 5,
@@ -165,8 +160,6 @@ export interface ContractPdfData {
   car: { make: string; model: string; year: number | null; plate: string };
   startDate: Date;
   endDate: Date;
-  days: number;
-  totalPrice: number | null;
   companyAddress: string | null;
   companyEmail: string | null;
   companyPhones: string[];
@@ -175,10 +168,6 @@ export interface ContractPdfData {
   babySeat: boolean;
   insurance: boolean;
   validForCountries: string[];
-}
-
-function formatPrice(value: number | null): string {
-  return value != null ? value.toFixed(2) : "-";
 }
 
 function yesOrDash(value: boolean): string {
@@ -307,13 +296,6 @@ export function ContractPdf({ data }: { data: ContractPdfData }) {
             </View>
           </View>
 
-          <Field
-            labelMk="Важи за"
-            labelEn="Valid for"
-            value={formatCountriesForPdf(data.validForCountries)}
-            last
-          />
-
           <Text style={styles.sectionHeader}>Проверка на возилото / Damage check form</Text>
           <View style={styles.damageRow}>
             <View style={styles.damageCell}>
@@ -321,31 +303,27 @@ export function ContractPdf({ data }: { data: ContractPdfData }) {
                   drawing primitive, not an HTML img; it has no alt prop. */}
               <Image src={damageDiagramPath} style={styles.damageImage} />
             </View>
-            <View style={styles.damageCellBorder}>
+            <View style={styles.damageMiddle}>
               {(Object.keys(OPTION_LABELS_PDF) as ContractOptionKey[]).map((key) => (
                 <Field key={key} labelMk={OPTION_LABELS_PDF[key].mk} labelEn={OPTION_LABELS_PDF[key].en} value={yesOrDash(data[key])} />
               ))}
+              <Field
+                labelMk="Важи за"
+                labelEn="Valid for"
+                value={formatCountriesForPdf(data.validForCountries)}
+                last
+              />
+            </View>
+            <View style={styles.damageRight}>
               <Field labelMk="Неограничена км" labelEn="Unlimited km" value="" />
-              <Field labelMk="Километри" labelEn="Kilometri" value="" />
-              <Field labelMk="Цена" labelEn="Price" value="" />
+              <Field labelMk="Километри (излез)" labelEn="Kilometri (out)" value="" />
+              <Field labelMk="Километри (влез)" labelEn="Kilometri (in)" value="" />
               <Field labelMk="18% ДДВ" labelEn="18% VAT" value="" />
-              <Field labelMk="Гориво" labelEn="Gasoline" value="" />
-              <Field labelMk="Цена" labelEn="Price" value="" last />
+              <Field labelMk="Гориво" labelEn="Gasoline" value="" last />
             </View>
           </View>
 
           <Text style={styles.notice}>{NOTICE_TEXT}</Text>
-
-          <View style={styles.priceRow}>
-            <View style={styles.priceCell}>
-              <Text style={styles.priceLabel}>Денови / Days</Text>
-              <Text style={styles.priceValue}>{data.days}</Text>
-            </View>
-            <View style={[styles.priceCell, styles.priceCellBorder]}>
-              <Text style={styles.priceLabel}>Вкупно / Total</Text>
-              <Text style={styles.priceValue}>{formatPrice(data.totalPrice)}</Text>
-            </View>
-          </View>
         </View>
 
         <View style={styles.footer}>
