@@ -15,7 +15,6 @@ interface CreateContractBody {
   startDate: string;
   endDate: string;
   totalPrice?: number;
-  remark?: string;
   crossBorder?: boolean;
   gps?: boolean;
   babySeat?: boolean;
@@ -106,7 +105,6 @@ export async function POST(request: Request) {
           endDate,
           dailyPrice,
           totalPrice,
-          remark: body.remark?.trim() || null,
           crossBorder: body.crossBorder ?? true,
           gps: body.gps ?? false,
           babySeat: body.babySeat ?? false,

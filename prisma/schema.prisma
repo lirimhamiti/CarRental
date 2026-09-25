@@ -149,7 +149,6 @@ model Contract {
   dailyPrice        Decimal?       @db.Decimal(10, 2)
   totalPrice        Decimal?       @db.Decimal(10, 2)
   status            ContractStatus @default(ACTIVE)
-  remark            String?
   crossBorder       Boolean        @default(true)
   gps               Boolean        @default(false)
   babySeat          Boolean        @default(false)

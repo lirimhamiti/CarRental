@@ -40,12 +40,11 @@ export function toggleCountry(selected: string[], key: string): string[] {
   return withoutAll.includes(key) ? withoutAll.filter((c) => c !== key) : [...withoutAll, key];
 }
 
-export function formatCountriesForPdf(codes: string[]): { mk: string; en: string } {
-  if (codes.length === 0) return { mk: "-", en: "-" };
-  if (codes.includes(ALL_COUNTRIES)) return COUNTRY_LABELS_PDF[ALL_COUNTRIES];
-  const labels = codes.map((code) => COUNTRY_LABELS_PDF[code]).filter(Boolean);
-  return {
-    mk: labels.map((l) => l.mk).join(", "),
-    en: labels.map((l) => l.en).join(", "),
-  };
+export function formatCountriesForPdf(codes: string[]): string {
+  if (codes.length === 0) return "-";
+  if (codes.includes(ALL_COUNTRIES)) return COUNTRY_LABELS_PDF[ALL_COUNTRIES].en;
+  return codes
+    .map((code) => COUNTRY_LABELS_PDF[code]?.en)
+    .filter(Boolean)
+    .join(", ");
 }

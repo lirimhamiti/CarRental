@@ -51,7 +51,6 @@ export function NewContractForm({ dict }: { dict: Dictionary }) {
   const [daysField, setDaysField] = useState("1");
   const [endDate, setEndDate] = useState(() => addNights(today, 1));
   const [totalPriceField, setTotalPriceField] = useState("");
-  const [remark, setRemark] = useState("");
   const [optionKeys, setOptionKeys] = useState<string[]>(["crossBorder"]);
   const [validForCountries, setValidForCountries] = useState<string[]>([]);
 
@@ -156,7 +155,6 @@ export function NewContractForm({ dict }: { dict: Dictionary }) {
           startDate,
           endDate,
           totalPrice: totalPriceField ? Number(totalPriceField) : undefined,
-          remark: remark.trim() || undefined,
           crossBorder: optionKeys.includes("crossBorder"),
           gps: optionKeys.includes("gps"),
           babySeat: optionKeys.includes("babySeat"),
@@ -183,7 +181,6 @@ export function NewContractForm({ dict }: { dict: Dictionary }) {
     setDaysField("1");
     setEndDate(addNights(today, 1));
     setTotalPriceField("");
-    setRemark("");
     setOptionKeys(["crossBorder"]);
     setValidForCountries([]);
     setCarId("");
@@ -366,16 +363,6 @@ export function NewContractForm({ dict }: { dict: Dictionary }) {
                 placeholder={dict.contracts.validFor.placeholder}
               />
             </div>
-          </div>
-
-          <div>
-            <label className={labelClass}>{dict.contracts.rental.remark}</label>
-            <textarea
-              value={remark}
-              onChange={(e) => setRemark(e.target.value)}
-              rows={2}
-              className={inputClass}
-            />
           </div>
 
           {total > 0 && (

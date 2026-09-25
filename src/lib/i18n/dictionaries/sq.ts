@@ -139,7 +139,6 @@ const sq: typeof en = {
       day: "ditë",
       days: "ditë",
       totalPrice: "Çmimi total",
-      remark: "Vërejtje",
     },
     options: {
       title: "Opsione",

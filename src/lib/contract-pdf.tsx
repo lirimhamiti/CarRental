@@ -1,7 +1,6 @@
 import path from "node:path";
 import { Document, Page, Text, View, StyleSheet, Font, Image } from "@react-pdf/renderer";
 import { formatDate } from "@/lib/dates";
-import { carLabel } from "@/lib/cars";
 import { OPTION_LABELS_PDF, formatCountriesForPdf, type ContractOptionKey } from "@/lib/contract-options";
 
 // The default PDF base fonts (Helvetica etc.) have no Cyrillic glyphs, and
@@ -35,6 +34,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   companyName: { fontSize: 13, fontWeight: "bold" },
+  companyContact: { fontSize: 7, color: "#333", marginTop: 2 },
   titleMk: { fontSize: 10, fontWeight: "bold", textAlign: "center" },
   titleEn: { fontSize: 8.5, textAlign: "center", marginTop: 2, color: "#333" },
   contractNo: { fontSize: 8.5, marginTop: 4, textAlign: "center" },
@@ -174,7 +174,9 @@ export interface ContractPdfData {
   endDate: Date;
   days: number;
   totalPrice: number | null;
-  remark: string | null;
+  companyAddress: string | null;
+  companyEmail: string | null;
+  companyPhones: string[];
   crossBorder: boolean;
   gps: boolean;
   babySeat: boolean;
@@ -266,6 +268,11 @@ export function ContractPdf({ data }: { data: ContractPdfData }) {
           <View style={styles.headerRow}>
             <View style={styles.headerLeft}>
               <Text style={styles.companyName}>{data.companyName}</Text>
+              {data.companyAddress && <Text style={styles.companyContact}>{data.companyAddress}</Text>}
+              {data.companyEmail && <Text style={styles.companyContact}>{data.companyEmail}</Text>}
+              {data.companyPhones.length > 0 && (
+                <Text style={styles.companyContact}>{data.companyPhones.join(" · ")}</Text>
+              )}
             </View>
             <View style={styles.headerRight}>
               <Text style={styles.titleMk}>ДОГОВОР ЗА ИЗНАЈМУВАЊЕ НА ВОЗИЛО</Text>
@@ -287,7 +294,7 @@ export function ContractPdf({ data }: { data: ContractPdfData }) {
                 <Field
                   labelMk="Тип на кола"
                   labelEn="Car type"
-                  value={carLabel(data.car.make, data.car.model, data.car.year)}
+                  value={`${data.car.make} ${data.car.model}`}
                 />
                 <Field labelMk="Регистрација" labelEn="Licence N°" value={data.car.plate} last />
               </View>
@@ -319,7 +326,7 @@ export function ContractPdf({ data }: { data: ContractPdfData }) {
           <Field
             labelMk="Важи за"
             labelEn="Valid for"
-            value={`${formatCountriesForPdf(data.validForCountries).mk} / ${formatCountriesForPdf(data.validForCountries).en}`}
+            value={formatCountriesForPdf(data.validForCountries)}
             last
           />
 
@@ -336,7 +343,7 @@ export function ContractPdf({ data }: { data: ContractPdfData }) {
               <Field labelMk="Цена" labelEn="Price" value="" />
               <Field labelMk="18% ДДВ" labelEn="18% VAT" value="" />
               <Field labelMk="Гориво" labelEn="Gasoline" value="" />
-              <Field labelMk="Забелешка" labelEn="Remark" value={data.remark ?? ""} last />
+              <Field labelMk="Цена" labelEn="Price" value="" last />
             </View>
           </View>
 

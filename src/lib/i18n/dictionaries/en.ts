@@ -137,7 +137,6 @@ const en = {
       day: "day",
       days: "days",
       totalPrice: "Total price",
-      remark: "Remark",
     },
     options: {
       title: "Options",

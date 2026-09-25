@@ -139,7 +139,6 @@ const mk: typeof en = {
       day: "ден",
       days: "дена",
       totalPrice: "Вкупна цена",
-      remark: "Забелешка",
     },
     options: {
       title: "Опции",
