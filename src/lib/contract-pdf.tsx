@@ -24,9 +24,9 @@ const styles = StyleSheet.create({
   outer: { borderWidth: 1, borderColor: border },
 
   headerRow: { flexDirection: "row", borderBottomWidth: 1, borderBottomColor: border },
-  headerLeft: { width: "55%", padding: 8, justifyContent: "center" },
+  headerLeft: { width: "50%", padding: 8, justifyContent: "center" },
   headerRight: {
-    width: "45%",
+    width: "50%",
     padding: 8,
     borderLeftWidth: 1,
     borderLeftColor: border,
@@ -78,13 +78,6 @@ const styles = StyleSheet.create({
   priceCellBorder: { borderLeftWidth: 1, borderLeftColor: border },
   priceLabel: { fontSize: 7.5, color: "#333" },
   priceValue: { fontSize: 11, fontWeight: "bold", marginTop: 2 },
-
-  optionsRow: { flexDirection: "row", borderBottomWidth: 1, borderBottomColor: border },
-  optionCell: { flex: 1, padding: 5, alignItems: "center" },
-  optionCellBorder: { borderLeftWidth: 1, borderLeftColor: border },
-  optionLabelMk: { fontSize: 6.5, fontWeight: "bold", textAlign: "center" },
-  optionLabelEn: { fontSize: 6.5, color: "#555", textAlign: "center" },
-  optionValue: { fontSize: 9, fontWeight: "bold", marginTop: 2 },
 
   footer: {
     position: "absolute",
@@ -314,15 +307,6 @@ export function ContractPdf({ data }: { data: ContractPdfData }) {
             </View>
           </View>
 
-          <View style={styles.optionsRow}>
-            {(Object.keys(OPTION_LABELS_PDF) as ContractOptionKey[]).map((key, i) => (
-              <View key={key} style={[styles.optionCell, i > 0 ? styles.optionCellBorder : undefined]}>
-                <Text style={styles.optionLabelMk}>{OPTION_LABELS_PDF[key].mk}</Text>
-                <Text style={styles.optionLabelEn}>{OPTION_LABELS_PDF[key].en}</Text>
-                <Text style={styles.optionValue}>{yesOrDash(data[key])}</Text>
-              </View>
-            ))}
-          </View>
           <Field
             labelMk="Важи за"
             labelEn="Valid for"
@@ -338,6 +322,9 @@ export function ContractPdf({ data }: { data: ContractPdfData }) {
               <Image src={damageDiagramPath} style={styles.damageImage} />
             </View>
             <View style={styles.damageCellBorder}>
+              {(Object.keys(OPTION_LABELS_PDF) as ContractOptionKey[]).map((key) => (
+                <Field key={key} labelMk={OPTION_LABELS_PDF[key].mk} labelEn={OPTION_LABELS_PDF[key].en} value={yesOrDash(data[key])} />
+              ))}
               <Field labelMk="Неограничена км" labelEn="Unlimited km" value="" />
               <Field labelMk="Километри" labelEn="Kilometri" value="" />
               <Field labelMk="Цена" labelEn="Price" value="" />
