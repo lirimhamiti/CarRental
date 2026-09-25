@@ -16,13 +16,6 @@ export async function POST(request: Request) {
   const ownerUsername = (formData.get("ownerUsername") as string | null)?.trim();
   const ownerPassword = formData.get("ownerPassword") as string | null;
   const logo = formData.get("logo") as File | null;
-  const address = (formData.get("address") as string | null)?.trim() || null;
-  const email = (formData.get("email") as string | null)?.trim() || null;
-  const phones = formData
-    .getAll("phones")
-    .map((p) => (p as string).trim())
-    .filter(Boolean)
-    .slice(0, 3);
 
   if (!name || !ownerUsername || !ownerPassword) {
     return NextResponse.json({ code: "MISSING_FIELDS" }, { status: 400 });
@@ -44,9 +37,6 @@ export async function POST(request: Request) {
       data: {
         name,
         logoUrl,
-        address,
-        email,
-        phones,
         trialEndsAt: new Date(Date.now() + TRIAL_DAYS * 24 * 60 * 60 * 1000),
         users: { create: { username: ownerUsername, passwordHash, role: "OWNER" } },
       },

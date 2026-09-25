@@ -49,9 +49,6 @@ model Company {
   id                   String             @id @default(cuid())
   name                 String
   logoUrl              String?
-  address              String?
-  email                String?
-  phones               String[]           @default([])
   subscriptionStatus   SubscriptionStatus @default(TRIALING)
   trialEndsAt          DateTime
   stripeCustomerId     String?            @unique
