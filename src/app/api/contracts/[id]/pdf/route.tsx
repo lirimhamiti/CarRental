@@ -39,6 +39,12 @@ export async function GET(
         endDate: contract.endDate,
         days,
         totalPrice: contract.totalPrice != null ? Number(contract.totalPrice) : null,
+        remark: contract.remark,
+        crossBorder: contract.crossBorder,
+        gps: contract.gps,
+        babySeat: contract.babySeat,
+        insurance: contract.insurance,
+        validForCountries: contract.validForCountries,
       }}
     />,
   );

@@ -2,6 +2,7 @@ import path from "node:path";
 import { Document, Page, Text, View, StyleSheet, Font, Image } from "@react-pdf/renderer";
 import { formatDate } from "@/lib/dates";
 import { carLabel } from "@/lib/cars";
+import { OPTION_LABELS_PDF, formatCountriesForPdf, type ContractOptionKey } from "@/lib/contract-options";
 
 // The default PDF base fonts (Helvetica etc.) have no Cyrillic glyphs, and
 // the contract template's labels are bilingual (English/Macedonian), so a
@@ -77,6 +78,13 @@ const styles = StyleSheet.create({
   priceCellBorder: { borderLeftWidth: 1, borderLeftColor: border },
   priceLabel: { fontSize: 7.5, color: "#333" },
   priceValue: { fontSize: 11, fontWeight: "bold", marginTop: 2 },
+
+  optionsRow: { flexDirection: "row", borderBottomWidth: 1, borderBottomColor: border },
+  optionCell: { flex: 1, padding: 5, alignItems: "center" },
+  optionCellBorder: { borderLeftWidth: 1, borderLeftColor: border },
+  optionLabelMk: { fontSize: 6.5, fontWeight: "bold", textAlign: "center" },
+  optionLabelEn: { fontSize: 6.5, color: "#555", textAlign: "center" },
+  optionValue: { fontSize: 9, fontWeight: "bold", marginTop: 2 },
 
   footer: {
     position: "absolute",
@@ -166,10 +174,20 @@ export interface ContractPdfData {
   endDate: Date;
   days: number;
   totalPrice: number | null;
+  remark: string | null;
+  crossBorder: boolean;
+  gps: boolean;
+  babySeat: boolean;
+  insurance: boolean;
+  validForCountries: string[];
 }
 
 function formatPrice(value: number | null): string {
   return value != null ? value.toFixed(2) : "-";
+}
+
+function yesOrDash(value: boolean): string {
+  return value ? "YES" : "-";
 }
 
 function formatDateOrDash(date: Date | null): string {
@@ -289,6 +307,22 @@ export function ContractPdf({ data }: { data: ContractPdfData }) {
             </View>
           </View>
 
+          <View style={styles.optionsRow}>
+            {(Object.keys(OPTION_LABELS_PDF) as ContractOptionKey[]).map((key, i) => (
+              <View key={key} style={[styles.optionCell, i > 0 ? styles.optionCellBorder : undefined]}>
+                <Text style={styles.optionLabelMk}>{OPTION_LABELS_PDF[key].mk}</Text>
+                <Text style={styles.optionLabelEn}>{OPTION_LABELS_PDF[key].en}</Text>
+                <Text style={styles.optionValue}>{yesOrDash(data[key])}</Text>
+              </View>
+            ))}
+          </View>
+          <Field
+            labelMk="Важи за"
+            labelEn="Valid for"
+            value={`${formatCountriesForPdf(data.validForCountries).mk} / ${formatCountriesForPdf(data.validForCountries).en}`}
+            last
+          />
+
           <Text style={styles.sectionHeader}>Проверка на возилото / Damage check form</Text>
           <View style={styles.damageRow}>
             <View style={styles.damageCell}>
@@ -302,7 +336,7 @@ export function ContractPdf({ data }: { data: ContractPdfData }) {
               <Field labelMk="Цена" labelEn="Price" value="" />
               <Field labelMk="18% ДДВ" labelEn="18% VAT" value="" />
               <Field labelMk="Гориво" labelEn="Gasoline" value="" />
-              <Field labelMk="Цена" labelEn="Price" value="" last />
+              <Field labelMk="Забелешка" labelEn="Remark" value={data.remark ?? ""} last />
             </View>
           </View>
 

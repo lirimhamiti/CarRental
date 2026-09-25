@@ -2,9 +2,11 @@
 
 import { useEffect, useRef, useState } from "react";
 import { dateInputClass, inputClass, labelClass, primaryButtonClass, SectionIcon } from "@/components/ui";
+import { CheckboxMultiSelect } from "@/components/CheckboxMultiSelect";
 import { carLabel } from "@/lib/cars";
 import type { Dictionary } from "@/lib/i18n/get-dictionary";
 import { isDriverValid } from "@/lib/driver-validation";
+import { ALL_COUNTRIES, CONTRACT_OPTION_KEYS, VALID_FOR_COUNTRY_KEYS, toggleCountry } from "@/lib/contract-options";
 import { DriverFields, emptyDriver, type DriverValue } from "./DriverFields";
 
 interface AvailableCar {
@@ -49,6 +51,9 @@ export function NewContractForm({ dict }: { dict: Dictionary }) {
   const [daysField, setDaysField] = useState("1");
   const [endDate, setEndDate] = useState(() => addNights(today, 1));
   const [totalPriceField, setTotalPriceField] = useState("");
+  const [remark, setRemark] = useState("");
+  const [optionKeys, setOptionKeys] = useState<string[]>(["crossBorder"]);
+  const [validForCountries, setValidForCountries] = useState<string[]>([]);
 
   const [availableCars, setAvailableCars] = useState<AvailableCar[]>([]);
   const [carId, setCarId] = useState("");
@@ -81,6 +86,14 @@ export function NewContractForm({ dict }: { dict: Dictionary }) {
 
   function removeDriver(key: number) {
     setDrivers((prev) => prev.filter((d) => d.key !== key));
+  }
+
+  function toggleOption(key: string) {
+    setOptionKeys((prev) => (prev.includes(key) ? prev.filter((k) => k !== key) : [...prev, key]));
+  }
+
+  function toggleValidForCountry(key: string) {
+    setValidForCountries((prev) => toggleCountry(prev, key));
   }
 
   function handleStartDateChange(value: string) {
@@ -143,6 +156,12 @@ export function NewContractForm({ dict }: { dict: Dictionary }) {
           startDate,
           endDate,
           totalPrice: totalPriceField ? Number(totalPriceField) : undefined,
+          remark: remark.trim() || undefined,
+          crossBorder: optionKeys.includes("crossBorder"),
+          gps: optionKeys.includes("gps"),
+          babySeat: optionKeys.includes("babySeat"),
+          insurance: optionKeys.includes("insurance"),
+          validForCountries,
         }),
       });
       const data = await res.json();
@@ -164,6 +183,9 @@ export function NewContractForm({ dict }: { dict: Dictionary }) {
     setDaysField("1");
     setEndDate(addNights(today, 1));
     setTotalPriceField("");
+    setRemark("");
+    setOptionKeys(["crossBorder"]);
+    setValidForCountries([]);
     setCarId("");
     setCreatedContractId(null);
     setError(null);
@@ -320,6 +342,40 @@ export function NewContractForm({ dict }: { dict: Dictionary }) {
                 ))}
               </select>
             )}
+          </div>
+
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <div>
+              <label className={labelClass}>{dict.contracts.options.title}</label>
+              <CheckboxMultiSelect
+                options={CONTRACT_OPTION_KEYS.map((key) => ({ key, label: dict.contracts.options[key] }))}
+                selected={optionKeys}
+                onToggle={toggleOption}
+                placeholder={dict.contracts.options.placeholder}
+              />
+            </div>
+            <div>
+              <label className={labelClass}>{dict.contracts.validFor.title}</label>
+              <CheckboxMultiSelect
+                options={[
+                  { key: ALL_COUNTRIES, label: dict.contracts.validFor.allCountries },
+                  ...VALID_FOR_COUNTRY_KEYS.map((key) => ({ key, label: dict.contracts.validFor[key] })),
+                ]}
+                selected={validForCountries}
+                onToggle={toggleValidForCountry}
+                placeholder={dict.contracts.validFor.placeholder}
+              />
+            </div>
+          </div>
+
+          <div>
+            <label className={labelClass}>{dict.contracts.rental.remark}</label>
+            <textarea
+              value={remark}
+              onChange={(e) => setRemark(e.target.value)}
+              rows={2}
+              className={inputClass}
+            />
           </div>
 
           {total > 0 && (

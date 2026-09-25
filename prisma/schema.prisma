@@ -141,15 +141,21 @@ model Client {
 }
 
 model Contract {
-  id         String         @id @default(cuid())
-  companyId  String
-  carId      String
-  startDate  DateTime       @db.Date
-  endDate    DateTime       @db.Date
-  dailyPrice Decimal?       @db.Decimal(10, 2)
-  totalPrice Decimal?       @db.Decimal(10, 2)
-  status     ContractStatus @default(ACTIVE)
-  createdAt  DateTime       @default(now())
+  id                String         @id @default(cuid())
+  companyId         String
+  carId             String
+  startDate         DateTime       @db.Date
+  endDate           DateTime       @db.Date
+  dailyPrice        Decimal?       @db.Decimal(10, 2)
+  totalPrice        Decimal?       @db.Decimal(10, 2)
+  status            ContractStatus @default(ACTIVE)
+  remark            String?
+  crossBorder       Boolean        @default(true)
+  gps               Boolean        @default(false)
+  babySeat          Boolean        @default(false)
+  insurance         Boolean        @default(false)
+  validForCountries String[]       @default([])
+  createdAt         DateTime       @default(now())
 
   company Company          @relation(fields: [companyId], references: [id], onDelete: Cascade)
   car     Car              @relation(fields: [carId], references: [id])

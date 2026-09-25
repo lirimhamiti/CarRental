@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { getCurrentCompanyId } from "@/lib/company";
 import { nightsBetween, parseDateOnly } from "@/lib/availability";
 import { isDriverValid, type DriverIdentity } from "@/lib/driver-validation";
+import { ALL_COUNTRIES, VALID_FOR_COUNTRY_KEYS } from "@/lib/contract-options";
 
 interface DriverBody extends DriverIdentity {
   clientId?: string;
@@ -14,7 +15,15 @@ interface CreateContractBody {
   startDate: string;
   endDate: string;
   totalPrice?: number;
+  remark?: string;
+  crossBorder?: boolean;
+  gps?: boolean;
+  babySeat?: boolean;
+  insurance?: boolean;
+  validForCountries?: string[];
 }
+
+const VALID_COUNTRY_CODES = new Set<string>([ALL_COUNTRIES, ...VALID_FOR_COUNTRY_KEYS]);
 
 export async function POST(request: Request) {
   const body = (await request.json()) as CreateContractBody;
@@ -40,6 +49,9 @@ export async function POST(request: Request) {
     const days = nightsBetween(startDate, endDate);
     const totalPrice = body.totalPrice != null && Number(body.totalPrice) > 0 ? Number(body.totalPrice) : null;
     const dailyPrice = totalPrice != null ? Math.round((totalPrice / days) * 100) / 100 : null;
+    const validForCountries = Array.isArray(body.validForCountries)
+      ? body.validForCountries.filter((c) => VALID_COUNTRY_CODES.has(c))
+      : [];
 
     const car = await prisma.car.findFirst({ where: { id: body.carId, companyId } });
     if (!car) {
@@ -94,6 +106,12 @@ export async function POST(request: Request) {
           endDate,
           dailyPrice,
           totalPrice,
+          remark: body.remark?.trim() || null,
+          crossBorder: body.crossBorder ?? true,
+          gps: body.gps ?? false,
+          babySeat: body.babySeat ?? false,
+          insurance: body.insurance ?? false,
+          validForCountries,
           drivers: {
             create: clientIds.map((clientId, order) => ({ clientId, order })),
           },
