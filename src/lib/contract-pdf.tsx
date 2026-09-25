@@ -70,8 +70,10 @@ const styles = StyleSheet.create({
   // counts never end up with a stray, misaligned half-width line.
   dualRow: { flexDirection: "row", borderBottomWidth: 1, borderBottomColor: "#ccc" },
   dualRowLast: { flexDirection: "row" },
+  dualRowBold: { flexDirection: "row", borderBottomWidth: 2, borderBottomColor: border },
   dualHalf: { width: "50%", flexDirection: "row" },
   dualHalfRight: { borderLeftWidth: 1, borderLeftColor: border },
+  dualHalfRightBold: { borderLeftWidth: 2, borderLeftColor: border },
 
   footer: {
     position: "absolute",
@@ -199,13 +201,26 @@ function DualFieldHalf({ field }: { field: FieldSpec | null }) {
   );
 }
 
-function DualField({ left, right, last }: { left: FieldSpec | null; right: FieldSpec | null; last?: boolean }) {
+function DualField({
+  left,
+  right,
+  boldBottom,
+  boldDivider,
+  last,
+}: {
+  left: FieldSpec | null;
+  right: FieldSpec | null;
+  boldBottom?: boolean;
+  boldDivider?: boolean;
+  last?: boolean;
+}) {
+  const rowStyle = last ? styles.dualRowLast : boldBottom ? styles.dualRowBold : styles.dualRow;
   return (
-    <View style={last ? styles.dualRowLast : styles.dualRow}>
+    <View style={rowStyle}>
       <View style={styles.dualHalf}>
         <DualFieldHalf field={left} />
       </View>
-      <View style={[styles.dualHalf, styles.dualHalfRight]}>
+      <View style={[styles.dualHalf, boldDivider ? styles.dualHalfRightBold : styles.dualHalfRight]}>
         <DualFieldHalf field={right} />
       </View>
     </View>
@@ -214,28 +229,33 @@ function DualField({ left, right, last }: { left: FieldSpec | null; right: Field
 
 function DriverBlock({ index, total, driver }: { index: number; total: number; driver: DriverPdfData }) {
   const label = total > 1 ? `Возач ${index + 1} / Driver ${index + 1}` : "Изнајмувач / Renter";
-  const leftFields: FieldSpec[] = [
-    { labelMk: "Име и презиме", labelEn: "Name", value: `${driver.firstName} ${driver.lastName}`.toUpperCase() },
-    { labelMk: "Дата на раѓање", labelEn: "Date of birth", value: formatDate(driver.birthDate) },
-  ];
-  const rightFields: FieldSpec[] = [
+  const name: FieldSpec = {
+    labelMk: "Име и презиме",
+    labelEn: "Name",
+    value: `${driver.firstName} ${driver.lastName}`.toUpperCase(),
+  };
+  const birthDate: FieldSpec = { labelMk: "Дата на раѓање", labelEn: "Date of birth", value: formatDate(driver.birthDate) };
+  const passportFields: FieldSpec[] = [
     { labelMk: "Пасош N°", labelEn: "Passport N°", value: driver.passportNumber ?? "" },
     { labelMk: "Пасош издаден", labelEn: "Passport issued", value: formatDateOrDash(driver.passportIssueDate) },
     { labelMk: "Пасош важи до", labelEn: "Passport valid until", value: formatDateOrDash(driver.passportExpiryDate) },
+  ];
+  const licenceFields: FieldSpec[] = [
     { labelMk: "Возачка дозвола N°", labelEn: "Driving licence N°", value: driver.licenceNumber ?? "" },
     { labelMk: "Дозвола издадена", labelEn: "Licence issued", value: formatDateOrDash(driver.licenceIssueDate) },
     { labelMk: "Дозвола важи до", labelEn: "Licence valid until", value: formatDateOrDash(driver.licenceExpiryDate) },
   ];
-  const rowCount = Math.max(leftFields.length, rightFields.length);
   return (
     <View>
       <Text style={styles.sectionHeader}>{label}</Text>
-      {Array.from({ length: rowCount }, (_, i) => (
+      <DualField left={name} right={birthDate} boldBottom />
+      {passportFields.map((passportField, i) => (
         <DualField
           key={i}
-          left={leftFields[i] ?? null}
-          right={rightFields[i] ?? null}
-          last={i === rowCount - 1}
+          left={passportField}
+          right={licenceFields[i]}
+          boldDivider
+          last={i === passportFields.length - 1}
         />
       ))}
     </View>
