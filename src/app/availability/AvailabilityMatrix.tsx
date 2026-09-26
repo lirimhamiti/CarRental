@@ -50,18 +50,23 @@ function allDaysBetween(start: Date, end: Date): Date[] {
   return days;
 }
 
-// Default landing view anchors on today: early in the month (1st–10th)
+// The default landing view anchors on today: early in the month (1st–10th)
 // there's little of the current month behind us, so pull in the previous
 // month too; otherwise show the current month plus the next one. Today
 // itself is always the default scroll position within that pair, reachable
 // by scrolling back into the earlier month or forward into the later one.
-// The very first prev/next click collapses this down to plain one-month-at-
-// a-time paging (handled in handlePrev/handleNext).
-function initialMonthsView(today: Date): { anchor: Date; span: 1 | 2 } {
-  if (today.getUTCDate() <= 10) {
-    return { anchor: startOfMonth(today, -1), span: 2 };
-  }
-  return { anchor: startOfMonth(today), span: 2 };
+//
+// Navigation is modeled as an integer `slot` relative to that pair, which
+// always starts at the pair's first (left) month:
+//   slot === 0  -> the pair itself (baseAnchor and baseAnchor+1)
+//   slot > 0    -> single month at baseAnchor + 1 + slot
+//   slot < 0    -> single month at baseAnchor + slot
+// So next/prev is always just slot±1 — moving one step off either edge of
+// the pair lands on the adjacent single month, and moving back onto it from
+// either side returns to the pair, matching how a plain month sequence
+// would behave if the pair simply occupied one slot spanning two months.
+function initialPairAnchor(today: Date): Date {
+  return today.getUTCDate() <= 10 ? startOfMonth(today, -1) : startOfMonth(today);
 }
 
 function isSameDay(a: Date, b: Date): boolean {
@@ -104,8 +109,8 @@ export function AvailabilityMatrix({
 }) {
   const router = useRouter();
   const todayStr = toDateOnly(today);
-  const [monthsAnchor, setMonthsAnchor] = useState(() => initialMonthsView(today).anchor);
-  const [span, setSpan] = useState<1 | 2>(() => initialMonthsView(today).span);
+  const [baseAnchor] = useState(() => initialPairAnchor(today));
+  const [slot, setSlot] = useState(0);
   const [selected, setSelected] = useState<CarRow | null>(null);
   const [clientName, setClientName] = useState("");
   const [startDate, setStartDate] = useState(todayStr);
@@ -118,20 +123,21 @@ export function AvailabilityMatrix({
   const nameColRef = useRef<HTMLTableCellElement>(null);
 
   const calendar = dict.cars.detail.calendar;
-  const dates =
-    span === 2
-      ? allDaysBetween(monthsAnchor, endOfMonth(monthsAnchor, 1))
-      : allDaysBetween(monthsAnchor, endOfMonth(monthsAnchor));
+  const isPair = slot === 0;
+  const singleMonth = isPair ? null : startOfMonth(baseAnchor, slot > 0 ? slot + 1 : slot);
+  const dates = isPair
+    ? allDaysBetween(baseAnchor, endOfMonth(baseAnchor, 1))
+    : allDaysBetween(singleMonth!, endOfMonth(singleMonth!));
 
-  // Land on today's column by default in the initial two-month pairing — it
-  // spans an extra month on either side, reachable by scrolling back/forward.
+  // Land on today's column by default in the two-month pairing — it spans an
+  // extra month on either side, reachable by scrolling back/forward.
   // scrollIntoView alone isn't enough: the sticky car-name column overlays
   // the scroll container's left edge, so it would hide today's column behind
-  // it — offset by that column's rendered width instead. Any prev/next click
-  // collapses to plain single-month paging, so just reset to the left edge.
+  // it — offset by that column's rendered width instead. A single-month slot
+  // always starts at day 1, so just reset to the left edge there.
   useEffect(() => {
     if (!scrollRef.current) return;
-    if (span === 2 && todayCellRef.current) {
+    if (isPair && todayCellRef.current) {
       const containerRect = scrollRef.current.getBoundingClientRect();
       const cellRect = todayCellRef.current.getBoundingClientRect();
       const stickyWidth = nameColRef.current?.getBoundingClientRect().width ?? 0;
@@ -139,33 +145,30 @@ export function AvailabilityMatrix({
     } else {
       scrollRef.current.scrollLeft = 0;
     }
-  }, [monthsAnchor, span]);
+  }, [slot, isPair]);
 
   function handlePrev() {
-    setMonthsAnchor(startOfMonth(monthsAnchor, -1));
-    setSpan(1);
+    setSlot((s) => s - 1);
   }
 
   function handleNext() {
-    setMonthsAnchor(startOfMonth(monthsAnchor, span === 2 ? 2 : 1));
-    setSpan(1);
+    setSlot((s) => s + 1);
   }
 
   function monthName(date: Date): string {
     return calendar.months[date.getUTCMonth()];
   }
 
-  const monthLabel =
-    span === 2
-      ? (() => {
-          const second = startOfMonth(monthsAnchor, 1);
-          const y1 = monthsAnchor.getUTCFullYear();
-          const y2 = second.getUTCFullYear();
-          return y1 === y2
-            ? `${monthName(monthsAnchor)}, ${monthName(second)} ${y1}`
-            : `${monthName(monthsAnchor)} ${y1}, ${monthName(second)} ${y2}`;
-        })()
-      : `${monthName(monthsAnchor)} ${monthsAnchor.getUTCFullYear()}`;
+  const monthLabel = isPair
+    ? (() => {
+        const second = startOfMonth(baseAnchor, 1);
+        const y1 = baseAnchor.getUTCFullYear();
+        const y2 = second.getUTCFullYear();
+        return y1 === y2
+          ? `${monthName(baseAnchor)}, ${monthName(second)} ${y1}`
+          : `${monthName(baseAnchor)} ${y1}, ${monthName(second)} ${y2}`;
+      })()
+    : `${monthName(singleMonth!)} ${singleMonth!.getUTCFullYear()}`;
 
   function bookingFor(carId: string, date: Date): Booking | undefined {
     // endDate is the checkout/return day (exclusive) — see nightsBetween.
