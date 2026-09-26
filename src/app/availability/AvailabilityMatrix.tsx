@@ -326,13 +326,61 @@ export function AvailabilityMatrix({
                   const isPast = date < today && !isToday;
                   const booking = bookingFor(car.id, date);
                   const reservation = !booking ? reservationFor(car.id, date) : undefined;
-                  const occupiesFrom = booking?.startDate ?? reservation?.startDate;
+                  const occupant = booking ?? reservation;
+                  const occupiesFrom = occupant?.startDate;
                   const isTurnover =
                     occupiesFrom != null &&
                     (() => {
                       const dayBefore = addDays(occupiesFrom, -1);
                       return Boolean(bookingFor(car.id, dayBefore)) || Boolean(reservationFor(car.id, dayBefore));
                     })();
+                  // The last occupied day of any booking/reservation doubles as a
+                  // same-day handover — allowed to also start a new reservation.
+                  const isLastOccupiedDay = occupant != null && isSameDay(date, addDays(occupant.endDate, -1));
+                  const canStartHere = !isPast && (!occupant || isLastOccupiedDay);
+
+                  let cell: React.ReactNode;
+                  if (booking) {
+                    const className = `inline-block h-5 w-5 rounded ${
+                      isTurnover ? "bg-red-700 dark:bg-red-700" : "bg-red-400 dark:bg-red-500/70"
+                    }`;
+                    cell = canStartHere ? (
+                      <button
+                        type="button"
+                        onClick={() => openDialog(car, date)}
+                        title={dict.availability.reserveTitle}
+                        className={`${className} transition hover:bg-red-500 dark:hover:bg-red-500`}
+                      />
+                    ) : (
+                      <span title={booking.driverNames} className={className} />
+                    );
+                  } else if (reservation) {
+                    const className = `inline-block h-5 w-5 rounded ${
+                      isTurnover ? "bg-amber-600 dark:bg-amber-600" : "bg-amber-300 dark:bg-amber-500/70"
+                    }`;
+                    cell = canStartHere ? (
+                      <button
+                        type="button"
+                        onClick={() => openDialog(car, date)}
+                        title={dict.availability.reserveTitle}
+                        className={`${className} transition hover:bg-amber-500 dark:hover:bg-amber-500`}
+                      />
+                    ) : (
+                      <span title={reservation.clientName} className={className} />
+                    );
+                  } else if (isPast) {
+                    cell = <span className="inline-block h-5 w-5 rounded bg-zinc-100 dark:bg-zinc-800" />;
+                  } else {
+                    cell = (
+                      <button
+                        type="button"
+                        onClick={() => openDialog(car, date)}
+                        title={dict.availability.reserveTitle}
+                        className="inline-block h-5 w-5 rounded bg-emerald-100 transition hover:bg-emerald-300 dark:bg-emerald-500/10 dark:hover:bg-emerald-500/40"
+                      />
+                    );
+                  }
+
                   return (
                     <td
                       key={date.toISOString()}
@@ -340,30 +388,7 @@ export function AvailabilityMatrix({
                         isToday ? "bg-crimson-50/50 dark:bg-crimson-500/5" : ""
                       }`}
                     >
-                      {booking ? (
-                        <span
-                          title={booking.driverNames}
-                          className={`inline-block h-5 w-5 rounded ${
-                            isTurnover ? "bg-red-700 dark:bg-red-700" : "bg-red-400 dark:bg-red-500/70"
-                          }`}
-                        />
-                      ) : reservation ? (
-                        <span
-                          title={reservation.clientName}
-                          className={`inline-block h-5 w-5 rounded ${
-                            isTurnover ? "bg-amber-600 dark:bg-amber-600" : "bg-amber-300 dark:bg-amber-500/70"
-                          }`}
-                        />
-                      ) : isPast ? (
-                        <span className="inline-block h-5 w-5 rounded bg-zinc-100 dark:bg-zinc-800" />
-                      ) : (
-                        <button
-                          type="button"
-                          onClick={() => openDialog(car, date)}
-                          title={dict.availability.reserveTitle}
-                          className="inline-block h-5 w-5 rounded bg-emerald-100 transition hover:bg-emerald-300 dark:bg-emerald-500/10 dark:hover:bg-emerald-500/40"
-                        />
-                      )}
+                      {cell}
                     </td>
                   );
                 })}

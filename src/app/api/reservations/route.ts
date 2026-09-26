@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getCurrentCompanyId } from "@/lib/company";
-import { addNights, parseDateOnly } from "@/lib/availability";
+import { addNights, isRealConflict, parseDateOnly } from "@/lib/availability";
 
 interface CreateReservationBody {
   carId: string;
@@ -27,7 +27,7 @@ export async function POST(request: Request) {
     const startDate = parseDateOnly(body.startDate);
     const endDate = addNights(startDate, Number(body.days));
 
-    const overlappingContract = await prisma.contract.findFirst({
+    const overlappingContracts = await prisma.contract.findMany({
       where: {
         carId: car.id,
         status: "ACTIVE",
@@ -35,18 +35,18 @@ export async function POST(request: Request) {
         endDate: { gt: startDate },
       },
     });
-    if (overlappingContract) {
+    if (overlappingContracts.some((c) => isRealConflict(c.startDate, c.endDate, startDate, endDate))) {
       return NextResponse.json({ code: "CAR_UNAVAILABLE" }, { status: 409 });
     }
 
-    const overlappingReservation = await prisma.reservation.findFirst({
+    const overlappingReservations = await prisma.reservation.findMany({
       where: {
         carId: car.id,
         startDate: { lt: endDate },
         endDate: { gt: startDate },
       },
     });
-    if (overlappingReservation) {
+    if (overlappingReservations.some((r) => isRealConflict(r.startDate, r.endDate, startDate, endDate))) {
       return NextResponse.json({ code: "CAR_UNAVAILABLE" }, { status: 409 });
     }
 

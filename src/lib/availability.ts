@@ -18,3 +18,12 @@ export function addNights(start: Date, nights: number): Date {
   d.setUTCDate(d.getUTCDate() + nights);
   return d;
 }
+
+// A same-day handover — the departing rental's last day doubling as the
+// arriving one's first day — is a deliberate 1-day overlap, not a double
+// booking: only 2+ days of shared occupancy is a genuine conflict.
+export function isRealConflict(existingStart: Date, existingEnd: Date, newStart: Date, newEnd: Date): boolean {
+  const overlapStart = existingStart > newStart ? existingStart : newStart;
+  const overlapEnd = existingEnd < newEnd ? existingEnd : newEnd;
+  return nightsBetween(overlapStart, overlapEnd) >= 2;
+}

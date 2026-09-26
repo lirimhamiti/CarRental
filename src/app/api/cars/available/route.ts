@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getCurrentCompanyId } from "@/lib/company";
-import { parseDateOnly } from "@/lib/availability";
+import { isRealConflict, parseDateOnly } from "@/lib/availability";
 
 export async function GET(request: Request) {
   const params = new URL(request.url).searchParams;
@@ -21,19 +21,23 @@ export async function GET(request: Request) {
   const companyId = await getCurrentCompanyId();
 
   const cars = await prisma.car.findMany({
-    where: {
-      companyId,
-      status: "ACTIVE",
-      contracts: {
-        none: {
-          status: "ACTIVE",
-          startDate: { lt: end },
-          endDate: { gt: start },
-        },
-      },
-    },
+    where: { companyId, status: "ACTIVE" },
     orderBy: [{ make: "asc" }, { model: "asc" }],
   });
 
-  return NextResponse.json(cars);
+  const overlappingContracts = await prisma.contract.findMany({
+    where: {
+      carId: { in: cars.map((c) => c.id) },
+      status: "ACTIVE",
+      startDate: { lt: end },
+      endDate: { gt: start },
+    },
+  });
+  const conflictedCarIds = new Set(
+    overlappingContracts.filter((c) => isRealConflict(c.startDate, c.endDate, start, end)).map((c) => c.carId),
+  );
+
+  const available = cars.filter((car) => !conflictedCarIds.has(car.id));
+
+  return NextResponse.json(available);
 }

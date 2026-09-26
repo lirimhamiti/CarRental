@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getCurrentCompanyId } from "@/lib/company";
-import { nightsBetween, parseDateOnly } from "@/lib/availability";
+import { isRealConflict, nightsBetween, parseDateOnly } from "@/lib/availability";
 import { isDriverValid, type DriverIdentity } from "@/lib/driver-validation";
 import { ALL_COUNTRIES, VALID_FOR_COUNTRY_KEYS } from "@/lib/contract-options";
 
@@ -57,7 +57,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ code: "CAR_NOT_FOUND" }, { status: 404 });
     }
 
-    const overlapping = await prisma.contract.findFirst({
+    const overlapping = await prisma.contract.findMany({
       where: {
         carId: car.id,
         status: "ACTIVE",
@@ -65,7 +65,7 @@ export async function POST(request: Request) {
         endDate: { gt: startDate },
       },
     });
-    if (overlapping) {
+    if (overlapping.some((c) => isRealConflict(c.startDate, c.endDate, startDate, endDate))) {
       return NextResponse.json({ code: "CAR_UNAVAILABLE" }, { status: 409 });
     }
 
