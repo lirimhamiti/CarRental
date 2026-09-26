@@ -184,6 +184,7 @@ const sq: typeof en = {
     legendReserved: "E rezervuar",
     noCars: "Ende pa makina në flotën tënde.",
     reserveTitle: "Rezervim i ri",
+    deleteReservationConfirm: "Të fshihet rezervimi për {client}? Kjo veprim nuk mund të zhbëhet.",
     clientName: "Emri i klientit *",
     until: "Deri më",
     create: "Krijo rezervim",

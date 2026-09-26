@@ -182,6 +182,7 @@ const en = {
     legendReserved: "Reserved",
     noCars: "No cars in your fleet yet.",
     reserveTitle: "New reservation",
+    deleteReservationConfirm: "Delete the reservation for {client}? This cannot be undone.",
     clientName: "Client name *",
     until: "Until",
     create: "Create reservation",

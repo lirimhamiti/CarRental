@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { inputClass, labelClass, primaryButtonClass } from "@/components/ui";
 import { DateInput } from "@/components/DateInput";
-import type { Dictionary } from "@/lib/i18n/get-dictionary";
+import { interpolate, type Dictionary } from "@/lib/i18n/get-dictionary";
 
 interface CarRow {
   id: string;
@@ -21,6 +21,7 @@ interface Booking {
 }
 
 interface ReservationRow {
+  id: string;
   carId: string;
   startDate: Date;
   endDate: Date;
@@ -246,6 +247,14 @@ export function AvailabilityMatrix({
     }
   }
 
+  async function handleDeleteReservation(reservation: ReservationRow) {
+    if (!window.confirm(interpolate(dict.availability.deleteReservationConfirm, { client: reservation.clientName }))) {
+      return;
+    }
+    await fetch(`/api/reservations/${reservation.id}`, { method: "DELETE" });
+    router.refresh();
+  }
+
   return (
     <div className="flex flex-col gap-3">
       <div className="flex items-center justify-between">
@@ -339,9 +348,11 @@ export function AvailabilityMatrix({
                           className="inline-block h-5 w-5 rounded bg-red-400 dark:bg-red-500/70"
                         />
                       ) : reservation ? (
-                        <span
-                          title={reservation.clientName}
-                          className="inline-block h-5 w-5 rounded bg-amber-300 dark:bg-amber-500/70"
+                        <button
+                          type="button"
+                          onClick={() => handleDeleteReservation(reservation)}
+                          title={interpolate(dict.availability.deleteReservationConfirm, { client: reservation.clientName })}
+                          className="inline-block h-5 w-5 rounded bg-amber-300 transition hover:bg-red-400 dark:bg-amber-500/70 dark:hover:bg-red-500/70"
                         />
                       ) : isPast ? (
                         <span className="inline-block h-5 w-5 rounded bg-zinc-100 dark:bg-zinc-800" />

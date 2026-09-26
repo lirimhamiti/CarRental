@@ -35,6 +35,7 @@ export default async function AvailabilityPage() {
   }));
 
   const reservationRows = reservations.map((r) => ({
+    id: r.id,
     carId: r.carId,
     startDate: r.startDate,
     endDate: r.endDate,
