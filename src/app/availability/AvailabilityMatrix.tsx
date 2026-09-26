@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { inputClass, labelClass, primaryButtonClass } from "@/components/ui";
 import { DateInput } from "@/components/DateInput";
@@ -27,12 +27,39 @@ interface ReservationRow {
   clientName: string;
 }
 
-const WINDOW_DAYS = 30;
-
 function addDays(date: Date, n: number): Date {
   const d = new Date(date);
   d.setUTCDate(d.getUTCDate() + n);
   return d;
+}
+
+function startOfMonth(date: Date, offset = 0): Date {
+  return new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth() + offset, 1));
+}
+
+function endOfMonth(date: Date, offset = 0): Date {
+  // Day 0 of the following month is the last day of the target month.
+  return new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth() + offset + 1, 0));
+}
+
+function allDaysBetween(start: Date, end: Date): Date[] {
+  const days: Date[] = [];
+  for (let d = start; d <= end; d = addDays(d, 1)) {
+    days.push(d);
+  }
+  return days;
+}
+
+// Anchors the rolling window on today: early in the month (1st–10th) there's
+// little of the current month behind us, so pull in the previous month too;
+// otherwise show the current month plus the next one. Today itself is always
+// the default scroll position, reachable by scrolling back into the earlier
+// month or forward into the later one.
+function rollingRange(today: Date): { start: Date; end: Date } {
+  if (today.getUTCDate() <= 10) {
+    return { start: startOfMonth(today, -1), end: endOfMonth(today) };
+  }
+  return { start: startOfMonth(today), end: endOfMonth(today, 1) };
 }
 
 function isSameDay(a: Date, b: Date): boolean {
@@ -75,7 +102,8 @@ export function AvailabilityMatrix({
 }) {
   const router = useRouter();
   const todayStr = toDateOnly(today);
-  const [viewStart, setViewStart] = useState(() => today);
+  const [viewMode, setViewMode] = useState<"range" | "month">("range");
+  const [monthAnchor, setMonthAnchor] = useState(() => startOfMonth(today));
   const [selected, setSelected] = useState<CarRow | null>(null);
   const [clientName, setClientName] = useState("");
   const [startDate, setStartDate] = useState(todayStr);
@@ -83,11 +111,53 @@ export function AvailabilityMatrix({
   const [endDate, setEndDate] = useState(() => addNights(todayStr, 1));
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const todayCellRef = useRef<HTMLTableCellElement>(null);
+  const nameColRef = useRef<HTMLTableCellElement>(null);
 
   const calendar = dict.cars.detail.calendar;
-  const dates = Array.from({ length: WINDOW_DAYS }, (_, i) => addDays(viewStart, i));
+  const range = useMemo(() => rollingRange(today), [today]);
+  const dates =
+    viewMode === "range"
+      ? allDaysBetween(range.start, range.end)
+      : allDaysBetween(monthAnchor, endOfMonth(monthAnchor));
   const rangeStart = dates[0];
   const rangeEnd = dates[dates.length - 1];
+
+  // Land on today's column by default in the rolling view — the window
+  // spans an extra month on either side, reachable by scrolling back/forward.
+  // scrollIntoView alone isn't enough: the sticky car-name column overlays
+  // the scroll container's left edge, so it would hide today's column behind
+  // it — offset by that column's rendered width instead.
+  useEffect(() => {
+    if (viewMode === "range" && scrollRef.current && todayCellRef.current) {
+      const containerRect = scrollRef.current.getBoundingClientRect();
+      const cellRect = todayCellRef.current.getBoundingClientRect();
+      const stickyWidth = nameColRef.current?.getBoundingClientRect().width ?? 0;
+      scrollRef.current.scrollLeft += cellRect.left - containerRect.left - stickyWidth;
+    }
+  }, [viewMode, range]);
+
+  function handlePrev() {
+    if (viewMode === "month") {
+      setMonthAnchor((prev) => startOfMonth(prev, -1));
+    } else {
+      scrollRef.current?.scrollBy({ left: -(scrollRef.current.clientWidth * 0.9), behavior: "smooth" });
+    }
+  }
+
+  function handleNext() {
+    if (viewMode === "month") {
+      setMonthAnchor((prev) => startOfMonth(prev, 1));
+    } else {
+      scrollRef.current?.scrollBy({ left: scrollRef.current.clientWidth * 0.9, behavior: "smooth" });
+    }
+  }
+
+  function switchViewMode(mode: "range" | "month") {
+    if (mode === "month") setMonthAnchor(startOfMonth(today));
+    setViewMode(mode);
+  }
   const monthLabel =
     rangeStart.getUTCMonth() === rangeEnd.getUTCMonth() && rangeStart.getUTCFullYear() === rangeEnd.getUTCFullYear()
       ? `${calendar.months[rangeStart.getUTCMonth()]} ${rangeStart.getUTCFullYear()}`
@@ -171,11 +241,38 @@ export function AvailabilityMatrix({
 
   return (
     <div className="flex flex-col gap-3">
+      <div className="flex justify-end">
+        <div className="inline-flex rounded-lg border border-zinc-200 p-0.5 text-xs dark:border-zinc-800">
+          <button
+            type="button"
+            onClick={() => switchViewMode("range")}
+            className={`rounded-md px-3 py-1.5 font-medium uppercase tracking-wide transition ${
+              viewMode === "range"
+                ? "bg-ink text-crimson-400"
+                : "text-zinc-500 hover:text-zinc-700 dark:text-zinc-400 dark:hover:text-zinc-200"
+            }`}
+          >
+            {dict.availability.viewModeRange}
+          </button>
+          <button
+            type="button"
+            onClick={() => switchViewMode("month")}
+            className={`rounded-md px-3 py-1.5 font-medium uppercase tracking-wide transition ${
+              viewMode === "month"
+                ? "bg-ink text-crimson-400"
+                : "text-zinc-500 hover:text-zinc-700 dark:text-zinc-400 dark:hover:text-zinc-200"
+            }`}
+          >
+            {dict.availability.viewModeMonth}
+          </button>
+        </div>
+      </div>
+
       <div className="flex items-center justify-between">
         <button
           type="button"
-          aria-label={calendar.prevMonth}
-          onClick={() => setViewStart(addDays(viewStart, -WINDOW_DAYS))}
+          aria-label={viewMode === "month" ? calendar.prevMonth : calendar.scrollBack}
+          onClick={handlePrev}
           className="flex h-8 w-8 items-center justify-center rounded-lg text-zinc-500 transition hover:bg-zinc-100 dark:text-zinc-400 dark:hover:bg-zinc-800"
         >
           <svg viewBox="0 0 24 24" fill="none" className="h-4 w-4">
@@ -185,8 +282,8 @@ export function AvailabilityMatrix({
         <p className="font-serif text-base text-zinc-900 dark:text-zinc-50">{monthLabel}</p>
         <button
           type="button"
-          aria-label={calendar.nextMonth}
-          onClick={() => setViewStart(addDays(viewStart, WINDOW_DAYS))}
+          aria-label={viewMode === "month" ? calendar.nextMonth : calendar.scrollForward}
+          onClick={handleNext}
           className="flex h-8 w-8 items-center justify-center rounded-lg text-zinc-500 transition hover:bg-zinc-100 dark:text-zinc-400 dark:hover:bg-zinc-800"
         >
           <svg viewBox="0 0 24 24" fill="none" className="h-4 w-4">
@@ -195,11 +292,14 @@ export function AvailabilityMatrix({
         </button>
       </div>
 
-      <div className="overflow-x-auto rounded-xl border border-zinc-200 dark:border-zinc-800 [-webkit-overflow-scrolling:touch]">
+      <div ref={scrollRef} className="overflow-x-auto rounded-xl border border-zinc-200 dark:border-zinc-800 [-webkit-overflow-scrolling:touch]">
         <table className="border-collapse text-sm">
           <thead>
             <tr>
-              <th className="sticky left-0 z-10 border-b border-zinc-200 bg-white px-1.5 py-2 text-left text-[11px] font-medium uppercase tracking-wide text-zinc-500 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-400 sm:px-3">
+              <th
+                ref={nameColRef}
+                className="sticky left-0 z-10 border-b border-zinc-200 bg-white px-1.5 py-2 text-left text-[11px] font-medium uppercase tracking-wide text-zinc-500 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-400 sm:px-3"
+              >
                 &nbsp;
               </th>
               {dates.map((date) => {
@@ -208,6 +308,7 @@ export function AvailabilityMatrix({
                 return (
                   <th
                     key={date.toISOString()}
+                    ref={isToday ? todayCellRef : undefined}
                     className={`min-w-[34px] border-b border-l border-zinc-200 bg-white px-1 py-2 text-center dark:border-zinc-800 dark:bg-zinc-900 sm:min-w-[38px] ${
                       isToday ? "bg-crimson-50/50 text-crimson-600 dark:bg-crimson-500/5 dark:text-crimson-400" : ""
                     }`}
@@ -242,6 +343,7 @@ export function AvailabilityMatrix({
                 </td>
                 {dates.map((date) => {
                   const isToday = isSameDay(date, today);
+                  const isPast = date < today && !isToday;
                   const booking = bookingFor(car.id, date);
                   const reservation = !booking ? reservationFor(car.id, date) : undefined;
                   return (
@@ -261,6 +363,8 @@ export function AvailabilityMatrix({
                           title={reservation.clientName}
                           className="inline-block h-5 w-5 rounded bg-amber-300 dark:bg-amber-500/70"
                         />
+                      ) : isPast ? (
+                        <span className="inline-block h-5 w-5 rounded bg-zinc-100 dark:bg-zinc-800" />
                       ) : (
                         <button
                           type="button"

@@ -92,6 +92,8 @@ const en = {
       calendar: {
         prevMonth: "Previous month",
         nextMonth: "Next month",
+        scrollBack: "Scroll back",
+        scrollForward: "Scroll forward",
         legendBooked: "Booked",
         legendToday: "Today",
         months: [
@@ -181,6 +183,8 @@ const en = {
     legendFree: "Free",
     legendReserved: "Reserved",
     noCars: "No cars in your fleet yet.",
+    viewModeRange: "2-month view",
+    viewModeMonth: "Month view",
     reserveTitle: "New reservation",
     clientName: "Client name *",
     until: "Until",
