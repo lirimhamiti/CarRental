@@ -94,8 +94,6 @@ const sq: typeof en = {
       calendar: {
         prevMonth: "Muaji i kaluar",
         nextMonth: "Muaji tjetër",
-        scrollBack: "Rrëshqit pas",
-        scrollForward: "Rrëshqit përpara",
         legendBooked: "Me qira",
         legendToday: "Sot",
         months: [
@@ -185,8 +183,6 @@ const sq: typeof en = {
     legendFree: "E lirë",
     legendReserved: "E rezervuar",
     noCars: "Ende pa makina në flotën tënde.",
-    viewModeRange: "Pamje 2-mujore",
-    viewModeMonth: "Pamje mujore",
     reserveTitle: "Rezervim i ri",
     clientName: "Emri i klientit *",
     until: "Deri më",

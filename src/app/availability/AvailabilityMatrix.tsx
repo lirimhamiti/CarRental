@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { inputClass, labelClass, primaryButtonClass } from "@/components/ui";
 import { DateInput } from "@/components/DateInput";
@@ -50,16 +50,18 @@ function allDaysBetween(start: Date, end: Date): Date[] {
   return days;
 }
 
-// Anchors the rolling window on today: early in the month (1st–10th) there's
-// little of the current month behind us, so pull in the previous month too;
-// otherwise show the current month plus the next one. Today itself is always
-// the default scroll position, reachable by scrolling back into the earlier
-// month or forward into the later one.
-function rollingRange(today: Date): { start: Date; end: Date } {
+// Default landing view anchors on today: early in the month (1st–10th)
+// there's little of the current month behind us, so pull in the previous
+// month too; otherwise show the current month plus the next one. Today
+// itself is always the default scroll position within that pair, reachable
+// by scrolling back into the earlier month or forward into the later one.
+// The very first prev/next click collapses this down to plain one-month-at-
+// a-time paging (handled in handlePrev/handleNext).
+function initialMonthsView(today: Date): { anchor: Date; span: 1 | 2 } {
   if (today.getUTCDate() <= 10) {
-    return { start: startOfMonth(today, -1), end: endOfMonth(today) };
+    return { anchor: startOfMonth(today, -1), span: 2 };
   }
-  return { start: startOfMonth(today), end: endOfMonth(today, 1) };
+  return { anchor: startOfMonth(today), span: 2 };
 }
 
 function isSameDay(a: Date, b: Date): boolean {
@@ -102,8 +104,8 @@ export function AvailabilityMatrix({
 }) {
   const router = useRouter();
   const todayStr = toDateOnly(today);
-  const [viewMode, setViewMode] = useState<"range" | "month">("range");
-  const [monthAnchor, setMonthAnchor] = useState(() => startOfMonth(today));
+  const [monthsAnchor, setMonthsAnchor] = useState(() => initialMonthsView(today).anchor);
+  const [span, setSpan] = useState<1 | 2>(() => initialMonthsView(today).span);
   const [selected, setSelected] = useState<CarRow | null>(null);
   const [clientName, setClientName] = useState("");
   const [startDate, setStartDate] = useState(todayStr);
@@ -116,52 +118,54 @@ export function AvailabilityMatrix({
   const nameColRef = useRef<HTMLTableCellElement>(null);
 
   const calendar = dict.cars.detail.calendar;
-  const range = useMemo(() => rollingRange(today), [today]);
   const dates =
-    viewMode === "range"
-      ? allDaysBetween(range.start, range.end)
-      : allDaysBetween(monthAnchor, endOfMonth(monthAnchor));
-  const rangeStart = dates[0];
-  const rangeEnd = dates[dates.length - 1];
+    span === 2
+      ? allDaysBetween(monthsAnchor, endOfMonth(monthsAnchor, 1))
+      : allDaysBetween(monthsAnchor, endOfMonth(monthsAnchor));
 
-  // Land on today's column by default in the rolling view — the window
+  // Land on today's column by default in the initial two-month pairing — it
   // spans an extra month on either side, reachable by scrolling back/forward.
   // scrollIntoView alone isn't enough: the sticky car-name column overlays
   // the scroll container's left edge, so it would hide today's column behind
-  // it — offset by that column's rendered width instead.
+  // it — offset by that column's rendered width instead. Any prev/next click
+  // collapses to plain single-month paging, so just reset to the left edge.
   useEffect(() => {
-    if (viewMode === "range" && scrollRef.current && todayCellRef.current) {
+    if (!scrollRef.current) return;
+    if (span === 2 && todayCellRef.current) {
       const containerRect = scrollRef.current.getBoundingClientRect();
       const cellRect = todayCellRef.current.getBoundingClientRect();
       const stickyWidth = nameColRef.current?.getBoundingClientRect().width ?? 0;
       scrollRef.current.scrollLeft += cellRect.left - containerRect.left - stickyWidth;
+    } else {
+      scrollRef.current.scrollLeft = 0;
     }
-  }, [viewMode, range]);
+  }, [monthsAnchor, span]);
 
   function handlePrev() {
-    if (viewMode === "month") {
-      setMonthAnchor((prev) => startOfMonth(prev, -1));
-    } else {
-      scrollRef.current?.scrollBy({ left: -(scrollRef.current.clientWidth * 0.9), behavior: "smooth" });
-    }
+    setMonthsAnchor(startOfMonth(monthsAnchor, -1));
+    setSpan(1);
   }
 
   function handleNext() {
-    if (viewMode === "month") {
-      setMonthAnchor((prev) => startOfMonth(prev, 1));
-    } else {
-      scrollRef.current?.scrollBy({ left: scrollRef.current.clientWidth * 0.9, behavior: "smooth" });
-    }
+    setMonthsAnchor(startOfMonth(monthsAnchor, span === 2 ? 2 : 1));
+    setSpan(1);
   }
 
-  function switchViewMode(mode: "range" | "month") {
-    if (mode === "month") setMonthAnchor(startOfMonth(today));
-    setViewMode(mode);
+  function monthName(date: Date): string {
+    return calendar.months[date.getUTCMonth()];
   }
+
   const monthLabel =
-    rangeStart.getUTCMonth() === rangeEnd.getUTCMonth() && rangeStart.getUTCFullYear() === rangeEnd.getUTCFullYear()
-      ? `${calendar.months[rangeStart.getUTCMonth()]} ${rangeStart.getUTCFullYear()}`
-      : `${calendar.months[rangeStart.getUTCMonth()].slice(0, 3)} ${rangeStart.getUTCDate()} – ${calendar.months[rangeEnd.getUTCMonth()].slice(0, 3)} ${rangeEnd.getUTCDate()}, ${rangeEnd.getUTCFullYear()}`;
+    span === 2
+      ? (() => {
+          const second = startOfMonth(monthsAnchor, 1);
+          const y1 = monthsAnchor.getUTCFullYear();
+          const y2 = second.getUTCFullYear();
+          return y1 === y2
+            ? `${monthName(monthsAnchor)}, ${monthName(second)} ${y1}`
+            : `${monthName(monthsAnchor)} ${y1}, ${monthName(second)} ${y2}`;
+        })()
+      : `${monthName(monthsAnchor)} ${monthsAnchor.getUTCFullYear()}`;
 
   function bookingFor(carId: string, date: Date): Booking | undefined {
     // endDate is the checkout/return day (exclusive) — see nightsBetween.
@@ -241,37 +245,10 @@ export function AvailabilityMatrix({
 
   return (
     <div className="flex flex-col gap-3">
-      <div className="flex justify-end">
-        <div className="inline-flex rounded-lg border border-zinc-200 p-0.5 text-xs dark:border-zinc-800">
-          <button
-            type="button"
-            onClick={() => switchViewMode("range")}
-            className={`rounded-md px-3 py-1.5 font-medium uppercase tracking-wide transition ${
-              viewMode === "range"
-                ? "bg-ink text-crimson-400"
-                : "text-zinc-500 hover:text-zinc-700 dark:text-zinc-400 dark:hover:text-zinc-200"
-            }`}
-          >
-            {dict.availability.viewModeRange}
-          </button>
-          <button
-            type="button"
-            onClick={() => switchViewMode("month")}
-            className={`rounded-md px-3 py-1.5 font-medium uppercase tracking-wide transition ${
-              viewMode === "month"
-                ? "bg-ink text-crimson-400"
-                : "text-zinc-500 hover:text-zinc-700 dark:text-zinc-400 dark:hover:text-zinc-200"
-            }`}
-          >
-            {dict.availability.viewModeMonth}
-          </button>
-        </div>
-      </div>
-
       <div className="flex items-center justify-between">
         <button
           type="button"
-          aria-label={viewMode === "month" ? calendar.prevMonth : calendar.scrollBack}
+          aria-label={calendar.prevMonth}
           onClick={handlePrev}
           className="flex h-8 w-8 items-center justify-center rounded-lg text-zinc-500 transition hover:bg-zinc-100 dark:text-zinc-400 dark:hover:bg-zinc-800"
         >
@@ -282,7 +259,7 @@ export function AvailabilityMatrix({
         <p className="font-serif text-base text-zinc-900 dark:text-zinc-50">{monthLabel}</p>
         <button
           type="button"
-          aria-label={viewMode === "month" ? calendar.nextMonth : calendar.scrollForward}
+          aria-label={calendar.nextMonth}
           onClick={handleNext}
           className="flex h-8 w-8 items-center justify-center rounded-lg text-zinc-500 transition hover:bg-zinc-100 dark:text-zinc-400 dark:hover:bg-zinc-800"
         >

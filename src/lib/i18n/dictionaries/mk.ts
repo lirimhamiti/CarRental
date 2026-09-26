@@ -94,8 +94,6 @@ const mk: typeof en = {
       calendar: {
         prevMonth: "Претходен месец",
         nextMonth: "Следен месец",
-        scrollBack: "Лизгај назад",
-        scrollForward: "Лизгај напред",
         legendBooked: "Изнајмено",
         legendToday: "Денес",
         months: [
@@ -185,8 +183,6 @@ const mk: typeof en = {
     legendFree: "Слободно",
     legendReserved: "Резервирано",
     noCars: "Сè уште нема возила во вашиот возен парк.",
-    viewModeRange: "Преглед на 2 месеци",
-    viewModeMonth: "Месечен преглед",
     reserveTitle: "Нова резервација",
     clientName: "Име на клиент *",
     until: "До",
