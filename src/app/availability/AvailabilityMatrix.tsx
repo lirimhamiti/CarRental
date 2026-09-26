@@ -326,9 +326,11 @@ export function AvailabilityMatrix({
                   const isPast = date < today && !isToday;
                   const booking = bookingFor(car.id, date);
                   const reservation = !booking ? reservationFor(car.id, date) : undefined;
-                  const yesterday = addDays(date, -1);
-                  const isReturnDay =
-                    !booking && !reservation && (Boolean(bookingFor(car.id, yesterday)) || Boolean(reservationFor(car.id, yesterday)));
+                  const dayBeforeStart = reservation ? addDays(reservation.startDate, -1) : null;
+                  const isTurnoverReservation =
+                    reservation != null &&
+                    dayBeforeStart != null &&
+                    (Boolean(bookingFor(car.id, dayBeforeStart)) || Boolean(reservationFor(car.id, dayBeforeStart)));
                   return (
                     <td
                       key={date.toISOString()}
@@ -344,17 +346,14 @@ export function AvailabilityMatrix({
                       ) : reservation ? (
                         <span
                           title={reservation.clientName}
-                          className="inline-block h-5 w-5 rounded bg-amber-300 dark:bg-amber-500/70"
+                          className={`inline-block h-5 w-5 rounded ${
+                            isTurnoverReservation
+                              ? "bg-amber-600 dark:bg-amber-600"
+                              : "bg-amber-300 dark:bg-amber-500/70"
+                          }`}
                         />
                       ) : isPast ? (
                         <span className="inline-block h-5 w-5 rounded bg-zinc-100 dark:bg-zinc-800" />
-                      ) : isReturnDay ? (
-                        <button
-                          type="button"
-                          onClick={() => openDialog(car, date)}
-                          title={dict.availability.returnDayTitle}
-                          className="inline-block h-5 w-5 rounded bg-amber-600 transition hover:bg-amber-700 dark:bg-amber-600 dark:hover:bg-amber-500"
-                        />
                       ) : (
                         <button
                           type="button"

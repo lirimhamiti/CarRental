@@ -182,7 +182,6 @@ const en = {
     legendReserved: "Reserved",
     noCars: "No cars in your fleet yet.",
     reserveTitle: "New reservation",
-    returnDayTitle: "Car returns today — click to start a new reservation",
     legendReturnDay: "Same-day turnover",
     clientName: "Client name *",
     until: "Until",
