@@ -4,7 +4,6 @@ import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { inputClass, labelClass, primaryButtonClass } from "@/components/ui";
 import { DateInput } from "@/components/DateInput";
-import { formatDate } from "@/lib/dates";
 import type { Dictionary } from "@/lib/i18n/get-dictionary";
 
 interface CarRow {
@@ -22,7 +21,6 @@ interface Booking {
 }
 
 interface ReservationRow {
-  id: string;
   carId: string;
   startDate: Date;
   endDate: Date;
@@ -114,10 +112,6 @@ export function AvailabilityMatrix({
   const [baseAnchor] = useState(() => initialPairAnchor(today));
   const [slot, setSlot] = useState(0);
   const [selected, setSelected] = useState<CarRow | null>(null);
-  const [deletingReservation, setDeletingReservation] = useState<(ReservationRow & { carLabel: string }) | null>(
-    null,
-  );
-  const [deleting, setDeleting] = useState(false);
   const [clientName, setClientName] = useState("");
   const [startDate, setStartDate] = useState(todayStr);
   const [daysField, setDaysField] = useState("1");
@@ -252,26 +246,6 @@ export function AvailabilityMatrix({
     }
   }
 
-  function openDeleteDialog(reservation: ReservationRow, car: CarRow) {
-    setDeletingReservation({ ...reservation, carLabel: `${car.make} ${car.model} · ${car.plate}` });
-  }
-
-  function closeDeleteDialog() {
-    setDeletingReservation(null);
-  }
-
-  async function confirmDeleteReservation() {
-    if (!deletingReservation) return;
-    setDeleting(true);
-    try {
-      await fetch(`/api/reservations/${deletingReservation.id}`, { method: "DELETE" });
-      closeDeleteDialog();
-      router.refresh();
-    } finally {
-      setDeleting(false);
-    }
-  }
-
   return (
     <div className="flex flex-col gap-3">
       <div className="flex items-center justify-between">
@@ -368,22 +342,25 @@ export function AvailabilityMatrix({
                           className="inline-block h-5 w-5 rounded bg-red-400 dark:bg-red-500/70"
                         />
                       ) : reservation ? (
-                        <button
-                          type="button"
-                          onClick={() => openDeleteDialog(reservation, car)}
-                          title={dict.availability.reservedCellTitle}
-                          className="inline-block h-5 w-5 rounded bg-amber-300 transition hover:bg-amber-400 dark:bg-amber-500/70 dark:hover:bg-amber-500/90"
+                        <span
+                          title={reservation.clientName}
+                          className="inline-block h-5 w-5 rounded bg-amber-300 dark:bg-amber-500/70"
                         />
                       ) : isPast ? (
                         <span className="inline-block h-5 w-5 rounded bg-zinc-100 dark:bg-zinc-800" />
+                      ) : isReturnDay ? (
+                        <button
+                          type="button"
+                          onClick={() => openDialog(car, date)}
+                          title={dict.availability.returnDayTitle}
+                          className="inline-block h-5 w-5 rounded bg-amber-600 transition hover:bg-amber-700 dark:bg-amber-600 dark:hover:bg-amber-500"
+                        />
                       ) : (
                         <button
                           type="button"
                           onClick={() => openDialog(car, date)}
-                          title={isReturnDay ? dict.availability.returnDayTitle : dict.availability.reserveTitle}
-                          className={`inline-block h-5 w-5 rounded bg-emerald-100 transition hover:bg-emerald-300 dark:bg-emerald-500/10 dark:hover:bg-emerald-500/40 ${
-                            isReturnDay ? "ring-2 ring-inset ring-crimson-400 dark:ring-crimson-500" : ""
-                          }`}
+                          title={dict.availability.reserveTitle}
+                          className="inline-block h-5 w-5 rounded bg-emerald-100 transition hover:bg-emerald-300 dark:bg-emerald-500/10 dark:hover:bg-emerald-500/40"
                         />
                       )}
                     </td>
@@ -409,7 +386,7 @@ export function AvailabilityMatrix({
           {dict.availability.legendFree}
         </span>
         <span className="flex items-center gap-1.5">
-          <span className="h-2.5 w-2.5 rounded bg-emerald-100 ring-2 ring-inset ring-crimson-400 dark:bg-emerald-500/10 dark:ring-crimson-500" />
+          <span className="h-2.5 w-2.5 rounded bg-amber-600" />
           {dict.availability.legendReturnDay}
         </span>
         <span className="flex items-center gap-1.5">
@@ -492,52 +469,6 @@ export function AvailabilityMatrix({
                 </button>
               </div>
             </form>
-          </div>
-        </div>
-      )}
-
-      {deletingReservation && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4"
-          onClick={closeDeleteDialog}
-        >
-          <div
-            className="w-full max-w-sm rounded-xl bg-white p-6 shadow-xl dark:bg-zinc-900"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <h3 className="font-serif text-lg text-zinc-900 dark:text-zinc-50">
-              {dict.availability.deleteReservationTitle}
-            </h3>
-            <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">{deletingReservation.carLabel}</p>
-
-            <div className="mt-4 rounded-lg border border-zinc-200 bg-zinc-50 px-4 py-3 text-sm dark:border-zinc-800 dark:bg-zinc-800/50">
-              <p className="font-medium text-zinc-900 dark:text-zinc-50">{deletingReservation.clientName}</p>
-              <p className="mt-0.5 text-zinc-500 dark:text-zinc-400">
-                {formatDate(deletingReservation.startDate)} – {formatDate(deletingReservation.endDate)}
-              </p>
-            </div>
-
-            <p className="mt-4 text-sm text-zinc-500 dark:text-zinc-400">
-              {dict.availability.deleteReservationBody}
-            </p>
-
-            <div className="mt-5 flex gap-3">
-              <button
-                type="button"
-                onClick={confirmDeleteReservation}
-                disabled={deleting}
-                className="flex-1 flex items-center justify-center gap-2 rounded-lg bg-red-600 px-5 py-3 text-sm font-medium uppercase tracking-wider text-white shadow-sm transition hover:bg-red-700 disabled:cursor-not-allowed disabled:bg-red-300"
-              >
-                {deleting ? dict.contracts.buttons.creating : dict.availability.deleteButton}
-              </button>
-              <button
-                type="button"
-                onClick={closeDeleteDialog}
-                className="rounded-lg border border-zinc-300 px-5 py-3 text-sm font-medium uppercase tracking-wider text-zinc-700 transition hover:bg-zinc-100 dark:border-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-800"
-              >
-                {dict.availability.cancel}
-              </button>
-            </div>
           </div>
         </div>
       )}
