@@ -184,7 +184,6 @@ const sq: typeof en = {
     legendReserved: "E rezervuar",
     noCars: "Ende pa makina në flotën tënde.",
     reserveTitle: "Rezervim i ri",
-    legendReturnDay: "Kthim në të njëjtën ditë",
     clientName: "Emri i klientit *",
     until: "Deri më",
     create: "Krijo rezervim",

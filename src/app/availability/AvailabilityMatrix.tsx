@@ -326,11 +326,13 @@ export function AvailabilityMatrix({
                   const isPast = date < today && !isToday;
                   const booking = bookingFor(car.id, date);
                   const reservation = !booking ? reservationFor(car.id, date) : undefined;
-                  const dayBeforeStart = reservation ? addDays(reservation.startDate, -1) : null;
-                  const isTurnoverReservation =
-                    reservation != null &&
-                    dayBeforeStart != null &&
-                    (Boolean(bookingFor(car.id, dayBeforeStart)) || Boolean(reservationFor(car.id, dayBeforeStart)));
+                  const occupiesFrom = booking?.startDate ?? reservation?.startDate;
+                  const isTurnover =
+                    occupiesFrom != null &&
+                    (() => {
+                      const dayBefore = addDays(occupiesFrom, -1);
+                      return Boolean(bookingFor(car.id, dayBefore)) || Boolean(reservationFor(car.id, dayBefore));
+                    })();
                   return (
                     <td
                       key={date.toISOString()}
@@ -341,15 +343,15 @@ export function AvailabilityMatrix({
                       {booking ? (
                         <span
                           title={booking.driverNames}
-                          className="inline-block h-5 w-5 rounded bg-red-400 dark:bg-red-500/70"
+                          className={`inline-block h-5 w-5 rounded ${
+                            isTurnover ? "bg-red-700 dark:bg-red-700" : "bg-red-400 dark:bg-red-500/70"
+                          }`}
                         />
                       ) : reservation ? (
                         <span
                           title={reservation.clientName}
                           className={`inline-block h-5 w-5 rounded ${
-                            isTurnoverReservation
-                              ? "bg-amber-600 dark:bg-amber-600"
-                              : "bg-amber-300 dark:bg-amber-500/70"
+                            isTurnover ? "bg-amber-600 dark:bg-amber-600" : "bg-amber-300 dark:bg-amber-500/70"
                           }`}
                         />
                       ) : isPast ? (
@@ -383,10 +385,6 @@ export function AvailabilityMatrix({
         <span className="flex items-center gap-1.5">
           <span className="h-2.5 w-2.5 rounded bg-emerald-100 dark:bg-emerald-500/10" />
           {dict.availability.legendFree}
-        </span>
-        <span className="flex items-center gap-1.5">
-          <span className="h-2.5 w-2.5 rounded bg-amber-600" />
-          {dict.availability.legendReturnDay}
         </span>
         <span className="flex items-center gap-1.5">
           <span className="h-2.5 w-2.5 rounded-full ring-2 ring-crimson-500" />

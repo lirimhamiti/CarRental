@@ -184,7 +184,6 @@ const mk: typeof en = {
     legendReserved: "Резервирано",
     noCars: "Сè уште нема возила во вашиот возен парк.",
     reserveTitle: "Нова резервација",
-    legendReturnDay: "Враќање ист ден",
     clientName: "Име на клиент *",
     until: "До",
     create: "Креирај резервација",
