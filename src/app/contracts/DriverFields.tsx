@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { dateInputClass, inputClass, labelClass } from "@/components/ui";
+import { inputClass, labelClass } from "@/components/ui";
+import { DateInput } from "@/components/DateInput";
 import { interpolate, type Dictionary } from "@/lib/i18n/get-dictionary";
 
 const today = new Date().toISOString().slice(0, 10);
@@ -209,14 +210,7 @@ export function DriverFields({
         </div>
         <div>
           <label className={labelClass}>{dict.contracts.client.birthDate}</label>
-          <input
-            type="date"
-            required
-            value={driver.birthDate}
-            max={today}
-            onChange={(e) => onChange({ birthDate: e.target.value })}
-            className={dateInputClass}
-          />
+          <DateInput required value={driver.birthDate} max={today} onChange={(value) => onChange({ birthDate: value })} />
         </div>
       </div>
 
@@ -237,21 +231,11 @@ export function DriverFields({
         <div className="grid grid-cols-2 gap-4">
           <div>
             <label className={labelClass}>{dict.contracts.client.passportIssueDate}</label>
-            <input
-              type="date"
-              value={driver.passportIssueDate}
-              onChange={(e) => handlePassportIssueChange(e.target.value)}
-              className={dateInputClass}
-            />
+            <DateInput value={driver.passportIssueDate} onChange={handlePassportIssueChange} />
           </div>
           <div>
             <label className={labelClass}>{dict.contracts.client.passportExpiryDate}</label>
-            <input
-              type="date"
-              value={driver.passportExpiryDate}
-              onChange={(e) => onChange({ passportExpiryDate: e.target.value })}
-              className={dateInputClass}
-            />
+            <DateInput value={driver.passportExpiryDate} onChange={(value) => onChange({ passportExpiryDate: value })} />
           </div>
         </div>
       </div>
@@ -273,21 +257,11 @@ export function DriverFields({
         <div className="grid grid-cols-2 gap-4">
           <div>
             <label className={labelClass}>{dict.contracts.client.licenceIssueDate}</label>
-            <input
-              type="date"
-              value={driver.licenceIssueDate}
-              onChange={(e) => handleLicenceIssueChange(e.target.value)}
-              className={dateInputClass}
-            />
+            <DateInput value={driver.licenceIssueDate} onChange={handleLicenceIssueChange} />
           </div>
           <div>
             <label className={labelClass}>{dict.contracts.client.licenceExpiryDate}</label>
-            <input
-              type="date"
-              value={driver.licenceExpiryDate}
-              onChange={(e) => onChange({ licenceExpiryDate: e.target.value })}
-              className={dateInputClass}
-            />
+            <DateInput value={driver.licenceExpiryDate} onChange={(value) => onChange({ licenceExpiryDate: value })} />
           </div>
         </div>
       </div>

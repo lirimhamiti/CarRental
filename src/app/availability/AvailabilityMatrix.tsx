@@ -2,7 +2,8 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { dateInputClass, inputClass, labelClass, primaryButtonClass } from "@/components/ui";
+import { inputClass, labelClass, primaryButtonClass } from "@/components/ui";
+import { DateInput } from "@/components/DateInput";
 import type { Dictionary } from "@/lib/i18n/get-dictionary";
 
 interface CarRow {
@@ -326,14 +327,7 @@ export function AvailabilityMatrix({
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className={labelClass}>{dict.contracts.rental.startDate}</label>
-                  <input
-                    type="date"
-                    required
-                    value={startDate}
-                    min={todayStr}
-                    onChange={(e) => handleStartDateChange(e.target.value)}
-                    className={dateInputClass}
-                  />
+                  <DateInput required value={startDate} min={todayStr} onChange={handleStartDateChange} />
                 </div>
                 <div>
                   <label className={labelClass}>{dict.contracts.rental.daysLabel}</label>
@@ -350,13 +344,11 @@ export function AvailabilityMatrix({
               </div>
               <div>
                 <label className={labelClass}>{dict.contracts.rental.endDate}</label>
-                <input
-                  type="date"
+                <DateInput
                   required
                   value={endDate}
                   min={startDate ? addNights(startDate, 1) : undefined}
-                  onChange={(e) => handleEndDateChange(e.target.value)}
-                  className={dateInputClass}
+                  onChange={handleEndDateChange}
                 />
               </div>
 

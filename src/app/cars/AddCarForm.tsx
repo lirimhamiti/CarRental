@@ -2,7 +2,8 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { dateInputClass, inputClass, labelClass, primaryButtonClass, SectionIcon } from "@/components/ui";
+import { inputClass, labelClass, primaryButtonClass, SectionIcon } from "@/components/ui";
+import { DateInput } from "@/components/DateInput";
 import type { Dictionary } from "@/lib/i18n/get-dictionary";
 
 const STATUS_OPTIONS = ["ACTIVE", "MAINTENANCE", "RETIRED"] as const;
@@ -114,13 +115,7 @@ export function AddCarForm({ dict }: { dict: Dictionary }) {
         </div>
         <div>
           <label className={labelClass}>{dict.cars.addForm.registrationExpiry}</label>
-          <input
-            type="date"
-            required
-            value={registrationExpiry}
-            onChange={(e) => setRegistrationExpiry(e.target.value)}
-            className={dateInputClass}
-          />
+          <DateInput required value={registrationExpiry} onChange={setRegistrationExpiry} />
         </div>
         <div>
           <label className={labelClass}>{dict.cars.addForm.transmission}</label>

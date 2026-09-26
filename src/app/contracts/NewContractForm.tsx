@@ -1,8 +1,9 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { dateInputClass, inputClass, labelClass, primaryButtonClass, SectionIcon } from "@/components/ui";
+import { inputClass, labelClass, primaryButtonClass, SectionIcon } from "@/components/ui";
 import { CheckboxMultiSelect } from "@/components/CheckboxMultiSelect";
+import { DateInput } from "@/components/DateInput";
 import { carLabel } from "@/lib/cars";
 import type { Dictionary } from "@/lib/i18n/get-dictionary";
 import { isDriverValid } from "@/lib/driver-validation";
@@ -267,14 +268,7 @@ export function NewContractForm({ dict }: { dict: Dictionary }) {
           <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
             <div>
               <label className={labelClass}>{dict.contracts.rental.startDate}</label>
-              <input
-                type="date"
-                required
-                value={startDate}
-                min={today}
-                onChange={(e) => handleStartDateChange(e.target.value)}
-                className={dateInputClass}
-              />
+              <DateInput required value={startDate} min={today} onChange={handleStartDateChange} />
             </div>
             <div>
               <label className={labelClass}>{dict.contracts.rental.daysLabel}</label>
@@ -290,13 +284,11 @@ export function NewContractForm({ dict }: { dict: Dictionary }) {
             </div>
             <div>
               <label className={labelClass}>{dict.contracts.rental.endDate}</label>
-              <input
-                type="date"
+              <DateInput
                 required
                 value={endDate}
                 min={startDate ? addNights(startDate, 1) : undefined}
-                onChange={(e) => handleEndDateChange(e.target.value)}
-                className={dateInputClass}
+                onChange={handleEndDateChange}
               />
             </div>
             <div>
