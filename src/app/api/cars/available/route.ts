@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getCurrentCompanyId } from "@/lib/company";
-import { isRealConflict, parseDateOnly } from "@/lib/availability";
+import { parseDateOnly } from "@/lib/availability";
 
 export async function GET(request: Request) {
   const params = new URL(request.url).searchParams;
@@ -26,6 +26,9 @@ export async function GET(request: Request) {
     orderBy: [{ make: "asc" }, { model: "asc" }],
   });
 
+  // startDate < otherEnd && endDate > otherStart is the exact half-open
+  // interval overlap test, matching the DB's own half-open exclusion
+  // constraint — every row this returns is a real conflict.
   const overlappingContracts = await prisma.contract.findMany({
     where: {
       carId: { in: cars.map((c) => c.id) },
@@ -35,9 +38,7 @@ export async function GET(request: Request) {
       ...(excludeContractId ? { id: { not: excludeContractId } } : {}),
     },
   });
-  const conflictedCarIds = new Set(
-    overlappingContracts.filter((c) => isRealConflict(c.startDate, c.endDate, start, end)).map((c) => c.carId),
-  );
+  const conflictedCarIds = new Set(overlappingContracts.map((c) => c.carId));
 
   const available = cars.filter((car) => !conflictedCarIds.has(car.id));
 

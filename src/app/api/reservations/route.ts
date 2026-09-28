@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getCurrentCompanyId } from "@/lib/company";
-import { addNights, isRealConflict, parseDateOnly } from "@/lib/availability";
+import { addNights, parseDateOnly } from "@/lib/availability";
 
 interface CreateReservationBody {
   carId: string;
@@ -35,7 +35,7 @@ export async function POST(request: Request) {
         endDate: { gt: startDate },
       },
     });
-    if (overlappingContracts.some((c) => isRealConflict(c.startDate, c.endDate, startDate, endDate))) {
+    if (overlappingContracts.length > 0) {
       return NextResponse.json({ code: "CAR_UNAVAILABLE" }, { status: 409 });
     }
 
@@ -46,7 +46,7 @@ export async function POST(request: Request) {
         endDate: { gt: startDate },
       },
     });
-    if (overlappingReservations.some((r) => isRealConflict(r.startDate, r.endDate, startDate, endDate))) {
+    if (overlappingReservations.length > 0) {
       return NextResponse.json({ code: "CAR_UNAVAILABLE" }, { status: 409 });
     }
 

@@ -1,6 +1,6 @@
 import { Prisma } from "@/generated/prisma/client";
 import { prisma } from "@/lib/prisma";
-import { isRealConflict, nightsBetween, parseDateOnly } from "@/lib/availability";
+import { nightsBetween, parseDateOnly } from "@/lib/availability";
 import { isDriverValid, type DriverIdentity } from "@/lib/driver-validation";
 import { ALL_COUNTRIES, VALID_FOR_COUNTRY_KEYS } from "@/lib/contract-options";
 import { formatContractNumber } from "@/lib/contract-number";
@@ -75,6 +75,11 @@ export async function prepareContractWrite(
     return { error: "CAR_NOT_FOUND" };
   }
 
+  // startDate < otherEnd && endDate > otherStart is the exact half-open
+  // interval overlap test — every row this returns shares at least one
+  // night with the requested range (a same-day turnover, where one ends
+  // exactly where the other starts, never matches), so any match here is a
+  // real conflict with no further filtering needed.
   const overlapping = await prisma.contract.findMany({
     where: {
       carId: car.id,
@@ -84,7 +89,7 @@ export async function prepareContractWrite(
       ...(excludeContractId ? { id: { not: excludeContractId } } : {}),
     },
   });
-  if (overlapping.some((c) => isRealConflict(c.startDate, c.endDate, startDate, endDate))) {
+  if (overlapping.length > 0) {
     return { error: "CAR_UNAVAILABLE" };
   }
 
