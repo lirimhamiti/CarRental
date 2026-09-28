@@ -168,6 +168,7 @@ const mk: typeof en = {
       creating: "Се креира…",
       download: "Преземи договор",
       newContract: "Нов договор",
+      blank: "Празен договор",
     },
     errors: {
       MISSING_FIELDS: "Недостасуваат или се неважечки полиња",

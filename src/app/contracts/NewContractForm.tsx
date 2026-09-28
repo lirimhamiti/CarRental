@@ -29,6 +29,12 @@ function downloadPdf(contractId: string) {
   link.click();
 }
 
+function downloadBlankPdf() {
+  const link = document.createElement("a");
+  link.href = "/api/contracts/blank/pdf";
+  link.click();
+}
+
 // endDate is the checkout/return day (exclusive) — see nightsBetween in
 // src/lib/availability.ts for why. The UI still labels this "days".
 function nightsBetween(start: string, end: string): number {
@@ -424,6 +430,15 @@ export function NewContractForm({ dict }: { dict: Dictionary }) {
             className="rounded-lg border border-zinc-300 px-5 py-3 text-sm font-medium uppercase tracking-wider text-zinc-700 transition hover:bg-zinc-100 dark:border-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-800"
           >
             {dict.contracts.buttons.newContract}
+          </button>
+        )}
+        {!created && (
+          <button
+            type="button"
+            onClick={downloadBlankPdf}
+            className="rounded-lg border border-zinc-300 px-5 py-3 text-sm font-medium uppercase tracking-wider text-zinc-700 transition hover:bg-zinc-100 dark:border-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-800"
+          >
+            {dict.contracts.buttons.blank}
           </button>
         )}
       </div>

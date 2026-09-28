@@ -166,6 +166,7 @@ const en = {
       creating: "Creating…",
       download: "Download contract",
       newContract: "New contract",
+      blank: "Blank contract",
     },
     errors: {
       MISSING_FIELDS: "Missing or invalid fields",

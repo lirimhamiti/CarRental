@@ -178,7 +178,7 @@ function Field({
 export interface DriverPdfData {
   firstName: string;
   lastName: string;
-  birthDate: Date;
+  birthDate: Date | null;
   passportNumber: string | null;
   passportIssueDate: Date | null;
   passportExpiryDate: Date | null;
@@ -193,8 +193,8 @@ export interface ContractPdfData {
   companyName: string;
   drivers: DriverPdfData[];
   car: { make: string; model: string; year: number | null; plate: string };
-  startDate: Date;
-  endDate: Date;
+  startDate: Date | null;
+  endDate: Date | null;
   companyAddress: string | null;
   companyEmail: string | null;
   companyPhones: string[];
@@ -280,7 +280,7 @@ function DriverBlock({
     labelEn: "Name",
     value: `${driver.firstName} ${driver.lastName}`.toUpperCase(),
   };
-  const birthDate: FieldSpec = { labelMk: "Дата на раѓање", labelEn: "Date of birth", value: formatDate(driver.birthDate) };
+  const birthDate: FieldSpec = { labelMk: "Дата на раѓање", labelEn: "Date of birth", value: formatDateOrDash(driver.birthDate) };
   const passportFields: FieldSpec[] = [
     { labelMk: "Пасош N°", labelEn: "Passport N°", value: driver.passportNumber ?? "" },
     { labelMk: "Пасош издаден", labelEn: "Passport issued", value: formatDateOrDash(driver.passportIssueDate) },
@@ -302,7 +302,7 @@ function DriverBlock({
           left={passportField}
           right={licenceFields[i]}
           boldDivider
-          last={i === passportFields.length - 1}
+          boldBottom={i === passportFields.length - 1}
         />
       ))}
     </View>
@@ -354,13 +354,13 @@ export function ContractPdf({ data }: { data: ContractPdfData }) {
                   styles={styles}
                   labelMk="Датум на издавање"
                   labelEn="Date of issue"
-                  value={`${formatDate(data.startDate)} · 11:00`}
+                  value={data.startDate ? `${formatDate(data.startDate)} · 11:00` : ""}
                 />
                 <Field
                   styles={styles}
                   labelMk="Место и датум на прием"
                   labelEn="Place and date of return"
-                  value={`${formatDate(data.endDate)} · 21:00`}
+                  value={data.endDate ? `${formatDate(data.endDate)} · 21:00` : ""}
                   last
                 />
               </View>

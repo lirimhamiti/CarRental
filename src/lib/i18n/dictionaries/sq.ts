@@ -168,6 +168,7 @@ const sq: typeof en = {
       creating: "Duke krijuar…",
       download: "Shkarko kontratën",
       newContract: "Kontratë e re",
+      blank: "Kontratë bosh",
     },
     errors: {
       MISSING_FIELDS: "Fusha mungojnë ose janë të pavlefshme",
