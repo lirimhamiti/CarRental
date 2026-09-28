@@ -174,13 +174,15 @@ export function AvailabilityMatrix({
       })()
     : `${monthName(singleMonth!)} ${singleMonth!.getUTCFullYear()}`;
 
+  // endDate is the checkout/return day (exclusive) for nights/pricing — see
+  // nightsBetween — but the matrix colors it in too, so a booking/reservation
+  // visually spans every calendar day it touches, including the return day.
   function bookingFor(carId: string, date: Date): Booking | undefined {
-    // endDate is the checkout/return day (exclusive) — see nightsBetween.
-    return bookings.find((b) => b.carId === carId && date >= b.startDate && date < b.endDate);
+    return bookings.find((b) => b.carId === carId && date >= b.startDate && date <= b.endDate);
   }
 
   function reservationFor(carId: string, date: Date): ReservationRow | undefined {
-    return reservations.find((r) => r.carId === carId && date >= r.startDate && date < r.endDate);
+    return reservations.find((r) => r.carId === carId && date >= r.startDate && date <= r.endDate);
   }
 
   function openDialog(car: CarRow, date: Date) {
@@ -370,9 +372,9 @@ export function AvailabilityMatrix({
                   const isPast = date < today && !isToday;
                   const booking = bookingFor(car.id, date);
                   const reservation = !booking ? reservationFor(car.id, date) : undefined;
-                  // The last occupied day of a booking doubles as a same-day
-                  // handover — allowed to also start a new reservation.
-                  const isLastBookingDay = booking != null && isSameDay(date, addDays(booking.endDate, -1));
+                  // The last colored (return) day of a booking doubles as a
+                  // same-day handover — allowed to also start a new reservation.
+                  const isLastBookingDay = booking != null && isSameDay(date, booking.endDate);
                   const canStartHereFromBooking = !isPast && isLastBookingDay;
 
                   let cell: React.ReactNode;
