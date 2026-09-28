@@ -21,6 +21,7 @@ interface Booking {
 }
 
 interface ReservationRow {
+  id: string;
   carId: string;
   startDate: Date;
   endDate: Date;
@@ -112,11 +113,14 @@ export function AvailabilityMatrix({
   const [baseAnchor] = useState(() => initialPairAnchor(today));
   const [slot, setSlot] = useState(0);
   const [selected, setSelected] = useState<CarRow | null>(null);
+  const [editingReservationId, setEditingReservationId] = useState<string | null>(null);
   const [clientName, setClientName] = useState("");
   const [startDate, setStartDate] = useState(todayStr);
   const [daysField, setDaysField] = useState("1");
   const [endDate, setEndDate] = useState(() => addNights(todayStr, 1));
   const [submitting, setSubmitting] = useState(false);
+  const [confirmingDelete, setConfirmingDelete] = useState(false);
+  const [deleting, setDeleting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const todayCellRef = useRef<HTMLTableCellElement>(null);
@@ -181,16 +185,33 @@ export function AvailabilityMatrix({
 
   function openDialog(car: CarRow, date: Date) {
     setSelected(car);
+    setEditingReservationId(null);
     setClientName("");
     const start = toDateOnly(date);
     setStartDate(start);
     setDaysField("1");
     setEndDate(addNights(start, 1));
     setError(null);
+    setConfirmingDelete(false);
+  }
+
+  function openEditDialog(car: CarRow, reservation: ReservationRow) {
+    setSelected(car);
+    setEditingReservationId(reservation.id);
+    setClientName(reservation.clientName);
+    const start = toDateOnly(reservation.startDate);
+    const end = toDateOnly(reservation.endDate);
+    setStartDate(start);
+    setDaysField(String(nightsBetween(start, end)));
+    setEndDate(end);
+    setError(null);
+    setConfirmingDelete(false);
   }
 
   function closeDialog() {
     setSelected(null);
+    setEditingReservationId(null);
+    setConfirmingDelete(false);
   }
 
   function handleStartDateChange(value: string) {
@@ -224,16 +245,22 @@ export function AvailabilityMatrix({
     setError(null);
     setSubmitting(true);
     try {
-      const res = await fetch("/api/reservations", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          carId: selected.id,
-          startDate,
-          days: Number(daysField),
-          clientName,
-        }),
-      });
+      const res = editingReservationId
+        ? await fetch(`/api/reservations/${editingReservationId}`, {
+            method: "PATCH",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ startDate, days: Number(daysField), clientName }),
+          })
+        : await fetch("/api/reservations", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              carId: selected.id,
+              startDate,
+              days: Number(daysField),
+              clientName,
+            }),
+          });
       const data = await res.json();
       if (!res.ok) {
         setError(dict.contracts.errors[data.code as keyof typeof dict.contracts.errors] ?? dict.contracts.errors.GENERIC);
@@ -243,6 +270,23 @@ export function AvailabilityMatrix({
       router.refresh();
     } finally {
       setSubmitting(false);
+    }
+  }
+
+  async function handleDelete() {
+    if (!editingReservationId) return;
+    setError(null);
+    setDeleting(true);
+    try {
+      const res = await fetch(`/api/reservations/${editingReservationId}`, { method: "DELETE" });
+      if (!res.ok) {
+        setError(dict.contracts.errors.GENERIC);
+        return;
+      }
+      closeDialog();
+      router.refresh();
+    } finally {
+      setDeleting(false);
     }
   }
 
@@ -326,16 +370,15 @@ export function AvailabilityMatrix({
                   const isPast = date < today && !isToday;
                   const booking = bookingFor(car.id, date);
                   const reservation = !booking ? reservationFor(car.id, date) : undefined;
-                  const occupant = booking ?? reservation;
-                  // The last occupied day of any booking/reservation doubles as a
-                  // same-day handover — allowed to also start a new reservation.
-                  const isLastOccupiedDay = occupant != null && isSameDay(date, addDays(occupant.endDate, -1));
-                  const canStartHere = !isPast && (!occupant || isLastOccupiedDay);
+                  // The last occupied day of a booking doubles as a same-day
+                  // handover — allowed to also start a new reservation.
+                  const isLastBookingDay = booking != null && isSameDay(date, addDays(booking.endDate, -1));
+                  const canStartHereFromBooking = !isPast && isLastBookingDay;
 
                   let cell: React.ReactNode;
                   if (booking) {
                     const className = "inline-block h-5 w-5 rounded bg-red-400 dark:bg-red-500/70";
-                    cell = canStartHere ? (
+                    cell = canStartHereFromBooking ? (
                       <button
                         type="button"
                         onClick={() => openDialog(car, date)}
@@ -346,16 +389,13 @@ export function AvailabilityMatrix({
                       <span title={booking.driverNames} className={className} />
                     );
                   } else if (reservation) {
-                    const className = "inline-block h-5 w-5 rounded bg-amber-300 dark:bg-amber-500/70";
-                    cell = canStartHere ? (
+                    cell = (
                       <button
                         type="button"
-                        onClick={() => openDialog(car, date)}
-                        title={dict.availability.reserveTitle}
-                        className={`${className} transition hover:bg-amber-500 dark:hover:bg-amber-500`}
+                        onClick={() => openEditDialog(car, reservation)}
+                        title={reservation.clientName}
+                        className="inline-block h-5 w-5 rounded bg-amber-300 transition hover:bg-amber-500 dark:bg-amber-500/70 dark:hover:bg-amber-500"
                       />
-                    ) : (
-                      <span title={reservation.clientName} className={className} />
                     );
                   } else if (isPast) {
                     cell = <span className="inline-block h-5 w-5 rounded bg-zinc-100 dark:bg-zinc-800" />;
@@ -416,7 +456,7 @@ export function AvailabilityMatrix({
             onClick={(e) => e.stopPropagation()}
           >
             <h3 className="font-serif text-lg text-zinc-900 dark:text-zinc-50">
-              {dict.availability.reserveTitle}
+              {editingReservationId ? dict.availability.editTitle : dict.availability.reserveTitle}
             </h3>
             <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
               {selected.make} {selected.model} · {selected.plate}
@@ -436,7 +476,12 @@ export function AvailabilityMatrix({
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className={labelClass}>{dict.contracts.rental.startDate}</label>
-                  <DateInput required value={startDate} min={todayStr} onChange={handleStartDateChange} />
+                  <DateInput
+                    required
+                    value={startDate}
+                    min={editingReservationId ? undefined : todayStr}
+                    onChange={handleStartDateChange}
+                  />
                 </div>
                 <div>
                   <label className={labelClass}>{dict.contracts.rental.daysLabel}</label>
@@ -469,7 +514,11 @@ export function AvailabilityMatrix({
 
               <div className="flex gap-3">
                 <button type="submit" disabled={submitting} className={`flex-1 ${primaryButtonClass}`}>
-                  {submitting ? dict.contracts.buttons.creating : dict.availability.create}
+                  {submitting
+                    ? dict.availability.saving
+                    : editingReservationId
+                      ? dict.availability.save
+                      : dict.availability.create}
                 </button>
                 <button
                   type="button"
@@ -479,6 +528,41 @@ export function AvailabilityMatrix({
                   {dict.availability.cancel}
                 </button>
               </div>
+
+              {editingReservationId && (
+                <div className="border-t border-zinc-200 pt-4 dark:border-zinc-800">
+                  {confirmingDelete ? (
+                    <div className="flex items-center justify-between gap-3">
+                      <p className="text-xs text-zinc-500 dark:text-zinc-400">{dict.availability.confirmDelete}?</p>
+                      <div className="flex gap-2">
+                        <button
+                          type="button"
+                          onClick={handleDelete}
+                          disabled={deleting}
+                          className="rounded-lg bg-red-600 px-4 py-2 text-xs font-medium uppercase tracking-wider text-white transition hover:bg-red-700 disabled:cursor-not-allowed disabled:bg-red-300"
+                        >
+                          {deleting ? dict.availability.deleting : dict.availability.confirmDelete}
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setConfirmingDelete(false)}
+                          className="rounded-lg border border-zinc-300 px-4 py-2 text-xs font-medium uppercase tracking-wider text-zinc-700 transition hover:bg-zinc-100 dark:border-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-800"
+                        >
+                          {dict.availability.cancel}
+                        </button>
+                      </div>
+                    </div>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={() => setConfirmingDelete(true)}
+                      className="text-xs font-medium uppercase tracking-wider text-red-600 transition hover:underline dark:text-red-400"
+                    >
+                      {dict.availability.deleteButton}
+                    </button>
+                  )}
+                </div>
+              )}
             </form>
           </div>
         </div>
