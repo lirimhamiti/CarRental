@@ -7,9 +7,13 @@ import { interpolate, type Dictionary } from "@/lib/i18n/get-dictionary";
 
 const today = new Date().toISOString().slice(0, 10);
 
-function addYears(dateStr: string, years: number): string {
+// The expiry an issue date implies is one day short of the round
+// anniversary (e.g. issued 01.06.2021 -> expires 31.05.2031, not 01.06.2031),
+// matching how passport/licence validity periods are actually printed.
+function addYearsLessOneDay(dateStr: string, years: number): string {
   const d = new Date(`${dateStr}T00:00:00Z`);
   d.setUTCFullYear(d.getUTCFullYear() + years);
+  d.setUTCDate(d.getUTCDate() - 1);
   return d.toISOString().slice(0, 10);
 }
 
@@ -116,14 +120,14 @@ export function DriverFields({
   function handlePassportIssueChange(value: string) {
     onChange({
       passportIssueDate: value,
-      passportExpiryDate: value ? addYears(value, 10) : driver.passportExpiryDate,
+      passportExpiryDate: value ? addYearsLessOneDay(value, 10) : driver.passportExpiryDate,
     });
   }
 
   function handleLicenceIssueChange(value: string) {
     onChange({
       licenceIssueDate: value,
-      licenceExpiryDate: value ? addYears(value, 10) : driver.licenceExpiryDate,
+      licenceExpiryDate: value ? addYearsLessOneDay(value, 10) : driver.licenceExpiryDate,
     });
   }
 

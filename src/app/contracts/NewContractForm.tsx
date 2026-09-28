@@ -53,7 +53,7 @@ export function NewContractForm({ dict }: { dict: Dictionary }) {
   const [endDate, setEndDate] = useState(() => addNights(today, 1));
   const [totalPriceField, setTotalPriceField] = useState("");
   const [optionKeys, setOptionKeys] = useState<string[]>(["crossBorder"]);
-  const [validForCountries, setValidForCountries] = useState<string[]>([]);
+  const [validForCountries, setValidForCountries] = useState<string[]>([ALL_COUNTRIES]);
 
   const [availableCars, setAvailableCars] = useState<AvailableCar[]>([]);
   const [carId, setCarId] = useState("");
