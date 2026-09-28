@@ -19,109 +19,124 @@ const damageDiagramPath = path.join(process.cwd(), "src/assets/images/damage-che
 
 const border = "#000";
 
-const styles = StyleSheet.create({
-  page: { padding: 22, fontSize: 9.5, fontFamily: "Roboto" },
-  outer: { borderWidth: 1, borderColor: border },
+// The document must always fit on exactly one page, but each extra driver
+// adds a whole extra block of rows. Rather than letting content overflow,
+// every font size and padding scales down slightly per extra driver — border
+// widths and the page's own margin stay fixed so the page still reads as
+// crisp at any driver count, just a bit more compact. Tuned empirically
+// against a 2-driver contract (which used to spill a few lines onto page 2).
+function scaleForDriverCount(count: number): number {
+  return 1 / (1 + Math.max(0, count - 1) * 0.16);
+}
 
-  headerRow: { flexDirection: "row", borderBottomWidth: 1, borderBottomColor: border },
-  headerLeft: { width: "50%", padding: 18, justifyContent: "center" },
-  headerRight: {
-    width: "50%",
-    padding: 18,
-    borderLeftWidth: 1,
-    borderLeftColor: border,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  companyName: { fontSize: 19, fontWeight: "bold" },
-  companyContact: { fontSize: 9, color: "#333", marginTop: 3.5 },
-  titleMk: { fontSize: 15.5, fontWeight: "bold", textAlign: "center" },
-  titleEn: { fontSize: 11.5, textAlign: "center", marginTop: 4, color: "#333" },
-  contractNo: { fontSize: 10, marginTop: 7, textAlign: "center" },
+function createStyles(scale: number) {
+  const f = (n: number) => n * scale;
+  return StyleSheet.create({
+    page: { padding: 22, fontSize: f(9.5), fontFamily: "Roboto" },
+    outer: { borderWidth: 1, borderColor: border },
 
-  panelsRow: { flexDirection: "row", borderBottomWidth: 1, borderBottomColor: border },
-  panel: { width: "50%" },
-  panelRight: { borderLeftWidth: 1, borderLeftColor: border },
-  sectionHeader: {
-    padding: 6,
-    borderBottomWidth: 1,
-    borderBottomColor: border,
-    backgroundColor: "#f0f0f0",
-    fontWeight: "bold",
-    fontSize: 9.5,
-  },
+    headerRow: { flexDirection: "row", borderBottomWidth: 1, borderBottomColor: border },
+    headerLeft: { width: "50%", padding: f(18), justifyContent: "center" },
+    headerRight: {
+      width: "50%",
+      padding: f(18),
+      borderLeftWidth: 1,
+      borderLeftColor: border,
+      alignItems: "center",
+      justifyContent: "center",
+    },
+    companyName: { fontSize: f(19), fontWeight: "bold" },
+    companyContact: { fontSize: f(9), color: "#333", marginTop: f(3.5) },
+    titleMk: { fontSize: f(15.5), fontWeight: "bold", textAlign: "center" },
+    titleEn: { fontSize: f(11.5), textAlign: "center", marginTop: f(4), color: "#333" },
+    contractNo: { fontSize: f(10), marginTop: f(7), textAlign: "center" },
 
-  field: { flexDirection: "row", borderBottomWidth: 1, borderBottomColor: "#ccc" },
-  fieldLast: { flexDirection: "row" },
-  fieldLabel: { width: "45%", padding: 7, color: "#333" },
-  fieldLabelMk: { fontWeight: "bold", fontSize: 8.5 },
-  fieldLabelEn: { fontSize: 8.5, color: "#555" },
-  fieldValue: {
-    width: "55%",
-    padding: 7,
-    borderLeftWidth: 1,
-    borderLeftColor: "#ccc",
-    justifyContent: "center",
-  },
-  // A narrower value column for fields whose value is short (a "-"/"YES"
-  // placeholder rather than real filled-in text) so more width goes to the
-  // (often two-line, bilingual) label instead of sitting mostly blank.
-  fieldLabelWide: { width: "65%", padding: 7, color: "#333" },
-  fieldValueNarrow: {
-    width: "35%",
-    padding: 7,
-    borderLeftWidth: 1,
-    borderLeftColor: "#ccc",
-    justifyContent: "center",
-  },
+    panelsRow: { flexDirection: "row", borderBottomWidth: 1, borderBottomColor: border },
+    panel: { width: "50%" },
+    panelRight: { borderLeftWidth: 1, borderLeftColor: border },
+    sectionHeader: {
+      padding: f(6),
+      borderBottomWidth: 1,
+      borderBottomColor: border,
+      backgroundColor: "#f0f0f0",
+      fontWeight: "bold",
+      fontSize: f(9.5),
+    },
 
-  // A dual-column field row where the left and right halves are siblings in
-  // the SAME row (rather than two independently stacked columns), so a
-  // border always spans a real row and two columns with different field
-  // counts never end up with a stray, misaligned half-width line.
-  dualRow: { flexDirection: "row", borderBottomWidth: 1, borderBottomColor: "#ccc" },
-  dualRowLast: { flexDirection: "row" },
-  dualRowBold: { flexDirection: "row", borderBottomWidth: 2, borderBottomColor: border },
-  dualHalf: { width: "50%", flexDirection: "row" },
-  dualHalfRight: { borderLeftWidth: 1, borderLeftColor: border },
-  dualHalfRightBold: { borderLeftWidth: 2, borderLeftColor: border },
+    field: { flexDirection: "row", borderBottomWidth: 1, borderBottomColor: "#ccc" },
+    fieldLast: { flexDirection: "row" },
+    fieldLabel: { width: "45%", padding: f(7), color: "#333" },
+    fieldLabelMk: { fontWeight: "bold", fontSize: f(8.5) },
+    fieldLabelEn: { fontSize: f(8.5), color: "#555" },
+    fieldValue: {
+      width: "55%",
+      padding: f(7),
+      borderLeftWidth: 1,
+      borderLeftColor: "#ccc",
+      justifyContent: "center",
+    },
+    // A narrower value column for fields whose value is short (a "-"/"YES"
+    // placeholder rather than real filled-in text) so more width goes to the
+    // (often two-line, bilingual) label instead of sitting mostly blank.
+    fieldLabelWide: { width: "65%", padding: f(7), color: "#333" },
+    fieldValueNarrow: {
+      width: "35%",
+      padding: f(7),
+      borderLeftWidth: 1,
+      borderLeftColor: "#ccc",
+      justifyContent: "center",
+    },
 
-  footer: {
-    position: "absolute",
-    bottom: 22,
-    left: 22,
-    right: 22,
-    flexDirection: "row",
-    alignItems: "flex-end",
-  },
-  footerBlock: { width: "35%" },
-  footerSpacer: { width: "30%" },
-  footerLine: {
-    borderTopWidth: 1,
-    borderTopColor: border,
-    paddingTop: 5,
-    textAlign: "center",
-    fontSize: 9,
-  },
+    // A dual-column field row where the left and right halves are siblings in
+    // the SAME row (rather than two independently stacked columns), so a
+    // border always spans a real row and two columns with different field
+    // counts never end up with a stray, misaligned half-width line.
+    dualRow: { flexDirection: "row", borderBottomWidth: 1, borderBottomColor: "#ccc" },
+    dualRowLast: { flexDirection: "row" },
+    dualRowBold: { flexDirection: "row", borderBottomWidth: 2, borderBottomColor: border },
+    dualHalf: { width: "50%", flexDirection: "row" },
+    dualHalfRight: { borderLeftWidth: 1, borderLeftColor: border },
+    dualHalfRightBold: { borderLeftWidth: 2, borderLeftColor: border },
 
-  damageRow: { flexDirection: "row", borderBottomWidth: 1, borderBottomColor: border },
-  damageImageCell: { width: "62%", padding: 10, alignItems: "center", justifyContent: "center" },
-  damageImage: { width: 325 },
-  damageRightWrap: { width: "38%", borderLeftWidth: 1, borderLeftColor: border },
-  damageColumnsRow: { flexDirection: "row", borderBottomWidth: 1, borderBottomColor: border },
-  damageMiddleCol: { width: "50%", borderRightWidth: 1, borderRightColor: border },
-  damageRightCol: { width: "50%" },
-  validForRow: { flexDirection: "row" },
+    footer: {
+      position: "absolute",
+      bottom: 22,
+      left: 22,
+      right: 22,
+      flexDirection: "row",
+      alignItems: "flex-end",
+    },
+    footerBlock: { width: "35%" },
+    footerSpacer: { width: "30%" },
+    footerLine: {
+      borderTopWidth: 1,
+      borderTopColor: border,
+      paddingTop: f(5),
+      textAlign: "center",
+      fontSize: f(9),
+    },
 
-  notice: {
-    padding: 10,
-    borderBottomWidth: 1,
-    borderBottomColor: border,
-    fontSize: 7.5,
-    lineHeight: 1.5,
-    color: "#333",
-  },
-});
+    damageRow: { flexDirection: "row", borderBottomWidth: 1, borderBottomColor: border },
+    damageImageCell: { width: "62%", padding: f(10), alignItems: "center", justifyContent: "center" },
+    damageImage: { width: f(325) },
+    damageRightWrap: { width: "38%", borderLeftWidth: 1, borderLeftColor: border },
+    damageColumnsRow: { flexDirection: "row", borderBottomWidth: 1, borderBottomColor: border },
+    damageMiddleCol: { width: "50%", borderRightWidth: 1, borderRightColor: border },
+    damageRightCol: { width: "50%" },
+    validForRow: { flexDirection: "row" },
+
+    notice: {
+      padding: f(10),
+      borderBottomWidth: 1,
+      borderBottomColor: border,
+      fontSize: f(7.5),
+      lineHeight: 1.5,
+      color: "#333",
+    },
+  });
+}
+
+type Styles = ReturnType<typeof createStyles>;
 
 const NOTICE_TEXT =
   "IMPORTANT If an accident occurs (a) it must be reported immediately to the company; " +
@@ -133,12 +148,14 @@ const NOTICE_TEXT =
   "they are missing on return. SPARE WHEEL, BRACE & JACK.";
 
 function Field({
+  styles,
   labelMk,
   labelEn,
   value,
   last,
   compact,
 }: {
+  styles: Styles;
   labelMk: string;
   labelEn: string;
   value: string;
@@ -203,7 +220,7 @@ interface FieldSpec {
   value: string;
 }
 
-function DualFieldHalf({ field }: { field: FieldSpec | null }) {
+function DualFieldHalf({ field, styles }: { field: FieldSpec | null; styles: Styles }) {
   if (!field) return <View style={{ width: "100%" }} />;
   return (
     <>
@@ -219,12 +236,14 @@ function DualFieldHalf({ field }: { field: FieldSpec | null }) {
 }
 
 function DualField({
+  styles,
   left,
   right,
   boldBottom,
   boldDivider,
   last,
 }: {
+  styles: Styles;
   left: FieldSpec | null;
   right: FieldSpec | null;
   boldBottom?: boolean;
@@ -235,16 +254,26 @@ function DualField({
   return (
     <View style={rowStyle}>
       <View style={styles.dualHalf}>
-        <DualFieldHalf field={left} />
+        <DualFieldHalf field={left} styles={styles} />
       </View>
       <View style={[styles.dualHalf, boldDivider ? styles.dualHalfRightBold : styles.dualHalfRight]}>
-        <DualFieldHalf field={right} />
+        <DualFieldHalf field={right} styles={styles} />
       </View>
     </View>
   );
 }
 
-function DriverBlock({ index, total, driver }: { index: number; total: number; driver: DriverPdfData }) {
+function DriverBlock({
+  styles,
+  index,
+  total,
+  driver,
+}: {
+  styles: Styles;
+  index: number;
+  total: number;
+  driver: DriverPdfData;
+}) {
   const label = total > 1 ? `Возач ${index + 1} / Driver ${index + 1}` : "Изнајмувач / Renter";
   const name: FieldSpec = {
     labelMk: "Име и презиме",
@@ -265,10 +294,11 @@ function DriverBlock({ index, total, driver }: { index: number; total: number; d
   return (
     <View>
       <Text style={styles.sectionHeader}>{label}</Text>
-      <DualField left={name} right={birthDate} boldBottom />
+      <DualField styles={styles} left={name} right={birthDate} boldBottom />
       {passportFields.map((passportField, i) => (
         <DualField
           key={i}
+          styles={styles}
           left={passportField}
           right={licenceFields[i]}
           boldDivider
@@ -280,6 +310,7 @@ function DriverBlock({ index, total, driver }: { index: number; total: number; d
 }
 
 export function ContractPdf({ data }: { data: ContractPdfData }) {
+  const styles = createStyles(scaleForDriverCount(data.drivers.length));
   return (
     <Document>
       <Page size="A4" style={styles.page}>
@@ -303,7 +334,7 @@ export function ContractPdf({ data }: { data: ContractPdfData }) {
           </View>
 
           {data.drivers.map((driver, index) => (
-            <DriverBlock key={index} index={index} total={data.drivers.length} driver={driver} />
+            <DriverBlock key={index} styles={styles} index={index} total={data.drivers.length} driver={driver} />
           ))}
 
           <View>
@@ -311,19 +342,22 @@ export function ContractPdf({ data }: { data: ContractPdfData }) {
             <View style={styles.panelsRow}>
               <View style={styles.panel}>
                 <Field
+                  styles={styles}
                   labelMk="Тип на кола"
                   labelEn="Car type"
                   value={`${data.car.make} ${data.car.model}`}
                 />
-                <Field labelMk="Регистрација" labelEn="Licence N°" value={data.car.plate} last />
+                <Field styles={styles} labelMk="Регистрација" labelEn="Licence N°" value={data.car.plate} last />
               </View>
               <View style={[styles.panel, styles.panelRight]}>
                 <Field
+                  styles={styles}
                   labelMk="Датум на издавање"
                   labelEn="Date of issue"
                   value={`${formatDate(data.startDate)} · 11:00`}
                 />
                 <Field
+                  styles={styles}
                   labelMk="Место и датум на прием"
                   labelEn="Place and date of return"
                   value={`${formatDate(data.endDate)} · 21:00`}
@@ -346,6 +380,7 @@ export function ContractPdf({ data }: { data: ContractPdfData }) {
                   {(Object.keys(OPTION_LABELS_PDF) as ContractOptionKey[]).map((key, i, arr) => (
                     <Field
                       key={key}
+                      styles={styles}
                       labelMk={OPTION_LABELS_PDF[key].mk}
                       labelEn={OPTION_LABELS_PDF[key].en}
                       value={yesOrDash(data[key])}
@@ -355,15 +390,16 @@ export function ContractPdf({ data }: { data: ContractPdfData }) {
                   ))}
                 </View>
                 <View style={styles.damageRightCol}>
-                  <Field labelMk="Неограничена км" labelEn="Unlimited km" value="" compact />
-                  <Field labelMk="Километри (излез)" labelEn="Kilometri (out)" value="" compact />
-                  <Field labelMk="Километри (влез)" labelEn="Kilometri (in)" value="" compact />
-                  <Field labelMk="18% ДДВ" labelEn="18% VAT" value="" compact />
-                  <Field labelMk="Гориво" labelEn="Gasoline" value="" compact last />
+                  <Field styles={styles} labelMk="Неограничена км" labelEn="Unlimited km" value="" compact />
+                  <Field styles={styles} labelMk="Километри (излез)" labelEn="Kilometri (out)" value="" compact />
+                  <Field styles={styles} labelMk="Километри (влез)" labelEn="Kilometri (in)" value="" compact />
+                  <Field styles={styles} labelMk="18% ДДВ" labelEn="18% VAT" value="" compact />
+                  <Field styles={styles} labelMk="Гориво" labelEn="Gasoline" value="" compact last />
                 </View>
               </View>
               <View style={styles.validForRow}>
                 <Field
+                  styles={styles}
                   labelMk="Важи за"
                   labelEn="Valid for"
                   value={formatCountriesForPdf(data.validForCountries)}
