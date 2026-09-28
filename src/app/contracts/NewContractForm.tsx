@@ -19,6 +19,9 @@ interface AvailableCar {
 }
 
 const today = new Date().toISOString().slice(0, 10);
+// Allows backdating a contract by a day (e.g. paperwork signed the next
+// morning for a handover that actually happened yesterday).
+const yesterday = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString().slice(0, 10);
 
 function downloadPdf(contractId: string) {
   const link = document.createElement("a");
@@ -269,7 +272,7 @@ export function NewContractForm({ dict }: { dict: Dictionary }) {
           <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
             <div>
               <label className={labelClass}>{dict.contracts.rental.startDate}</label>
-              <DateInput required value={startDate} min={today} onChange={handleStartDateChange} />
+              <DateInput required value={startDate} min={yesterday} onChange={handleStartDateChange} />
             </div>
             <div>
               <label className={labelClass}>{dict.contracts.rental.daysLabel}</label>
