@@ -372,10 +372,13 @@ export function AvailabilityMatrix({
                   const isPast = date < today && !isToday;
                   const booking = bookingFor(car.id, date);
                   const reservation = !booking ? reservationFor(car.id, date) : undefined;
-                  // The last colored (return) day of a booking doubles as a
-                  // same-day handover — allowed to also start a new reservation.
+                  // The last colored (return) day of a booking/reservation
+                  // doubles as a same-day handover — allowed to also start a
+                  // new reservation, rather than editing the existing one.
                   const isLastBookingDay = booking != null && isSameDay(date, booking.endDate);
                   const canStartHereFromBooking = !isPast && isLastBookingDay;
+                  const isLastReservationDay = reservation != null && isSameDay(date, reservation.endDate);
+                  const canStartHereFromReservation = !isPast && isLastReservationDay;
 
                   let cell: React.ReactNode;
                   if (booking) {
@@ -391,12 +394,20 @@ export function AvailabilityMatrix({
                       <span title={booking.driverNames} className={className} />
                     );
                   } else if (reservation) {
-                    cell = (
+                    const className = "inline-block h-5 w-5 rounded bg-amber-300 dark:bg-amber-500/70";
+                    cell = canStartHereFromReservation ? (
+                      <button
+                        type="button"
+                        onClick={() => openDialog(car, date)}
+                        title={dict.availability.reserveTitle}
+                        className={`${className} transition hover:bg-amber-500 dark:hover:bg-amber-500`}
+                      />
+                    ) : (
                       <button
                         type="button"
                         onClick={() => openEditDialog(car, reservation)}
                         title={reservation.clientName}
-                        className="inline-block h-5 w-5 rounded bg-amber-300 transition hover:bg-amber-500 dark:bg-amber-500/70 dark:hover:bg-amber-500"
+                        className={`${className} transition hover:bg-amber-500 dark:hover:bg-amber-500`}
                       />
                     );
                   } else if (isPast) {
