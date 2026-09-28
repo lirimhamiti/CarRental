@@ -20,45 +20,56 @@ const damageDiagramPath = path.join(process.cwd(), "src/assets/images/damage-che
 const border = "#000";
 
 const styles = StyleSheet.create({
-  page: { padding: 22, fontSize: 8.5, fontFamily: "Roboto" },
+  page: { padding: 22, fontSize: 9.5, fontFamily: "Roboto" },
   outer: { borderWidth: 1, borderColor: border },
 
   headerRow: { flexDirection: "row", borderBottomWidth: 1, borderBottomColor: border },
-  headerLeft: { width: "50%", padding: 8, justifyContent: "center" },
+  headerLeft: { width: "50%", padding: 18, justifyContent: "center" },
   headerRight: {
     width: "50%",
-    padding: 8,
+    padding: 18,
     borderLeftWidth: 1,
     borderLeftColor: border,
     alignItems: "center",
     justifyContent: "center",
   },
-  companyName: { fontSize: 13, fontWeight: "bold" },
-  companyContact: { fontSize: 7, color: "#333", marginTop: 2 },
-  titleMk: { fontSize: 10, fontWeight: "bold", textAlign: "center" },
-  titleEn: { fontSize: 8.5, textAlign: "center", marginTop: 2, color: "#333" },
-  contractNo: { fontSize: 8.5, marginTop: 4, textAlign: "center" },
+  companyName: { fontSize: 19, fontWeight: "bold" },
+  companyContact: { fontSize: 9, color: "#333", marginTop: 3.5 },
+  titleMk: { fontSize: 15.5, fontWeight: "bold", textAlign: "center" },
+  titleEn: { fontSize: 11.5, textAlign: "center", marginTop: 4, color: "#333" },
+  contractNo: { fontSize: 10, marginTop: 7, textAlign: "center" },
 
   panelsRow: { flexDirection: "row", borderBottomWidth: 1, borderBottomColor: border },
   panel: { width: "50%" },
   panelRight: { borderLeftWidth: 1, borderLeftColor: border },
   sectionHeader: {
-    padding: 3,
+    padding: 6,
     borderBottomWidth: 1,
     borderBottomColor: border,
     backgroundColor: "#f0f0f0",
     fontWeight: "bold",
-    fontSize: 8,
+    fontSize: 9.5,
   },
 
   field: { flexDirection: "row", borderBottomWidth: 1, borderBottomColor: "#ccc" },
   fieldLast: { flexDirection: "row" },
-  fieldLabel: { width: "45%", padding: 3, color: "#333" },
-  fieldLabelMk: { fontWeight: "bold", fontSize: 7.5 },
-  fieldLabelEn: { fontSize: 7.5, color: "#555" },
+  fieldLabel: { width: "45%", padding: 7, color: "#333" },
+  fieldLabelMk: { fontWeight: "bold", fontSize: 8.5 },
+  fieldLabelEn: { fontSize: 8.5, color: "#555" },
   fieldValue: {
     width: "55%",
-    padding: 3,
+    padding: 7,
+    borderLeftWidth: 1,
+    borderLeftColor: "#ccc",
+    justifyContent: "center",
+  },
+  // A narrower value column for fields whose value is short (a "-"/"YES"
+  // placeholder rather than real filled-in text) so more width goes to the
+  // (often two-line, bilingual) label instead of sitting mostly blank.
+  fieldLabelWide: { width: "65%", padding: 7, color: "#333" },
+  fieldValueNarrow: {
+    width: "35%",
+    padding: 7,
     borderLeftWidth: 1,
     borderLeftColor: "#ccc",
     justifyContent: "center",
@@ -88,23 +99,26 @@ const styles = StyleSheet.create({
   footerLine: {
     borderTopWidth: 1,
     borderTopColor: border,
-    paddingTop: 3,
+    paddingTop: 5,
     textAlign: "center",
-    fontSize: 7.5,
+    fontSize: 9,
   },
 
   damageRow: { flexDirection: "row", borderBottomWidth: 1, borderBottomColor: border },
-  damageCell: { width: "55%", padding: 6, alignItems: "center", justifyContent: "center" },
-  damageImage: { width: 210 },
-  damageMiddle: { width: "23%", borderLeftWidth: 1, borderLeftColor: border },
-  damageRight: { width: "22%", borderLeftWidth: 1, borderLeftColor: border },
+  damageImageCell: { width: "62%", padding: 10, alignItems: "center", justifyContent: "center" },
+  damageImage: { width: 325 },
+  damageRightWrap: { width: "38%", borderLeftWidth: 1, borderLeftColor: border },
+  damageColumnsRow: { flexDirection: "row", borderBottomWidth: 1, borderBottomColor: border },
+  damageMiddleCol: { width: "50%", borderRightWidth: 1, borderRightColor: border },
+  damageRightCol: { width: "50%" },
+  validForRow: { flexDirection: "row" },
 
   notice: {
-    padding: 5,
+    padding: 10,
     borderBottomWidth: 1,
     borderBottomColor: border,
-    fontSize: 6,
-    lineHeight: 1.3,
+    fontSize: 7.5,
+    lineHeight: 1.5,
     color: "#333",
   },
 });
@@ -123,19 +137,21 @@ function Field({
   labelEn,
   value,
   last,
+  compact,
 }: {
   labelMk: string;
   labelEn: string;
   value: string;
   last?: boolean;
+  compact?: boolean;
 }) {
   return (
     <View style={last ? styles.fieldLast : styles.field}>
-      <View style={styles.fieldLabel}>
+      <View style={compact ? styles.fieldLabelWide : styles.fieldLabel}>
         <Text style={styles.fieldLabelMk}>{labelMk}</Text>
         <Text style={styles.fieldLabelEn}>{labelEn}</Text>
       </View>
-      <View style={styles.fieldValue}>
+      <View style={compact ? styles.fieldValueNarrow : styles.fieldValue}>
         <Text>{value || "-"}</Text>
       </View>
     </View>
@@ -169,15 +185,16 @@ export interface ContractPdfData {
   gps: boolean;
   babySeat: boolean;
   insurance: boolean;
+  outOfHours: boolean;
   validForCountries: string[];
-}
-
-function yesOrDash(value: boolean): string {
-  return value ? "YES" : "-";
 }
 
 function formatDateOrDash(date: Date | null): string {
   return date ? formatDate(date) : "-";
+}
+
+function yesOrDash(value: boolean): string {
+  return value ? "YES" : "-";
 }
 
 interface FieldSpec {
@@ -318,28 +335,41 @@ export function ContractPdf({ data }: { data: ContractPdfData }) {
 
           <Text style={styles.sectionHeader}>Проверка на возилото / Damage check form</Text>
           <View style={styles.damageRow}>
-            <View style={styles.damageCell}>
+            <View style={styles.damageImageCell}>
               {/* eslint-disable-next-line jsx-a11y/alt-text -- react-pdf's Image is a PDF
                   drawing primitive, not an HTML img; it has no alt prop. */}
               <Image src={damageDiagramPath} style={styles.damageImage} />
             </View>
-            <View style={styles.damageMiddle}>
-              {(Object.keys(OPTION_LABELS_PDF) as ContractOptionKey[]).map((key) => (
-                <Field key={key} labelMk={OPTION_LABELS_PDF[key].mk} labelEn={OPTION_LABELS_PDF[key].en} value={yesOrDash(data[key])} />
-              ))}
-              <Field
-                labelMk="Важи за"
-                labelEn="Valid for"
-                value={formatCountriesForPdf(data.validForCountries)}
-                last
-              />
-            </View>
-            <View style={styles.damageRight}>
-              <Field labelMk="Неограничена км" labelEn="Unlimited km" value="" />
-              <Field labelMk="Километри (излез)" labelEn="Kilometri (out)" value="" />
-              <Field labelMk="Километри (влез)" labelEn="Kilometri (in)" value="" />
-              <Field labelMk="18% ДДВ" labelEn="18% VAT" value="" />
-              <Field labelMk="Гориво" labelEn="Gasoline" value="" last />
+            <View style={styles.damageRightWrap}>
+              <View style={styles.damageColumnsRow}>
+                <View style={styles.damageMiddleCol}>
+                  {(Object.keys(OPTION_LABELS_PDF) as ContractOptionKey[]).map((key, i, arr) => (
+                    <Field
+                      key={key}
+                      labelMk={OPTION_LABELS_PDF[key].mk}
+                      labelEn={OPTION_LABELS_PDF[key].en}
+                      value={yesOrDash(data[key])}
+                      compact
+                      last={i === arr.length - 1}
+                    />
+                  ))}
+                </View>
+                <View style={styles.damageRightCol}>
+                  <Field labelMk="Неограничена км" labelEn="Unlimited km" value="" compact />
+                  <Field labelMk="Километри (излез)" labelEn="Kilometri (out)" value="" compact />
+                  <Field labelMk="Километри (влез)" labelEn="Kilometri (in)" value="" compact />
+                  <Field labelMk="18% ДДВ" labelEn="18% VAT" value="" compact />
+                  <Field labelMk="Гориво" labelEn="Gasoline" value="" compact last />
+                </View>
+              </View>
+              <View style={styles.validForRow}>
+                <Field
+                  labelMk="Важи за"
+                  labelEn="Valid for"
+                  value={formatCountriesForPdf(data.validForCountries)}
+                  last
+                />
+              </View>
             </View>
           </View>
 

@@ -19,6 +19,7 @@ interface CreateContractBody {
   gps?: boolean;
   babySeat?: boolean;
   insurance?: boolean;
+  outOfHours?: boolean;
   validForCountries?: string[];
 }
 
@@ -109,6 +110,7 @@ export async function POST(request: Request) {
           gps: body.gps ?? false,
           babySeat: body.babySeat ?? false,
           insurance: body.insurance ?? false,
+          outOfHours: body.outOfHours ?? false,
           validForCountries,
           drivers: {
             create: clientIds.map((clientId, order) => ({ clientId, order })),

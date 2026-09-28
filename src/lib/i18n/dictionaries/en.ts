@@ -145,6 +145,7 @@ const en = {
       gps: "GPS",
       babySeat: "Baby seat",
       insurance: "Insurance",
+      outOfHours: "Out of hours",
     },
     validFor: {
       title: "Valid for",

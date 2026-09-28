@@ -41,6 +41,7 @@ export async function GET(
         gps: contract.gps,
         babySeat: contract.babySeat,
         insurance: contract.insurance,
+        outOfHours: contract.outOfHours,
         validForCountries: contract.validForCountries,
       }}
     />,

@@ -153,6 +153,7 @@ model Contract {
   gps               Boolean        @default(false)
   babySeat          Boolean        @default(false)
   insurance         Boolean        @default(false)
+  outOfHours        Boolean        @default(false)
   validForCountries String[]       @default([])
   createdAt         DateTime       @default(now())
 

@@ -147,6 +147,7 @@ const sq: typeof en = {
       gps: "GPS",
       babySeat: "Sexholinë për bebe",
       insurance: "Sigurim",
+      outOfHours: "Jashtë orarit",
     },
     validFor: {
       title: "Vlen për",

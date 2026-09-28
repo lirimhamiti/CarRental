@@ -1,6 +1,6 @@
-// The 4 checkbox-style contract options, shown together in one compact
-// multi-select-with-checkboxes control instead of 4 separate rows.
-export const CONTRACT_OPTION_KEYS = ["crossBorder", "gps", "babySeat", "insurance"] as const;
+// The checkbox-style contract options, shown together in one compact
+// multi-select-with-checkboxes control instead of separate rows.
+export const CONTRACT_OPTION_KEYS = ["crossBorder", "gps", "babySeat", "insurance", "outOfHours"] as const;
 export type ContractOptionKey = (typeof CONTRACT_OPTION_KEYS)[number];
 
 export const ALL_COUNTRIES = "ALL";
@@ -16,6 +16,7 @@ export const OPTION_LABELS_PDF: Record<ContractOptionKey, { mk: string; en: stri
   gps: { mk: "ГПС", en: "GPS" },
   babySeat: { mk: "Седиште за бебе", en: "Baby seat" },
   insurance: { mk: "Осигурување", en: "Insurance" },
+  outOfHours: { mk: "Надвор од работно време", en: "Out of hours" },
 };
 
 export const COUNTRY_LABELS_PDF: Record<string, { mk: string; en: string }> = {

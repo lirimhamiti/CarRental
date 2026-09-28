@@ -147,6 +147,7 @@ const mk: typeof en = {
       gps: "ГПС",
       babySeat: "Седиште за бебе",
       insurance: "Осигурување",
+      outOfHours: "Надвор од работно време",
     },
     validFor: {
       title: "Важи за",

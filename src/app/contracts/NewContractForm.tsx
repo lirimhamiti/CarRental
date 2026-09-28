@@ -160,6 +160,7 @@ export function NewContractForm({ dict }: { dict: Dictionary }) {
           gps: optionKeys.includes("gps"),
           babySeat: optionKeys.includes("babySeat"),
           insurance: optionKeys.includes("insurance"),
+          outOfHours: optionKeys.includes("outOfHours"),
           validForCountries,
         }),
       });
