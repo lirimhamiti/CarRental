@@ -2,9 +2,12 @@ import { NextResponse } from "next/server";
 import { Prisma } from "@/generated/prisma/client";
 import { prisma } from "@/lib/prisma";
 import { getCurrentCompanyId } from "@/lib/company";
-import { isRealConflict, nightsBetween, parseDateOnly } from "@/lib/availability";
-import { isDriverValid, type DriverIdentity } from "@/lib/driver-validation";
-import { ALL_COUNTRIES, VALID_FOR_COUNTRY_KEYS } from "@/lib/contract-options";
+import {
+  contractWriteErrorStatus,
+  isContractBodyValid,
+  prepareContractWrite,
+  type ContractBody,
+} from "@/lib/contract-service";
 
 const PAGE_SIZE = 20;
 
@@ -61,115 +64,37 @@ export async function GET(request: Request) {
   });
 }
 
-interface DriverBody extends DriverIdentity {
-  clientId?: string;
-}
-
-interface CreateContractBody {
-  drivers: DriverBody[];
-  carId: string;
-  startDate: string;
-  endDate: string;
-  totalPrice?: number;
-  crossBorder?: boolean;
-  gps?: boolean;
-  babySeat?: boolean;
-  insurance?: boolean;
-  outOfHours?: boolean;
-  validForCountries?: string[];
-}
-
-const VALID_COUNTRY_CODES = new Set<string>([ALL_COUNTRIES, ...VALID_FOR_COUNTRY_KEYS]);
-
 export async function POST(request: Request) {
-  const body = (await request.json()) as CreateContractBody;
+  const body = (await request.json()) as ContractBody;
 
-  if (
-    !Array.isArray(body.drivers) ||
-    body.drivers.length === 0 ||
-    !body.drivers.every(isDriverValid) ||
-    !body.carId ||
-    !body.startDate ||
-    !body.endDate
-  ) {
+  if (!isContractBodyValid(body)) {
     return NextResponse.json({ code: "MISSING_FIELDS" }, { status: 400 });
   }
 
   try {
     const companyId = await getCurrentCompanyId();
-    const startDate = parseDateOnly(body.startDate);
-    const endDate = parseDateOnly(body.endDate);
-    if (endDate <= startDate) {
-      return NextResponse.json({ code: "END_BEFORE_START" }, { status: 400 });
-    }
-    const days = nightsBetween(startDate, endDate);
-    const totalPrice = body.totalPrice != null && Number(body.totalPrice) > 0 ? Number(body.totalPrice) : null;
-    const dailyPrice = totalPrice != null ? Math.round((totalPrice / days) * 100) / 100 : null;
-    const validForCountries = Array.isArray(body.validForCountries)
-      ? body.validForCountries.filter((c) => VALID_COUNTRY_CODES.has(c))
-      : [];
-
-    const car = await prisma.car.findFirst({ where: { id: body.carId, companyId } });
-    if (!car) {
-      return NextResponse.json({ code: "CAR_NOT_FOUND" }, { status: 404 });
-    }
-
-    const overlapping = await prisma.contract.findMany({
-      where: {
-        carId: car.id,
-        status: "ACTIVE",
-        startDate: { lt: endDate },
-        endDate: { gt: startDate },
-      },
-    });
-    if (overlapping.some((c) => isRealConflict(c.startDate, c.endDate, startDate, endDate))) {
-      return NextResponse.json({ code: "CAR_UNAVAILABLE" }, { status: 409 });
-    }
-
-    const driverData = (d: DriverBody) => ({
-      firstName: d.firstName.trim(),
-      lastName: d.lastName.trim(),
-      birthDate: parseDateOnly(d.birthDate),
-      passportNumber: d.passportNumber?.trim() || null,
-      passportIssueDate: d.passportIssueDate ? parseDateOnly(d.passportIssueDate) : null,
-      passportExpiryDate: d.passportExpiryDate ? parseDateOnly(d.passportExpiryDate) : null,
-      licenceNumber: d.licenceNumber?.trim() || null,
-      licenceIssueDate: d.licenceIssueDate ? parseDateOnly(d.licenceIssueDate) : null,
-      licenceExpiryDate: d.licenceExpiryDate ? parseDateOnly(d.licenceExpiryDate) : null,
-    });
-
-    const clientIds: string[] = [];
-    for (const d of body.drivers) {
-      if (d.clientId) {
-        const existing = await prisma.client.findFirst({ where: { id: d.clientId, companyId } });
-        if (!existing) {
-          return NextResponse.json({ code: "CLIENT_NOT_FOUND" }, { status: 404 });
-        }
-        await prisma.client.update({ where: { id: d.clientId }, data: driverData(d) });
-        clientIds.push(d.clientId);
-      } else {
-        const created = await prisma.client.create({ data: { companyId, ...driverData(d) } });
-        clientIds.push(created.id);
-      }
+    const prepared = await prepareContractWrite(body, companyId);
+    if ("error" in prepared) {
+      return NextResponse.json({ code: prepared.error }, { status: contractWriteErrorStatus(prepared.error) });
     }
 
     try {
       const contract = await prisma.contract.create({
         data: {
           companyId,
-          carId: car.id,
-          startDate,
-          endDate,
-          dailyPrice,
-          totalPrice,
+          carId: prepared.carId,
+          startDate: prepared.startDate,
+          endDate: prepared.endDate,
+          dailyPrice: prepared.dailyPrice,
+          totalPrice: prepared.totalPrice,
           crossBorder: body.crossBorder ?? true,
           gps: body.gps ?? false,
           babySeat: body.babySeat ?? false,
           insurance: body.insurance ?? false,
           outOfHours: body.outOfHours ?? false,
-          validForCountries,
+          validForCountries: prepared.validForCountries,
           drivers: {
-            create: clientIds.map((clientId, order) => ({ clientId, order })),
+            create: prepared.clientIds.map((clientId, order) => ({ clientId, order })),
           },
         },
       });

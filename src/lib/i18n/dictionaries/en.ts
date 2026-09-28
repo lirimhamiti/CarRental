@@ -161,9 +161,12 @@ const en = {
       RS: "Serbia",
     },
     created: "Contract created — your download should have started.",
+    updated: "Contract updated — your download should have started.",
     buttons: {
       create: "Create contract",
       creating: "Creating…",
+      save: "Save changes",
+      saving: "Saving…",
       download: "Download contract",
       newContract: "New contract",
       blank: "Blank contract",

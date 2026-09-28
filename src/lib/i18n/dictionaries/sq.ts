@@ -163,9 +163,12 @@ const sq: typeof en = {
       RS: "Serbi",
     },
     created: "Kontrata u krijua — shkarkimi duhet të ketë filluar.",
+    updated: "Kontrata u përditësua — shkarkimi duhet të ketë filluar.",
     buttons: {
       create: "Krijo kontratën",
       creating: "Duke krijuar…",
+      save: "Ruaj ndryshimet",
+      saving: "Duke ruajtur…",
       download: "Shkarko kontratën",
       newContract: "Kontratë e re",
       blank: "Kontratë bosh",

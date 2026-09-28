@@ -88,13 +88,17 @@ export function NewContractForm({ dict }: { dict: Dictionary }) {
   const [error, setError] = useState<string | null>(null);
   const [createdContractId, setCreatedContractId] = useState<string | null>(null);
   const [showContractsList, setShowContractsList] = useState(false);
-  const [excludeContractId, setExcludeContractId] = useState<string | null>(null);
+  // Set once a past contract is loaded via "All contracts" — the form is
+  // then editing that contract (PATCH on submit) rather than creating a new
+  // one, and this contract's own current booking is left out of the
+  // available-car conflict check below, since we're about to overwrite it.
+  const [editingContractId, setEditingContractId] = useState<string | null>(null);
   const pendingCarIdRef = useRef<string | null>(null);
 
   useEffect(() => {
     if (!startDate || !endDate || endDate <= startDate) return;
     const controller = new AbortController();
-    const excludeParam = excludeContractId ? `&excludeContractId=${excludeContractId}` : "";
+    const excludeParam = editingContractId ? `&excludeContractId=${editingContractId}` : "";
     fetch(`/api/cars/available?start=${startDate}&end=${endDate}${excludeParam}`, {
       signal: controller.signal,
     })
@@ -112,7 +116,7 @@ export function NewContractForm({ dict }: { dict: Dictionary }) {
       .catch(() => {})
       .finally(() => setLoadingCars(false));
     return () => controller.abort();
-  }, [startDate, endDate, excludeContractId]);
+  }, [startDate, endDate, editingContractId]);
 
   function updateDriver(key: number, patch: Partial<DriverValue>) {
     setDrivers((prev) => prev.map((d) => (d.key === key ? { key, value: { ...d.value, ...patch } } : d)));
@@ -144,7 +148,6 @@ export function NewContractForm({ dict }: { dict: Dictionary }) {
     }
     setLoadingCars(true);
     setCarId("");
-    setExcludeContractId(null);
   }
 
   function handleDaysFieldChange(value: string) {
@@ -154,7 +157,6 @@ export function NewContractForm({ dict }: { dict: Dictionary }) {
       setEndDate(addNights(startDate, numDays));
       setLoadingCars(true);
       setCarId("");
-      setExcludeContractId(null);
     }
   }
 
@@ -165,7 +167,6 @@ export function NewContractForm({ dict }: { dict: Dictionary }) {
     }
     setLoadingCars(true);
     setCarId("");
-    setExcludeContractId(null);
   }
 
   async function handleSubmit(e: React.FormEvent) {
@@ -177,8 +178,10 @@ export function NewContractForm({ dict }: { dict: Dictionary }) {
     setError(null);
     setSubmitting(true);
     try {
-      const res = await fetch("/api/contracts", {
-        method: "POST",
+      const url = editingContractId ? `/api/contracts/${editingContractId}` : "/api/contracts";
+      const method = editingContractId ? "PATCH" : "POST";
+      const res = await fetch(url, {
+        method,
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           drivers: drivers.map((d) => ({
@@ -229,7 +232,7 @@ export function NewContractForm({ dict }: { dict: Dictionary }) {
     pendingCarIdRef.current = data.carId;
     setCarId("");
     setLoadingCars(true);
-    setExcludeContractId(data.id);
+    setEditingContractId(data.id);
     setStartDate(data.startDate);
     setEndDate(data.endDate);
     setDaysField(String(nightsBetween(data.startDate, data.endDate)));
@@ -258,7 +261,7 @@ export function NewContractForm({ dict }: { dict: Dictionary }) {
     setOptionKeys(["crossBorder"]);
     setValidForCountries([]);
     setCarId("");
-    setExcludeContractId(null);
+    setEditingContractId(null);
     setCreatedContractId(null);
     setError(null);
   }
@@ -342,7 +345,12 @@ export function NewContractForm({ dict }: { dict: Dictionary }) {
           <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
             <div>
               <label className={labelClass}>{dict.contracts.rental.startDate}</label>
-              <DateInput required value={startDate} min={yesterday} onChange={handleStartDateChange} />
+              <DateInput
+                required
+                value={startDate}
+                min={editingContractId ? undefined : yesterday}
+                onChange={handleStartDateChange}
+              />
             </div>
             <div>
               <label className={labelClass}>{dict.contracts.rental.daysLabel}</label>
@@ -462,7 +470,7 @@ export function NewContractForm({ dict }: { dict: Dictionary }) {
               strokeLinejoin="round"
             />
           </svg>
-          {dict.contracts.created}
+          {editingContractId ? dict.contracts.updated : dict.contracts.created}
         </p>
       )}
 
@@ -482,12 +490,23 @@ export function NewContractForm({ dict }: { dict: Dictionary }) {
               {dict.contracts.buttons.download}
             </>
           ) : submitting ? (
-            dict.contracts.buttons.creating
+            editingContractId ? dict.contracts.buttons.saving : dict.contracts.buttons.creating
+          ) : editingContractId ? (
+            dict.contracts.buttons.save
           ) : (
             dict.contracts.buttons.create
           )}
         </button>
         {created && (
+          <button
+            type="button"
+            onClick={resetForm}
+            className="rounded-lg border border-zinc-300 px-5 py-3 text-sm font-medium uppercase tracking-wider text-zinc-700 transition hover:bg-zinc-100 dark:border-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-800"
+          >
+            {dict.contracts.buttons.newContract}
+          </button>
+        )}
+        {!created && editingContractId && (
           <button
             type="button"
             onClick={resetForm}
