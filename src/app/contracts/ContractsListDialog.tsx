@@ -8,6 +8,7 @@ import { interpolate } from "@/lib/i18n/get-dictionary";
 
 interface ContractSummary {
   id: string;
+  number: string;
   startDate: string;
   endDate: string;
   totalPrice: number | null;
@@ -116,9 +117,7 @@ export function ContractsListDialog({
                     onClick={() => onSelect(c.id)}
                     className="cursor-pointer border-b border-zinc-100 transition hover:bg-crimson-50 dark:border-zinc-800/60 dark:hover:bg-crimson-500/10"
                   >
-                    <td className="py-2.5 pr-3 font-mono text-xs text-zinc-500 dark:text-zinc-400">
-                      {c.id.slice(-8)}
-                    </td>
+                    <td className="py-2.5 pr-3 font-mono text-xs text-zinc-500 dark:text-zinc-400">{c.number}</td>
                     <td className="py-2.5 pr-3 text-zinc-900 dark:text-zinc-50">
                       {c.drivers.map((d) => `${d.firstName} ${d.lastName}`).join(", ") || "-"}
                     </td>

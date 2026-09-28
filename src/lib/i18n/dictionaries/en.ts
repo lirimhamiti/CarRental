@@ -174,7 +174,7 @@ const en = {
     },
     list: {
       title: "All contracts",
-      searchPlaceholder: "Search by driver, car or plate…",
+      searchPlaceholder: "Search by number, driver, car or plate…",
       headers: {
         id: "ID",
         drivers: "Drivers",

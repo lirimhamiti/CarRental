@@ -143,6 +143,10 @@ model Client {
 model Contract {
   id                String         @id @default(cuid())
   companyId         String
+  // Human-facing contract number: ddMMyy + a 2-digit per-company daily
+  // sequence (e.g. "28092601"). Assigned once at creation, unrelated to
+  // the id above, which stays the real (cuid) primary key.
+  number            String
   carId             String
   startDate         DateTime       @db.Date
   endDate           DateTime       @db.Date
@@ -161,6 +165,7 @@ model Contract {
   car     Car              @relation(fields: [carId], references: [id])
   drivers ContractDriver[]
 
+  @@unique([companyId, number])
   @@index([companyId])
   @@index([carId, startDate, endDate])
 }

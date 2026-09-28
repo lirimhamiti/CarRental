@@ -26,6 +26,7 @@ export async function GET() {
     <ContractPdf
       data={{
         id: "blank",
+        number: "",
         createdAt: new Date(),
         companyName: company.name,
         companyAddress: company.address,

@@ -176,7 +176,7 @@ const sq: typeof en = {
     },
     list: {
       title: "Të gjitha kontratat",
-      searchPlaceholder: "Kërko sipas shoferit, makinës ose targës…",
+      searchPlaceholder: "Kërko sipas numrit, shoferit, makinës ose targës…",
       headers: {
         id: "ID",
         drivers: "Shoferët",

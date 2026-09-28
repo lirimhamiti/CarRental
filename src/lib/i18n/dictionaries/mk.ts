@@ -176,7 +176,7 @@ const mk: typeof en = {
     },
     list: {
       title: "Сите договори",
-      searchPlaceholder: "Пребарај по возач, возило или регистарска ознака…",
+      searchPlaceholder: "Пребарај по број, возач, возило или регистарска ознака…",
       headers: {
         id: "Бр.",
         drivers: "Возачи",

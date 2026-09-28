@@ -1,7 +1,9 @@
+import { Prisma } from "@/generated/prisma/client";
 import { prisma } from "@/lib/prisma";
 import { isRealConflict, nightsBetween, parseDateOnly } from "@/lib/availability";
 import { isDriverValid, type DriverIdentity } from "@/lib/driver-validation";
 import { ALL_COUNTRIES, VALID_FOR_COUNTRY_KEYS } from "@/lib/contract-options";
+import { formatContractNumber } from "@/lib/contract-number";
 
 export interface DriverBody extends DriverIdentity {
   clientId?: string;
@@ -120,4 +122,67 @@ export function contractWriteErrorStatus(error: ContractWriteError): number {
   if (error === "END_BEFORE_START") return 400;
   if (error === "CAR_UNAVAILABLE") return 409;
   return 404;
+}
+
+function isNumberConflict(err: unknown): boolean {
+  return (
+    err instanceof Prisma.PrismaClientKnownRequestError &&
+    err.code === "P2002" &&
+    Array.isArray((err.meta as { target?: unknown } | undefined)?.target) &&
+    (err.meta as { target: string[] }).target.includes("number")
+  );
+}
+
+// Creates a brand-new contract with a freshly assigned number (ddMMyy + a
+// 2-digit per-company daily sequence). The sequence is derived from a count
+// query rather than a stored counter, so two contracts created for the same
+// company in the same instant could race for the same number — the unique
+// constraint on (companyId, number) catches that, and this retries with a
+// recomputed count rather than surfacing it as a user-facing error.
+export async function createContractWithNumber(
+  companyId: string,
+  prepared: PreparedContractWrite,
+  body: ContractBody,
+): Promise<{ id: string } | { error: "CAR_UNAVAILABLE" }> {
+  const now = new Date();
+  const dayStart = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()));
+  const dayEnd = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() + 1));
+
+  const MAX_ATTEMPTS = 5;
+  for (let attempt = 0; attempt < MAX_ATTEMPTS; attempt++) {
+    const countToday = await prisma.contract.count({
+      where: { companyId, createdAt: { gte: dayStart, lt: dayEnd } },
+    });
+    const number = formatContractNumber(now, countToday + 1);
+    try {
+      const contract = await prisma.contract.create({
+        data: {
+          companyId,
+          number,
+          carId: prepared.carId,
+          startDate: prepared.startDate,
+          endDate: prepared.endDate,
+          dailyPrice: prepared.dailyPrice,
+          totalPrice: prepared.totalPrice,
+          crossBorder: body.crossBorder ?? true,
+          gps: body.gps ?? false,
+          babySeat: body.babySeat ?? false,
+          insurance: body.insurance ?? false,
+          outOfHours: body.outOfHours ?? false,
+          validForCountries: prepared.validForCountries,
+          drivers: {
+            create: prepared.clientIds.map((clientId, order) => ({ clientId, order })),
+          },
+        },
+      });
+      return { id: contract.id };
+    } catch (err) {
+      if (isNumberConflict(err) && attempt < MAX_ATTEMPTS - 1) continue;
+      // Either the DB exclusion constraint rejected the car/date overlap (a
+      // race the app-level check above can't fully close), or we've
+      // exhausted retries on a colliding contract number.
+      return { error: "CAR_UNAVAILABLE" };
+    }
+  }
+  return { error: "CAR_UNAVAILABLE" };
 }

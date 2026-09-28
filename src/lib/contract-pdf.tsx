@@ -189,6 +189,7 @@ export interface DriverPdfData {
 
 export interface ContractPdfData {
   id: string;
+  number: string;
   createdAt: Date;
   companyName: string;
   drivers: DriverPdfData[];
@@ -328,7 +329,7 @@ export function ContractPdf({ data }: { data: ContractPdfData }) {
               <Text style={styles.titleMk}>ДОГОВОР ЗА ИЗНАЈМУВАЊЕ НА ВОЗИЛО</Text>
               <Text style={styles.titleEn}>RENTAL AGREEMENT</Text>
               <Text style={styles.contractNo}>
-                No. {data.id.slice(-8).toUpperCase()} · {formatDate(data.createdAt)}
+                No. {data.number || "-"} · {formatDate(data.createdAt)}
               </Text>
             </View>
           </View>

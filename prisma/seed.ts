@@ -1,6 +1,7 @@
 import bcrypt from "bcryptjs";
 import { PrismaPg } from "@prisma/adapter-pg";
 import { PrismaClient } from "../src/generated/prisma/client";
+import { formatContractNumber } from "../src/lib/contract-number";
 
 const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL });
 const prisma = new PrismaClient({ adapter });
@@ -94,7 +95,7 @@ async function main() {
   };
 
   await prisma.contract.deleteMany({ where: { companyId: company.id } });
-  for (const data of [
+  const seedContracts = [
     {
       companyId: company.id,
       carId: cars[0].id,
@@ -111,9 +112,14 @@ async function main() {
       dailyPrice: 30,
       totalPrice: 120,
     },
-  ]) {
+  ];
+  for (const [index, data] of seedContracts.entries()) {
     await prisma.contract.create({
-      data: { ...data, drivers: { create: [{ clientId: client.id, order: 0 }] } },
+      data: {
+        ...data,
+        number: formatContractNumber(today, index + 1),
+        drivers: { create: [{ clientId: client.id, order: 0 }] },
+      },
     });
   }
 

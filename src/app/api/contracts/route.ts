@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { getCurrentCompanyId } from "@/lib/company";
 import {
   contractWriteErrorStatus,
+  createContractWithNumber,
   isContractBodyValid,
   prepareContractWrite,
   type ContractBody,
@@ -24,6 +25,7 @@ export async function GET(request: Request) {
       ? {
           OR: [
             { id: q },
+            { number: { contains: q, mode: "insensitive" } },
             { car: { make: { contains: q, mode: "insensitive" } } },
             { car: { model: { contains: q, mode: "insensitive" } } },
             { car: { plate: { contains: q, mode: "insensitive" } } },
@@ -51,6 +53,7 @@ export async function GET(request: Request) {
   return NextResponse.json({
     contracts: contracts.map((c) => ({
       id: c.id,
+      number: c.number,
       createdAt: c.createdAt,
       startDate: c.startDate,
       endDate: c.endDate,
@@ -78,32 +81,11 @@ export async function POST(request: Request) {
       return NextResponse.json({ code: prepared.error }, { status: contractWriteErrorStatus(prepared.error) });
     }
 
-    try {
-      const contract = await prisma.contract.create({
-        data: {
-          companyId,
-          carId: prepared.carId,
-          startDate: prepared.startDate,
-          endDate: prepared.endDate,
-          dailyPrice: prepared.dailyPrice,
-          totalPrice: prepared.totalPrice,
-          crossBorder: body.crossBorder ?? true,
-          gps: body.gps ?? false,
-          babySeat: body.babySeat ?? false,
-          insurance: body.insurance ?? false,
-          outOfHours: body.outOfHours ?? false,
-          validForCountries: prepared.validForCountries,
-          drivers: {
-            create: prepared.clientIds.map((clientId, order) => ({ clientId, order })),
-          },
-        },
-      });
-      return NextResponse.json({ id: contract.id });
-    } catch {
-      // Guards the race condition the app-level check above can't fully close;
-      // the DB exclusion constraint (see migration car_no_overlap) rejects it.
-      return NextResponse.json({ code: "CAR_UNAVAILABLE" }, { status: 409 });
+    const result = await createContractWithNumber(companyId, prepared, body);
+    if ("error" in result) {
+      return NextResponse.json({ code: result.error }, { status: 409 });
     }
+    return NextResponse.json({ id: result.id });
   } catch (err) {
     // Any unexpected failure (e.g. a DB schema out of sync with a pending
     // migration) must still return JSON — an uncaught throw here leaves the

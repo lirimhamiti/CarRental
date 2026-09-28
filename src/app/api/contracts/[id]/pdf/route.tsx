@@ -28,6 +28,7 @@ export async function GET(
     <ContractPdf
       data={{
         id: contract.id,
+        number: contract.number,
         createdAt: contract.createdAt,
         companyName: contract.company.name,
         companyAddress: contract.company.address,
@@ -50,7 +51,7 @@ export async function GET(
   return new NextResponse(new Uint8Array(buffer), {
     headers: {
       "Content-Type": "application/pdf",
-      "Content-Disposition": `attachment; filename="contract-${contract.id.slice(-8)}.pdf"`,
+      "Content-Disposition": `attachment; filename="contract-${contract.number}.pdf"`,
     },
   });
 }
