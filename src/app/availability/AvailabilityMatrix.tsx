@@ -327,13 +327,6 @@ export function AvailabilityMatrix({
                   const booking = bookingFor(car.id, date);
                   const reservation = !booking ? reservationFor(car.id, date) : undefined;
                   const occupant = booking ?? reservation;
-                  const occupiesFrom = occupant?.startDate;
-                  const isTurnover =
-                    occupiesFrom != null &&
-                    (() => {
-                      const dayBefore = addDays(occupiesFrom, -1);
-                      return Boolean(bookingFor(car.id, dayBefore)) || Boolean(reservationFor(car.id, dayBefore));
-                    })();
                   // The last occupied day of any booking/reservation doubles as a
                   // same-day handover — allowed to also start a new reservation.
                   const isLastOccupiedDay = occupant != null && isSameDay(date, addDays(occupant.endDate, -1));
@@ -341,9 +334,7 @@ export function AvailabilityMatrix({
 
                   let cell: React.ReactNode;
                   if (booking) {
-                    const className = `inline-block h-5 w-5 rounded ${
-                      isTurnover ? "bg-red-700 dark:bg-red-700" : "bg-red-400 dark:bg-red-500/70"
-                    }`;
+                    const className = "inline-block h-5 w-5 rounded bg-red-400 dark:bg-red-500/70";
                     cell = canStartHere ? (
                       <button
                         type="button"
@@ -355,9 +346,7 @@ export function AvailabilityMatrix({
                       <span title={booking.driverNames} className={className} />
                     );
                   } else if (reservation) {
-                    const className = `inline-block h-5 w-5 rounded ${
-                      isTurnover ? "bg-amber-600 dark:bg-amber-600" : "bg-amber-300 dark:bg-amber-500/70"
-                    }`;
+                    const className = "inline-block h-5 w-5 rounded bg-amber-300 dark:bg-amber-500/70";
                     cell = canStartHere ? (
                       <button
                         type="button"
