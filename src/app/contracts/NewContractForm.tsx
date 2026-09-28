@@ -9,6 +9,7 @@ import type { Dictionary } from "@/lib/i18n/get-dictionary";
 import { isDriverValid } from "@/lib/driver-validation";
 import { ALL_COUNTRIES, CONTRACT_OPTION_KEYS, VALID_FOR_COUNTRY_KEYS, toggleCountry } from "@/lib/contract-options";
 import { DriverFields, emptyDriver, type DriverValue } from "./DriverFields";
+import { ContractsListDialog } from "./ContractsListDialog";
 
 interface AvailableCar {
   id: string;
@@ -53,6 +54,21 @@ interface DriverEntry {
   value: DriverValue;
 }
 
+interface ContractDetail {
+  id: string;
+  carId: string;
+  startDate: string;
+  endDate: string;
+  totalPrice: number | null;
+  crossBorder: boolean;
+  gps: boolean;
+  babySeat: boolean;
+  insurance: boolean;
+  outOfHours: boolean;
+  validForCountries: string[];
+  drivers: DriverValue[];
+}
+
 export function NewContractForm({ dict }: { dict: Dictionary }) {
   const nextDriverKey = useRef(1);
   const [drivers, setDrivers] = useState<DriverEntry[]>([{ key: 0, value: emptyDriver() }]);
@@ -71,19 +87,32 @@ export function NewContractForm({ dict }: { dict: Dictionary }) {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [createdContractId, setCreatedContractId] = useState<string | null>(null);
+  const [showContractsList, setShowContractsList] = useState(false);
+  const [excludeContractId, setExcludeContractId] = useState<string | null>(null);
+  const pendingCarIdRef = useRef<string | null>(null);
 
   useEffect(() => {
     if (!startDate || !endDate || endDate <= startDate) return;
     const controller = new AbortController();
-    fetch(`/api/cars/available?start=${startDate}&end=${endDate}`, {
+    const excludeParam = excludeContractId ? `&excludeContractId=${excludeContractId}` : "";
+    fetch(`/api/cars/available?start=${startDate}&end=${endDate}${excludeParam}`, {
       signal: controller.signal,
     })
       .then((res) => res.json())
-      .then((cars: AvailableCar[]) => setAvailableCars(cars))
+      .then((cars: AvailableCar[]) => {
+        setAvailableCars(cars);
+        const pending = pendingCarIdRef.current;
+        if (pending) {
+          if (cars.some((c) => c.id === pending)) {
+            setCarId(pending);
+          }
+          pendingCarIdRef.current = null;
+        }
+      })
       .catch(() => {})
       .finally(() => setLoadingCars(false));
     return () => controller.abort();
-  }, [startDate, endDate]);
+  }, [startDate, endDate, excludeContractId]);
 
   function updateDriver(key: number, patch: Partial<DriverValue>) {
     setDrivers((prev) => prev.map((d) => (d.key === key ? { key, value: { ...d.value, ...patch } } : d)));
@@ -115,6 +144,7 @@ export function NewContractForm({ dict }: { dict: Dictionary }) {
     }
     setLoadingCars(true);
     setCarId("");
+    setExcludeContractId(null);
   }
 
   function handleDaysFieldChange(value: string) {
@@ -124,6 +154,7 @@ export function NewContractForm({ dict }: { dict: Dictionary }) {
       setEndDate(addNights(startDate, numDays));
       setLoadingCars(true);
       setCarId("");
+      setExcludeContractId(null);
     }
   }
 
@@ -134,6 +165,7 @@ export function NewContractForm({ dict }: { dict: Dictionary }) {
     }
     setLoadingCars(true);
     setCarId("");
+    setExcludeContractId(null);
   }
 
   async function handleSubmit(e: React.FormEvent) {
@@ -185,6 +217,37 @@ export function NewContractForm({ dict }: { dict: Dictionary }) {
     }
   }
 
+  async function loadContract(id: string) {
+    setShowContractsList(false);
+    const res = await fetch(`/api/contracts/${id}`);
+    if (!res.ok) return;
+    const data: ContractDetail = await res.json();
+
+    setDrivers(data.drivers.map((value, key) => ({ key, value })));
+    nextDriverKey.current = data.drivers.length;
+
+    pendingCarIdRef.current = data.carId;
+    setCarId("");
+    setLoadingCars(true);
+    setExcludeContractId(data.id);
+    setStartDate(data.startDate);
+    setEndDate(data.endDate);
+    setDaysField(String(nightsBetween(data.startDate, data.endDate)));
+    setTotalPriceField(data.totalPrice != null ? String(data.totalPrice) : "");
+    setOptionKeys(
+      [
+        data.crossBorder && "crossBorder",
+        data.gps && "gps",
+        data.babySeat && "babySeat",
+        data.insurance && "insurance",
+        data.outOfHours && "outOfHours",
+      ].filter((key): key is string => Boolean(key)),
+    );
+    setValidForCountries(data.validForCountries);
+    setCreatedContractId(null);
+    setError(null);
+  }
+
   function resetForm() {
     setDrivers([{ key: 0, value: emptyDriver() }]);
     nextDriverKey.current = 1;
@@ -195,6 +258,7 @@ export function NewContractForm({ dict }: { dict: Dictionary }) {
     setOptionKeys(["crossBorder"]);
     setValidForCountries([]);
     setCarId("");
+    setExcludeContractId(null);
     setCreatedContractId(null);
     setError(null);
   }
@@ -441,7 +505,20 @@ export function NewContractForm({ dict }: { dict: Dictionary }) {
             {dict.contracts.buttons.blank}
           </button>
         )}
+        {!created && (
+          <button
+            type="button"
+            onClick={() => setShowContractsList(true)}
+            className="rounded-lg border border-zinc-300 px-5 py-3 text-sm font-medium uppercase tracking-wider text-zinc-700 transition hover:bg-zinc-100 dark:border-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-800"
+          >
+            {dict.contracts.buttons.allContracts}
+          </button>
+        )}
       </div>
+
+      {showContractsList && (
+        <ContractsListDialog dict={dict} onClose={() => setShowContractsList(false)} onSelect={loadContract} />
+      )}
     </form>
   );
 }

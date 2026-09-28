@@ -7,6 +7,7 @@ export async function GET(request: Request) {
   const params = new URL(request.url).searchParams;
   const startParam = params.get("start");
   const endParam = params.get("end");
+  const excludeContractId = params.get("excludeContractId") || undefined;
 
   if (!startParam || !endParam) {
     return NextResponse.json({ error: "start and end are required" }, { status: 400 });
@@ -31,6 +32,7 @@ export async function GET(request: Request) {
       status: "ACTIVE",
       startDate: { lt: end },
       endDate: { gt: start },
+      ...(excludeContractId ? { id: { not: excludeContractId } } : {}),
     },
   });
   const conflictedCarIds = new Set(
