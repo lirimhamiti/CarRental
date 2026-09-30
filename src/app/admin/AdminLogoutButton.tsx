@@ -21,7 +21,7 @@ export function AdminLogoutButton({ label }: { label: string }) {
       type="button"
       onClick={handleLogout}
       disabled={loading}
-      className="text-xs font-medium uppercase tracking-wider text-zinc-400 transition hover:text-crimson-400 disabled:opacity-50"
+      className="text-xs font-medium uppercase tracking-wider text-zinc-600 transition hover:text-crimson-600 disabled:opacity-50"
     >
       {label}
     </button>

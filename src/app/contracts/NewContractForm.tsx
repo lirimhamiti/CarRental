@@ -440,14 +440,14 @@ export function NewContractForm({ dict }: { dict: Dictionary }) {
           </div>
 
           {total > 0 && (
-            <div className="flex items-center justify-between rounded-lg border border-crimson-500/30 bg-ink px-5 py-4 text-white">
+            <div className="flex items-center justify-between rounded-lg border border-crimson-100 bg-crimson-50 px-5 py-4 dark:border-crimson-500/20 dark:bg-crimson-500/10">
               <div>
-                <p className="text-xs font-medium uppercase tracking-widest text-crimson-100/70">
+                <p className="text-xs font-medium uppercase tracking-widest text-crimson-600">
                   {days} {days === 1 ? dict.contracts.rental.day : dict.contracts.rental.days}
                 </p>
-                <p className="font-serif text-lg">{dict.contracts.rental.totalPrice}</p>
+                <p className="font-serif text-lg text-zinc-900 dark:text-zinc-50">{dict.contracts.rental.totalPrice}</p>
               </div>
-              <p className="font-serif text-2xl tabular-nums text-crimson-400">{total.toFixed(2)}</p>
+              <p className="font-serif text-2xl tabular-nums text-crimson-600">{total.toFixed(2)}</p>
             </div>
           )}
         </div>

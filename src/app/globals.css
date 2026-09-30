@@ -10,16 +10,22 @@
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
-  --font-serif: var(--font-display);
+  /* Headings use the same clean sans as body text (Ocean Modern), not a
+     separate display serif — every existing `font-serif` className across
+     the app picks this up automatically via the variable, no per-component
+     changes needed. */
+  --font-serif: var(--font-geist-sans);
 
-  /* Racing automotive palette: deep racing navy ink + crimson-red accent. */
   --color-ink: #0b1530;
   --color-ink-soft: #142149;
-  --color-crimson-50: #fdecec;
-  --color-crimson-100: #f8d0d1;
-  --color-crimson-400: #e2555a;
-  --color-crimson-500: #b3282c;
-  --color-crimson-600: #96181c;
+  /* Ocean Modern accent palette (kept the crimson token names so every
+     existing text-, bg- and border-crimson utility class across the app
+     repaints without touching each file individually). */
+  --color-crimson-50: #eaf1ff;
+  --color-crimson-100: #dbe4f2;
+  --color-crimson-400: #3b82f6;
+  --color-crimson-500: #2563eb;
+  --color-crimson-600: #1d4ed8;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -35,16 +41,14 @@ body {
   font-family: Arial, Helvetica, sans-serif;
 }
 
-/* Racing navy surface with a soft crimson spotlight glow and a brushed-metal
-   sheen — a diagonal light streak plus fine horizontal lines, reading as an
-   automotive showroom rather than a flat fill. Linear gradients (not radial)
-   so the sheen stays correct at any container size, no ring artifacts. */
+/* Emphasis band (site header, page heroes) — a soft blue-tinted gradient,
+   not a solid fill, so it reads as a deliberate surface rather than a flat
+   color block. */
 .bg-showroom-dark {
-  background-color: var(--color-ink);
+  background-color: var(--color-crimson-50);
   background-image:
-    radial-gradient(ellipse 700px 320px at 50% -15%, color-mix(in srgb, var(--color-crimson-500) 22%, transparent), transparent 60%),
-    linear-gradient(100deg, transparent 30%, rgba(255, 255, 255, 0.05) 45%, rgba(255, 255, 255, 0.09) 50%, rgba(255, 255, 255, 0.05) 55%, transparent 70%),
-    repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.025) 0px, rgba(255, 255, 255, 0.025) 1px, transparent 1px, transparent 2px);
+    linear-gradient(135deg, #eef4ff 0%, #e3edff 100%),
+    radial-gradient(ellipse 700px 320px at 50% -15%, color-mix(in srgb, var(--color-crimson-500) 10%, transparent), transparent 60%);
 }
 
 /* Same sheen, much quieter, for light page backgrounds. */

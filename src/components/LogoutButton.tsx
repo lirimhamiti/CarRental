@@ -22,7 +22,7 @@ export function LogoutButton({ label }: { label: string }) {
       onClick={handleLogout}
       disabled={loading}
       title={label}
-      className="flex items-center gap-1.5 text-xs font-medium uppercase tracking-wider text-zinc-400 transition hover:text-crimson-400 disabled:opacity-50"
+      className="flex items-center gap-1.5 text-xs font-medium uppercase tracking-wider text-zinc-600 transition hover:text-crimson-600 disabled:opacity-50"
     >
       <svg viewBox="0 0 24 24" fill="none" className="h-4 w-4 shrink-0">
         <path

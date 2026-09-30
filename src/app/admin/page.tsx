@@ -28,7 +28,7 @@ export default async function AdminPage() {
     <main className="bg-showroom-light min-h-screen">
       <div className="bg-showroom-dark">
         <div className="mx-auto flex w-full max-w-4xl items-center justify-between px-4 py-6 sm:px-8">
-          <h1 className="font-serif text-xl text-white">{dict.admin.brand}</h1>
+          <h1 className="font-serif text-xl font-semibold text-zinc-900">{dict.admin.brand}</h1>
           <AdminLogoutButton label={dict.admin.logout} />
         </div>
       </div>
@@ -67,7 +67,7 @@ export default async function AdminPage() {
                           className="h-8 w-8 rounded-full border border-zinc-200 object-cover dark:border-zinc-700"
                         />
                       ) : (
-                        <span className="flex h-8 w-8 items-center justify-center rounded-full bg-ink text-xs font-medium text-crimson-400">
+                        <span className="flex h-8 w-8 items-center justify-center rounded-full bg-crimson-50 text-xs font-medium text-crimson-600 dark:bg-crimson-500/15">
                           {company.name.slice(0, 1).toUpperCase()}
                         </span>
                       )}

@@ -67,7 +67,7 @@ export default async function CarsPage() {
                     >
                       <td className="px-6 py-4">
                         <Link href={`/cars/${car.id}`} className="flex items-center gap-3">
-                          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-ink text-crimson-400">
+                          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-crimson-50 text-crimson-500 dark:bg-crimson-500/15">
                             <svg viewBox="0 0 24 24" fill="none" className="h-4.5 w-4.5">
                               <path
                                 d="M3 12h18M5 12V8a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v4M5 12v5a1 1 0 0 0 1 1h1a1 1 0 0 0 1-1v-1h8v1a1 1 0 0 0 1 1h1a1 1 0 0 0 1-1v-5"

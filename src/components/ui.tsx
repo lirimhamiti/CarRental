@@ -5,11 +5,11 @@ export const labelClass =
   "mb-1.5 block text-[11px] font-medium uppercase tracking-wider text-zinc-500 dark:text-zinc-400";
 
 export const primaryButtonClass =
-  "flex items-center justify-center gap-2 rounded-lg bg-ink px-5 py-3 text-sm font-medium uppercase tracking-wider text-crimson-400 shadow-sm transition hover:bg-zinc-800 disabled:cursor-not-allowed disabled:bg-zinc-300 disabled:text-zinc-500 dark:disabled:bg-zinc-800 dark:disabled:text-zinc-600";
+  "flex items-center justify-center gap-2 rounded-lg bg-crimson-500 px-5 py-3 text-sm font-medium uppercase tracking-wider text-white shadow-sm transition hover:bg-crimson-600 disabled:cursor-not-allowed disabled:bg-zinc-300 disabled:text-zinc-500 dark:disabled:bg-zinc-800 dark:disabled:text-zinc-600";
 
 export function SectionIcon({ children }: { children: React.ReactNode }) {
   return (
-    <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-ink text-crimson-400">
+    <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-crimson-50 text-crimson-500 dark:bg-crimson-500/15">
       {children}
     </span>
   );

@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono, Playfair_Display } from "next/font/google";
+import { Geist, Geist_Mono } from "next/font/google";
 import Link from "next/link";
 import "./globals.css";
 import { getLocale } from "@/lib/i18n/get-locale";
@@ -18,11 +18,6 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-const playfairDisplay = Playfair_Display({
-  variable: "--font-display",
-  subsets: ["latin", "latin-ext", "cyrillic"],
-});
-
 export const metadata: Metadata = {
   title: "Car Rental",
   description: "Fleet & rental management",
@@ -34,14 +29,11 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
   const user = await getSessionUser();
 
   return (
-    <html
-      lang={locale}
-      className={`${geistSans.variable} ${geistMono.variable} ${playfairDisplay.variable} h-full antialiased`}
-    >
+    <html lang={locale} className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}>
       <body className="min-h-full flex flex-col bg-white dark:bg-zinc-950">
-        <header className="bg-showroom-dark sticky top-0 z-20 flex items-center justify-between border-b-2 border-crimson-500 px-4 py-3 sm:px-8">
+        <header className="bg-showroom-dark sticky top-0 z-20 flex items-center justify-between border-b border-crimson-100 px-4 py-3 sm:px-8">
           <Link href="/" className="flex items-center gap-2.5">
-            <span className="flex h-7 w-7 items-center justify-center rounded-full border border-crimson-500/50 text-crimson-400">
+            <span className="flex h-7 w-7 items-center justify-center rounded-full bg-crimson-500 text-white">
               <svg viewBox="0 0 24 24" fill="none" className="h-3.5 w-3.5">
                 <path
                   d="M3 12h18M5 12V8a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v4M5 12v5a1 1 0 0 0 1 1h1a1 1 0 0 0 1-1v-1h8v1a1 1 0 0 0 1 1h1a1 1 0 0 0 1-1v-5"
@@ -52,18 +44,18 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
                 />
               </svg>
             </span>
-            <span className="font-serif text-base tracking-wide text-white">{dict.brand}</span>
+            <span className="font-serif text-base font-semibold tracking-wide text-zinc-900">{dict.brand}</span>
           </Link>
           <div className="flex items-center gap-2.5 sm:gap-4">
             {user && (
               <>
-                <span className="hidden text-xs text-zinc-400 sm:inline">{user.username}</span>
+                <span className="hidden text-xs text-zinc-500 sm:inline">{user.username}</span>
                 {user.role === "OWNER" && (
                   <>
                     <Link
                       href="/users"
                       title={dict.users.navLabel}
-                      className="flex items-center gap-1.5 text-xs font-medium uppercase tracking-wider text-zinc-300 transition hover:text-crimson-400"
+                      className="flex items-center gap-1.5 text-xs font-medium uppercase tracking-wider text-zinc-600 transition hover:text-crimson-600"
                     >
                       <svg viewBox="0 0 24 24" fill="none" className="h-4 w-4 shrink-0">
                         <path
@@ -79,7 +71,7 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
                     <Link
                       href="/billing"
                       title={dict.billing.navLabel}
-                      className="flex items-center gap-1.5 text-xs font-medium uppercase tracking-wider text-zinc-300 transition hover:text-crimson-400"
+                      className="flex items-center gap-1.5 text-xs font-medium uppercase tracking-wider text-zinc-600 transition hover:text-crimson-600"
                     >
                       <svg viewBox="0 0 24 24" fill="none" className="h-4 w-4 shrink-0">
                         <path

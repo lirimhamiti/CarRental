@@ -184,7 +184,7 @@ export function DriverFields({
                     onClick={() => selectClient(s)}
                     className="flex w-full items-center gap-3 px-3.5 py-2.5 text-left text-sm transition hover:bg-crimson-50 dark:hover:bg-crimson-500/10"
                   >
-                    <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-ink text-[11px] font-semibold text-crimson-400">
+                    <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-crimson-50 text-[11px] font-semibold text-crimson-600 dark:bg-crimson-500/15">
                       {s.firstName[0]}
                       {s.lastName[0]}
                     </span>

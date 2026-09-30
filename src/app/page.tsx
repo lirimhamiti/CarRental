@@ -81,8 +81,8 @@ export default async function Home() {
       <div className="bg-showroom-dark">
         <div className="mx-auto flex w-full max-w-4xl flex-col items-center gap-3 px-4 py-6 text-center sm:flex-row sm:justify-between sm:px-8 sm:py-7">
           <div className="sm:text-left">
-            <h1 className="font-serif text-xl text-white sm:text-2xl">{company.name}</h1>
-            <p className="text-[10px] uppercase tracking-[0.2em] text-crimson-400/90">
+            <h1 className="font-serif text-xl font-semibold text-zinc-900 sm:text-2xl">{company.name}</h1>
+            <p className="text-[10px] uppercase tracking-[0.2em] text-crimson-600">
               {dict.home.tagline}
             </p>
           </div>
@@ -90,10 +90,10 @@ export default async function Home() {
           <div className="flex items-center gap-5 sm:gap-6">
             {stats.map((stat) => (
               <div key={stat.label} className="flex flex-col items-center gap-0.5">
-                <span className="font-serif text-lg text-crimson-400 sm:text-xl">
+                <span className="font-serif text-lg text-crimson-600 sm:text-xl">
                   {stat.value}
                 </span>
-                <span className="text-[9px] font-medium uppercase tracking-wider text-zinc-400">
+                <span className="text-[9px] font-medium uppercase tracking-wider text-zinc-500">
                   {stat.label}
                 </span>
               </div>
@@ -105,25 +105,25 @@ export default async function Home() {
       <div className="mx-auto w-full max-w-4xl px-4 py-10 sm:px-8 sm:py-16">
         <Link
           href="/availability"
-          className="group mb-4 flex items-center gap-4 rounded-xl border border-zinc-200 bg-white p-5 transition hover:bg-ink dark:border-zinc-800 dark:bg-zinc-950 dark:hover:bg-ink"
+          className="group mb-4 flex items-center gap-4 rounded-xl border border-zinc-200 bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:border-crimson-500/40 hover:shadow-md dark:border-zinc-800 dark:bg-zinc-950"
         >
-          <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-zinc-300 text-zinc-500 transition group-hover:border-crimson-500/60 group-hover:text-crimson-400 dark:border-zinc-700 dark:text-zinc-400">
+          <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-zinc-300 text-zinc-500 transition group-hover:border-crimson-500/60 group-hover:text-crimson-500 dark:border-zinc-700 dark:text-zinc-400">
             <svg viewBox="0 0 24 24" fill="none" className="h-5 w-5">
               {ICONS.availability}
             </svg>
           </span>
           <div className="flex-1">
-            <p className="font-serif text-lg text-zinc-900 transition group-hover:text-white dark:text-zinc-50">
+            <p className="font-serif text-lg text-zinc-900 transition group-hover:text-crimson-600 dark:text-zinc-50">
               {dict.home.sections.availability.title}
             </p>
-            <p className="mt-0.5 text-sm text-zinc-500 transition group-hover:text-zinc-400 dark:text-zinc-400">
+            <p className="mt-0.5 text-sm text-zinc-500 dark:text-zinc-400">
               {dict.home.sections.availability.description}
             </p>
           </div>
           <svg
             viewBox="0 0 24 24"
             fill="none"
-            className="h-4 w-4 shrink-0 text-zinc-300 transition group-hover:text-crimson-400 dark:text-zinc-700"
+            className="h-4 w-4 shrink-0 text-zinc-300 transition group-hover:text-crimson-500 dark:text-zinc-700"
           >
             <path d="M5 12h14m-6-6 6 6-6 6" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" />
           </svg>
@@ -134,22 +134,22 @@ export default async function Home() {
             <Link
               key={section.href}
               href={section.href}
-              className="group relative flex flex-col gap-5 bg-white p-8 transition hover:bg-ink dark:bg-zinc-950 dark:hover:bg-ink sm:p-9"
+              className="group relative flex flex-col gap-5 bg-white p-8 transition hover:z-10 hover:shadow-lg dark:bg-zinc-950 sm:p-9"
             >
-              <span className="flex h-12 w-12 items-center justify-center rounded-full border border-zinc-300 text-zinc-500 transition group-hover:border-crimson-500/60 group-hover:text-crimson-400 dark:border-zinc-700 dark:text-zinc-400">
+              <span className="flex h-12 w-12 items-center justify-center rounded-full border border-zinc-300 text-zinc-500 transition group-hover:border-crimson-500/60 group-hover:text-crimson-500 dark:border-zinc-700 dark:text-zinc-400">
                 <svg viewBox="0 0 24 24" fill="none" className="h-5 w-5">
                   {section.icon}
                 </svg>
               </span>
               <div>
-                <p className="font-serif text-xl text-zinc-900 transition group-hover:text-white dark:text-zinc-50">
+                <p className="font-serif text-xl text-zinc-900 transition group-hover:text-crimson-600 dark:text-zinc-50">
                   {section.title}
                 </p>
-                <p className="mt-1.5 text-sm text-zinc-500 transition group-hover:text-zinc-400 dark:text-zinc-400">
+                <p className="mt-1.5 text-sm text-zinc-500 dark:text-zinc-400">
                   {section.description}
                 </p>
               </div>
-              <span className="mt-1 flex items-center gap-1 text-xs font-medium uppercase tracking-wider text-zinc-400 opacity-0 transition group-hover:text-crimson-400 group-hover:opacity-100">
+              <span className="mt-1 flex items-center gap-1 text-xs font-medium uppercase tracking-wider text-zinc-400 opacity-0 transition group-hover:text-crimson-500 group-hover:opacity-100">
                 <svg viewBox="0 0 24 24" fill="none" className="h-3 w-3">
                   <path d="M5 12h14m-6-6 6 6-6 6" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" />
                 </svg>

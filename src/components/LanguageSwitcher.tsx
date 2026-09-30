@@ -19,7 +19,7 @@ export function LanguageSwitcher({ locale }: { locale: Locale }) {
   }
 
   return (
-    <div className="flex items-center gap-0.5 rounded-full border border-crimson-500/25 bg-white/5 p-0.5 text-xs font-medium tracking-wide">
+    <div className="flex items-center gap-0.5 rounded-full border border-crimson-100 bg-white p-0.5 text-xs font-medium tracking-wide">
       {locales.map((loc) => (
         <button
           key={loc}
@@ -28,9 +28,7 @@ export function LanguageSwitcher({ locale }: { locale: Locale }) {
           aria-pressed={loc === locale}
           onClick={() => switchTo(loc)}
           className={`rounded-full px-2.5 py-1 transition ${
-            loc === locale
-              ? "bg-crimson-500 text-ink"
-              : "text-crimson-100/70 hover:text-crimson-100"
+            loc === locale ? "bg-crimson-500 text-white" : "text-zinc-500 hover:text-crimson-600"
           }`}
         >
           {SHORT_LABEL[loc]}

@@ -91,7 +91,7 @@ export function ContractsListDialog({
           value={query}
           onChange={(e) => handleQueryChange(e.target.value)}
           placeholder={dict.contracts.list.searchPlaceholder}
-          className="mt-4 w-full rounded-lg border border-zinc-300 px-3.5 py-2.5 text-sm text-zinc-900 outline-none focus:border-crimson-500 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-50"
+          className="mt-4 w-full rounded-lg border border-zinc-300 px-3.5 py-2.5 text-sm text-zinc-900 outline-none focus:border-crimson-500 focus:ring-4 focus:ring-crimson-500/15 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-50"
         />
 
         <div className="mt-4 -mx-6 flex-1 overflow-auto px-6">
@@ -100,40 +100,72 @@ export function ContractsListDialog({
           ) : contracts.length === 0 ? (
             <p className="py-8 text-center text-sm text-zinc-500 dark:text-zinc-400">{dict.contracts.list.empty}</p>
           ) : (
-            <table className="w-full min-w-[560px] border-collapse text-sm">
-              <thead>
-                <tr className="border-b border-zinc-200 text-left text-xs font-medium uppercase tracking-wider text-zinc-500 dark:border-zinc-800 dark:text-zinc-400">
-                  <th className="py-2 pr-3">{dict.contracts.list.headers.id}</th>
-                  <th className="py-2 pr-3">{dict.contracts.list.headers.drivers}</th>
-                  <th className="py-2 pr-3">{dict.contracts.list.headers.car}</th>
-                  <th className="py-2 pr-3">{dict.contracts.list.headers.dates}</th>
-                  <th className="py-2 pr-3 text-right">{dict.contracts.list.headers.price}</th>
-                </tr>
-              </thead>
-              <tbody>
-                {contracts.map((c) => (
-                  <tr
-                    key={c.id}
-                    onClick={() => onSelect(c.id)}
-                    className="cursor-pointer border-b border-zinc-100 transition hover:bg-crimson-50 dark:border-zinc-800/60 dark:hover:bg-crimson-500/10"
-                  >
-                    <td className="py-2.5 pr-3 font-mono text-xs text-zinc-500 dark:text-zinc-400">{c.number}</td>
-                    <td className="py-2.5 pr-3 text-zinc-900 dark:text-zinc-50">
-                      {c.drivers.map((d) => `${d.firstName} ${d.lastName}`).join(", ") || "-"}
-                    </td>
-                    <td className="py-2.5 pr-3 text-zinc-700 dark:text-zinc-300">
-                      {carLabel(c.car.make, c.car.model, c.car.year)} · {c.car.plate}
-                    </td>
-                    <td className="py-2.5 pr-3 whitespace-nowrap text-zinc-700 dark:text-zinc-300">
-                      {formatDate(new Date(c.startDate))} – {formatDate(new Date(c.endDate))}
-                    </td>
-                    <td className="py-2.5 pr-3 text-right tabular-nums text-zinc-700 dark:text-zinc-300">
-                      {c.totalPrice != null ? c.totalPrice.toFixed(2) : "-"}
-                    </td>
+            <div className="overflow-x-auto rounded-xl border border-zinc-200 dark:border-zinc-800">
+              {/* No w-full / min-width: each column sizes to its own content
+                  (table-layout: auto's default behavior) instead of being
+                  stretched or forced wide, so on a narrow screen text wraps
+                  and more columns stay visible before a scrollbar is needed. */}
+              <table className="border-collapse text-sm">
+                <thead>
+                  <tr className="bg-crimson-50/70 text-left text-[10.5px] font-bold uppercase tracking-wider text-crimson-700 dark:bg-crimson-500/10 dark:text-crimson-300">
+                    <th className="border-b border-r border-zinc-200 px-4 py-3 whitespace-nowrap dark:border-zinc-800">
+                      {dict.contracts.list.headers.id}
+                    </th>
+                    <th className="border-b border-r border-zinc-200 px-4 py-3 dark:border-zinc-800">
+                      {dict.contracts.list.headers.drivers}
+                    </th>
+                    <th className="border-b border-r border-zinc-200 px-4 py-3 dark:border-zinc-800">
+                      {dict.contracts.list.headers.car}
+                    </th>
+                    <th className="border-b border-r border-zinc-200 px-4 py-3 whitespace-nowrap dark:border-zinc-800">
+                      {dict.contracts.list.headers.dates}
+                    </th>
+                    <th className="border-b border-zinc-200 px-4 py-3 text-right whitespace-nowrap dark:border-zinc-800">
+                      {dict.contracts.list.headers.price}
+                    </th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {contracts.map((c, i) => (
+                    <tr
+                      key={c.id}
+                      onClick={() => onSelect(c.id)}
+                      className={`cursor-pointer transition hover:bg-crimson-50 dark:hover:bg-crimson-500/10 ${
+                        i % 2 === 1 ? "bg-zinc-50/70 dark:bg-zinc-800/20" : ""
+                      }`}
+                    >
+                      <td className="border-b border-r border-zinc-100 px-4 py-3 whitespace-nowrap dark:border-zinc-800/60">
+                        <span className="rounded-md bg-crimson-50 px-2 py-1 font-mono text-[11px] font-semibold text-crimson-700 dark:bg-crimson-500/15 dark:text-crimson-300">
+                          {c.number}
+                        </span>
+                      </td>
+                      <td className="border-b border-r border-zinc-100 px-4 py-3 font-semibold text-zinc-900 dark:border-zinc-800/60 dark:text-zinc-50">
+                        {c.drivers.map((d) => `${d.firstName} ${d.lastName}`).join(", ") || "-"}
+                      </td>
+                      <td className="border-b border-r border-zinc-100 px-4 py-3 dark:border-zinc-800/60">
+                        <div className="font-semibold whitespace-nowrap text-zinc-900 dark:text-zinc-50">
+                          {carLabel(c.car.make, c.car.model, null)}
+                          {c.car.year && <span className="font-normal text-zinc-400 dark:text-zinc-500"> ({c.car.year})</span>}
+                        </div>
+                        <span className="mt-1 inline-block rounded bg-zinc-100 px-1.5 py-0.5 font-mono text-[10px] text-zinc-500 dark:bg-zinc-800 dark:text-zinc-400">
+                          {c.car.plate}
+                        </span>
+                      </td>
+                      <td className="border-b border-r border-zinc-100 px-4 py-3 whitespace-nowrap text-zinc-600 dark:border-zinc-800/60 dark:text-zinc-300">
+                        {formatDate(new Date(c.startDate))} – {formatDate(new Date(c.endDate))}
+                      </td>
+                      <td className="border-b border-zinc-100 px-4 py-3 text-right whitespace-nowrap tabular-nums dark:border-zinc-800/60">
+                        {c.totalPrice != null ? (
+                          <span className="font-bold text-zinc-900 dark:text-zinc-50">{c.totalPrice.toFixed(2)}</span>
+                        ) : (
+                          <span className="text-zinc-300 dark:text-zinc-600">—</span>
+                        )}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           )}
         </div>
 
