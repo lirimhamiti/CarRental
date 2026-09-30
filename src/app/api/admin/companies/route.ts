@@ -4,7 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { hashPassword } from "@/lib/auth";
 import { isAdminAuthenticated } from "@/lib/session";
 
-const TRIAL_DAYS = 15;
+const TRIAL_DAYS = 30;
 
 export async function POST(request: Request) {
   if (!(await isAdminAuthenticated())) {

@@ -333,7 +333,7 @@ const sq: typeof en = {
   trialExpired: {
     eyebrow: "Periudha provuese ka përfunduar",
     title: "Periudha juaj provuese falas ka përfunduar",
-    message: "Periudha provuese 15-ditore përfundoi më {date}. Na kontakto për të vazhduar përdorimin e aplikacionit.",
+    message: "Periudha provuese 30-ditore përfundoi më {date}. Na kontakto për të vazhduar përdorimin e aplikacionit.",
     viewPlans: "Shiko planet",
   },
   billing: {

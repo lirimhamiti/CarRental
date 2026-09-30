@@ -17,7 +17,7 @@ async function main() {
       id: "demo-company",
       name: "Demo Rentals",
       subscriptionStatus: "ACTIVE",
-      trialEndsAt: new Date(Date.now() + 15 * 24 * 60 * 60 * 1000),
+      trialEndsAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
       // "Up to 20 cars" monthly — matches this demo's 3-car fleet.
       currentPriceId: "price_1UIpngCOsFcz6y3OWXMMnk2l",
     },

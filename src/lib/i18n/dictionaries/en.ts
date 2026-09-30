@@ -331,7 +331,7 @@ const en = {
   trialExpired: {
     eyebrow: "Trial ended",
     title: "Your free trial has ended",
-    message: "Your 15-day free trial ended on {date}. Contact us to keep using this app.",
+    message: "Your 30-day free trial ended on {date}. Contact us to keep using this app.",
     viewPlans: "View plans",
   },
   billing: {
