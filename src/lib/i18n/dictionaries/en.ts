@@ -44,6 +44,7 @@ const en = {
       transmission: "Transmission",
       fuelType: "Fuel type",
       status: "Status",
+      action: "Action",
     },
     notSpecified: "—",
     registrationExpired: "Expired {date}",
@@ -96,6 +97,7 @@ const en = {
       saving: "Saving…",
       cancel: "Cancel",
       deleteButton: "Delete car",
+      deleteConfirmMessage: "Are you sure you want to delete {car}?",
       confirmDelete: "Confirm delete",
       deleting: "Deleting…",
       calendar: {

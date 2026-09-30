@@ -46,6 +46,7 @@ const sq: typeof en = {
       transmission: "Transmisioni",
       fuelType: "Karburanti",
       status: "Statusi",
+      action: "Veprim",
     },
     notSpecified: "—",
     registrationExpired: "Skaduar më {date}",
@@ -98,6 +99,7 @@ const sq: typeof en = {
       saving: "Duke ruajtur…",
       cancel: "Anulo",
       deleteButton: "Fshi makinën",
+      deleteConfirmMessage: "A je i sigurt që dëshiron ta fshish {car}?",
       confirmDelete: "Konfirmo fshirjen",
       deleting: "Duke fshirë…",
       calendar: {

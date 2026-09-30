@@ -46,6 +46,7 @@ const mk: typeof en = {
       transmission: "Менувач",
       fuelType: "Гориво",
       status: "Статус",
+      action: "Акција",
     },
     notSpecified: "—",
     registrationExpired: "Истечено на {date}",
@@ -98,6 +99,7 @@ const mk: typeof en = {
       saving: "Се зачувува…",
       cancel: "Откажи",
       deleteButton: "Избриши возило",
+      deleteConfirmMessage: "Дали сте сигурни дека сакате да го избришете {car}?",
       confirmDelete: "Потврди бришење",
       deleting: "Се брише…",
       calendar: {
