@@ -524,15 +524,13 @@ export function NewContractForm({ dict }: { dict: Dictionary }) {
             {dict.contracts.buttons.blank}
           </button>
         )}
-        {!created && (
-          <button
-            type="button"
-            onClick={() => setShowContractsList(true)}
-            className="rounded-lg border border-zinc-300 px-5 py-3 text-sm font-medium uppercase tracking-wider text-zinc-700 transition hover:bg-zinc-100 dark:border-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-800"
-          >
-            {dict.contracts.buttons.allContracts}
-          </button>
-        )}
+        <button
+          type="button"
+          onClick={() => setShowContractsList(true)}
+          className="rounded-lg border border-zinc-300 px-5 py-3 text-sm font-medium uppercase tracking-wider text-zinc-700 transition hover:bg-zinc-100 dark:border-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-800"
+        >
+          {dict.contracts.buttons.allContracts}
+        </button>
       </div>
 
       {showContractsList && (
