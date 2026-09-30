@@ -81,6 +81,7 @@ const en = {
     errors: {
       MISSING_FIELDS: "Missing or invalid fields",
       PLATE_EXISTS: "A car with this plate already exists in your fleet",
+      IN_USE: "This car has contracts or reservations and can't be deleted",
       GENERIC: "Something went wrong",
     },
     detail: {
@@ -89,6 +90,14 @@ const en = {
       notFree: "Not free right now — rented out until {date}",
       bookedDates: "Booked dates",
       noBookings: "No upcoming bookings — this car is free for any date.",
+      edit: "Edit",
+      editTitle: "Edit car",
+      save: "Save changes",
+      saving: "Saving…",
+      cancel: "Cancel",
+      deleteButton: "Delete car",
+      confirmDelete: "Confirm delete",
+      deleting: "Deleting…",
       calendar: {
         prevMonth: "Previous month",
         nextMonth: "Next month",
@@ -171,6 +180,10 @@ const en = {
       newContract: "New contract",
       blank: "Blank contract",
       allContracts: "All contracts",
+      cancel: "Cancel",
+      deleteButton: "Delete contract",
+      confirmDelete: "Confirm delete",
+      deleting: "Deleting…",
     },
     list: {
       title: "All contracts",

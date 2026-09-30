@@ -105,3 +105,18 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
     return NextResponse.json({ code: "GENERIC" }, { status: 500 });
   }
 }
+
+export async function DELETE(_request: Request, { params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
+  const companyId = await getCurrentCompanyId();
+
+  const existing = await prisma.contract.findFirst({ where: { id, companyId } });
+  if (!existing) {
+    return NextResponse.json({ code: "GENERIC" }, { status: 404 });
+  }
+
+  // ContractDriver rows cascade with the contract; the Client rows behind
+  // them are left alone since they're reusable across other contracts.
+  await prisma.contract.delete({ where: { id } });
+  return NextResponse.json({ ok: true });
+}

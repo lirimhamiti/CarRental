@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
 import { inputClass, labelClass, primaryButtonClass, SectionIcon } from "@/components/ui";
 import { CheckboxMultiSelect } from "@/components/CheckboxMultiSelect";
 import { DateInput } from "@/components/DateInput";
@@ -70,6 +71,7 @@ interface ContractDetail {
 }
 
 export function NewContractForm({ dict }: { dict: Dictionary }) {
+  const router = useRouter();
   const nextDriverKey = useRef(1);
   const [drivers, setDrivers] = useState<DriverEntry[]>([{ key: 0, value: emptyDriver() }]);
 
@@ -93,6 +95,8 @@ export function NewContractForm({ dict }: { dict: Dictionary }) {
   // one, and this contract's own current booking is left out of the
   // available-car conflict check below, since we're about to overwrite it.
   const [editingContractId, setEditingContractId] = useState<string | null>(null);
+  const [confirmingDelete, setConfirmingDelete] = useState(false);
+  const [deleting, setDeleting] = useState(false);
   const pendingCarIdRef = useRef<string | null>(null);
 
   useEffect(() => {
@@ -248,6 +252,7 @@ export function NewContractForm({ dict }: { dict: Dictionary }) {
     );
     setValidForCountries(data.validForCountries);
     setCreatedContractId(null);
+    setConfirmingDelete(false);
     setError(null);
   }
 
@@ -263,7 +268,25 @@ export function NewContractForm({ dict }: { dict: Dictionary }) {
     setCarId("");
     setEditingContractId(null);
     setCreatedContractId(null);
+    setConfirmingDelete(false);
     setError(null);
+  }
+
+  async function handleDelete() {
+    if (!editingContractId) return;
+    setError(null);
+    setDeleting(true);
+    try {
+      const res = await fetch(`/api/contracts/${editingContractId}`, { method: "DELETE" });
+      if (!res.ok) {
+        setError(dict.contracts.errors.GENERIC);
+        return;
+      }
+      resetForm();
+      router.refresh();
+    } finally {
+      setDeleting(false);
+    }
   }
 
   const created = Boolean(createdContractId);
@@ -532,6 +555,41 @@ export function NewContractForm({ dict }: { dict: Dictionary }) {
           {dict.contracts.buttons.allContracts}
         </button>
       </div>
+
+      {!created && editingContractId && (
+        <div className="border-t border-zinc-200 pt-4 dark:border-zinc-800">
+          {confirmingDelete ? (
+            <div className="flex items-center justify-between gap-3">
+              <p className="text-xs text-zinc-500 dark:text-zinc-400">{dict.contracts.buttons.confirmDelete}?</p>
+              <div className="flex gap-2">
+                <button
+                  type="button"
+                  onClick={handleDelete}
+                  disabled={deleting}
+                  className="rounded-lg bg-red-600 px-4 py-2 text-xs font-medium uppercase tracking-wider text-white transition hover:bg-red-700 disabled:cursor-not-allowed disabled:bg-red-300"
+                >
+                  {deleting ? dict.contracts.buttons.deleting : dict.contracts.buttons.confirmDelete}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setConfirmingDelete(false)}
+                  className="rounded-lg border border-zinc-300 px-4 py-2 text-xs font-medium uppercase tracking-wider text-zinc-700 transition hover:bg-zinc-100 dark:border-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-800"
+                >
+                  {dict.contracts.buttons.cancel}
+                </button>
+              </div>
+            </div>
+          ) : (
+            <button
+              type="button"
+              onClick={() => setConfirmingDelete(true)}
+              className="text-xs font-medium uppercase tracking-wider text-red-600 transition hover:underline dark:text-red-400"
+            >
+              {dict.contracts.buttons.deleteButton}
+            </button>
+          )}
+        </div>
+      )}
 
       {showContractsList && (
         <ContractsListDialog dict={dict} onClose={() => setShowContractsList(false)} onSelect={loadContract} />

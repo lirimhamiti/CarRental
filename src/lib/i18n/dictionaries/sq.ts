@@ -83,6 +83,7 @@ const sq: typeof en = {
     errors: {
       MISSING_FIELDS: "Fusha mungojnë ose janë të pavlefshme",
       PLATE_EXISTS: "Një makinë me këtë targë ekziston tashmë në flotën tënde",
+      IN_USE: "Kjo makinë ka kontrata ose rezervime dhe nuk mund të fshihet",
       GENERIC: "Diçka shkoi keq",
     },
     detail: {
@@ -91,6 +92,14 @@ const sq: typeof en = {
       notFree: "Nuk është e lirë tani — me qira deri më {date}",
       bookedDates: "Datat e rezervuara",
       noBookings: "Asnjë rezervim i ardhshëm — kjo makinë është e lirë për çdo datë.",
+      edit: "Ndrysho",
+      editTitle: "Ndrysho makinën",
+      save: "Ruaj ndryshimet",
+      saving: "Duke ruajtur…",
+      cancel: "Anulo",
+      deleteButton: "Fshi makinën",
+      confirmDelete: "Konfirmo fshirjen",
+      deleting: "Duke fshirë…",
       calendar: {
         prevMonth: "Muaji i kaluar",
         nextMonth: "Muaji tjetër",
@@ -173,6 +182,10 @@ const sq: typeof en = {
       newContract: "Kontratë e re",
       blank: "Kontratë bosh",
       allContracts: "Të gjitha kontratat",
+      cancel: "Anulo",
+      deleteButton: "Fshi kontratën",
+      confirmDelete: "Konfirmo fshirjen",
+      deleting: "Duke fshirë…",
     },
     list: {
       title: "Të gjitha kontratat",

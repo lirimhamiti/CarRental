@@ -83,6 +83,7 @@ const mk: typeof en = {
     errors: {
       MISSING_FIELDS: "Недостасуваат или се неважечки полиња",
       PLATE_EXISTS: "Возило со оваа регистарска ознака веќе постои во вашиот возен парк",
+      IN_USE: "Ова возило има договори или резервации и не може да се избрише",
       GENERIC: "Нешто тргна наопаку",
     },
     detail: {
@@ -91,6 +92,14 @@ const mk: typeof en = {
       notFree: "Не е слободно сега — изнајмено до {date}",
       bookedDates: "Резервирани датуми",
       noBookings: "Нема идни резервации — ова возило е слободно за секој датум.",
+      edit: "Уреди",
+      editTitle: "Уреди возило",
+      save: "Зачувај промени",
+      saving: "Се зачувува…",
+      cancel: "Откажи",
+      deleteButton: "Избриши возило",
+      confirmDelete: "Потврди бришење",
+      deleting: "Се брише…",
       calendar: {
         prevMonth: "Претходен месец",
         nextMonth: "Следен месец",
@@ -173,6 +182,10 @@ const mk: typeof en = {
       newContract: "Нов договор",
       blank: "Празен договор",
       allContracts: "Сите договори",
+      cancel: "Откажи",
+      deleteButton: "Избриши договор",
+      confirmDelete: "Потврди бришење",
+      deleting: "Се брише…",
     },
     list: {
       title: "Сите договори",

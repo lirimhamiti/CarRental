@@ -3,18 +3,12 @@ import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { getCurrentCompanyId } from "@/lib/company";
 import { formatDate, isDateInRange } from "@/lib/dates";
-import { carLabel } from "@/lib/cars";
 import { getLocale } from "@/lib/i18n/get-locale";
 import { getDictionary, interpolate } from "@/lib/i18n/get-dictionary";
 import { AvailabilityCalendar } from "./AvailabilityCalendar";
+import { CarDetailHeader } from "./CarDetailHeader";
 
 export const dynamic = "force-dynamic";
-
-const STATUS_STYLES: Record<string, string> = {
-  ACTIVE: "bg-emerald-50 text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-400",
-  MAINTENANCE: "bg-amber-50 text-amber-700 dark:bg-amber-500/10 dark:text-amber-400",
-  RETIRED: "bg-zinc-100 text-zinc-500 dark:bg-zinc-800 dark:text-zinc-400",
-};
 
 export default async function CarDetailPage({
   params,
@@ -64,19 +58,20 @@ export default async function CarDetailPage({
         </Link>
 
         <div className="rounded-xl border border-zinc-200 bg-white p-6 dark:border-zinc-800 dark:bg-zinc-900 sm:p-8">
-          <div className="flex items-start justify-between gap-4">
-            <div>
-              <h1 className="font-serif text-2xl text-zinc-900 dark:text-zinc-50">
-                {carLabel(car.make, car.model, car.year)}
-              </h1>
-              <p className="mt-1 font-mono text-xs text-zinc-500 dark:text-zinc-400">{car.plate}</p>
-            </div>
-            <span
-              className={`inline-flex shrink-0 rounded-full px-2.5 py-1 text-xs font-medium ${STATUS_STYLES[car.status]}`}
-            >
-              {dict.cars.status[car.status]}
-            </span>
-          </div>
+          <CarDetailHeader
+            dict={dict}
+            car={{
+              id: car.id,
+              make: car.make,
+              model: car.model,
+              year: car.year,
+              plate: car.plate,
+              registrationExpiryDate: car.registrationExpiryDate.toISOString().slice(0, 10),
+              transmission: car.transmission,
+              fuelType: car.fuelType,
+              status: car.status,
+            }}
+          />
 
           <div
             className={`mt-6 rounded-2xl border p-4 text-sm font-medium ${
