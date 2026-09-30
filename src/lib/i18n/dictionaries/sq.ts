@@ -63,7 +63,7 @@ const sq: typeof en = {
       model: "Modeli *",
       year: "Viti",
       plate: "Targa *",
-      registrationExpiry: "Data e skadimit të regjistrimit *",
+      registrationExpiry: "Data e skadimit *",
       transmission: "Transmisioni",
       fuelType: "Lloji i karburantit",
       unspecified: "Nuk është caktuar",

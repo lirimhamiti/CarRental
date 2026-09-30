@@ -63,7 +63,7 @@ const mk: typeof en = {
       model: "Модел *",
       year: "Година",
       plate: "Регистарска ознака *",
-      registrationExpiry: "Датум на истек на регистрација *",
+      registrationExpiry: "Датум на истек *",
       transmission: "Менувач",
       fuelType: "Тип на гориво",
       unspecified: "Не е наведено",

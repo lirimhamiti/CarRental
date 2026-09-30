@@ -61,7 +61,7 @@ const en = {
       model: "Model *",
       year: "Year",
       plate: "Plate *",
-      registrationExpiry: "Registration expiry date *",
+      registrationExpiry: "Expiry date *",
       transmission: "Transmission",
       fuelType: "Fuel type",
       unspecified: "Not specified",
